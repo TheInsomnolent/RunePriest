@@ -1,0 +1,43 @@
+# AGENTS.md — RunePriest (Slay the Spire 2 character mod)
+
+A StS2 character mod built on Alchyr's BaseLib template. The Rune Priest is inspired by **Noita's wand-building**:
+cards **inscribe runes** into a buffer floating over the character's head, and at end of turn the buffer is
+**evaluated like a tiny block-coding language** (damage, block, loops, multipliers, targeting…). Invalid programs
+must **fizzle gracefully**, never crash.
+
+## Must-read docs
+- [docs/rune-system-design.md](docs/rune-system-design.md) — rune language spec, base rune set, architecture, roadmap. **Source of truth for the mechanic.**
+- [docs/sts2-modding-reference.md](docs/sts2-modding-reference.md) — verified game/BaseLib API cheat sheet, file paths, character minimums.
+
+## Build
+- `dotnet build RunePriest.csproj` — compiles DLL and copies to the StS2 `mods/` folder. .NET SDK 9+ (10 works), targets `net9.0`.
+- **Publish** (Rider "Publish → Local folder") is required for any non-code change (localization, images, scenes) — it builds the `.pck` via MegaDot (`GodotPath` in `Directory.Build.props`, which is gitignored/per-machine).
+- The Roslyn analyzer `Alchyr.Sts2.ModAnalyzers` fails the build (STS001) when a model is missing localization keys. Fix by adding keys to `RunePriest/localization/eng/*.json`, not by suppressing.
+
+## Layout
+- `RunePriestCode/` — all C# (namespace root `RunePriest.RunePriestCode`). `MainFile.cs` is the mod initializer (Harmony `PatchAll`).
+- `RunePriest/` — Godot assets: `images/`, `localization/eng/*.json`. Excluded from compilation.
+- `.decompiled/` — **gitignored** decompiled `sts2.dll` and `BaseLib.dll` for API lookup. Search it (use `includeIgnoredFiles`) before guessing any game API. Regenerate:
+  ```powershell
+  dotnet tool install -g ilspycmd
+  $data = "C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64"
+  ilspycmd -p -o .decompiled\sts2 "$data\sts2.dll"
+  ilspycmd -p -o .decompiled\BaseLib (Get-ChildItem "$env:USERPROFILE\.nuget\packages\alchyr.sts2.baselib" -Recurse -Filter BaseLib.dll | Select-Object -First 1).FullName
+  New-Item .decompiled\.gdignore -Force
+  ```
+  Never copy decompiled code verbatim into the repo; reference it.
+
+## Conventions
+- Model IDs are `<MODID>-<SLUGIFIED_CLASS_NAME>` in upper snake case, e.g. class `RunePriest` → `RUNEPRIEST-RUNE_PRIEST`. Localization keys use that ID: `RUNEPRIEST-ETCH.title`.
+- Card descriptions use SmartFormat vars: `"Deal {Damage:diff()} damage."` (not `[[Damage]]`).
+- Cards extend `RunePriestCard` (auto-registered to `RunePriestCardPool` via `[Pool]`). Rune-casting cards will extend `RuneCard` (see design doc).
+- Art: **use placeholder assets only**; an artist will supply art later. Missing images fall back to `card.png`/`power.png`/`relic.png` via `Extensions/StringExtensions.cs`.
+- Randomness in combat must use `Owner.RunState.Rng.CombatTargets` (or another `RunRngSet` stream) — never `System.Random` (breaks co-op determinism / replays).
+- All effects go through game commands (`DamageCmd`, `CreatureCmd`, `PowerCmd`, `PlayerCmd`, `CardPileCmd`) and are `await`ed with the `PlayerChoiceContext`.
+- Keep the rune interpreter free of Godot/UI dependencies; UI observes buffer change events.
+
+## External references
+- Template wiki: https://github.com/Alchyr/ModTemplate-StS2/wiki (Setup, Adding Cards, Modding Basics, Decompiling)
+- BaseLib docs: https://alchyr.github.io/BaseLib-Wiki/ · source: https://github.com/Alchyr/BaseLib-StS2
+- Analyzer required-loc table: https://github.com/Alchyr/StS2ModAnalyzers/blob/master/ModAnalyzers/ModAnalyzers/LocalizationAnalyzer.cs
+- Godot BBCode (loc text): https://docs.godotengine.org/en/4.5/tutorials/ui/bbcode_in_richtextlabel.html

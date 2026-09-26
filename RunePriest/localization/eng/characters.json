@@ -1,0 +1,16 @@
+{
+  "RUNEPRIEST-RUNE_PRIEST.title": "The Rune Priest",
+  "RUNEPRIEST-RUNE_PRIEST.titleObject": "the Rune Priest",
+  "RUNEPRIEST-RUNE_PRIEST.description": "A wandering priest who channels the power of ancient runes.",
+  "RUNEPRIEST-RUNE_PRIEST.pronounObject": "them",
+  "RUNEPRIEST-RUNE_PRIEST.possessiveAdjective": "their",
+  "RUNEPRIEST-RUNE_PRIEST.pronounPossessive": "theirs",
+  "RUNEPRIEST-RUNE_PRIEST.pronounSubject": "they",
+  "RUNEPRIEST-RUNE_PRIEST.goldMonologue": "The runes shimmer brighter with every coin.",
+  "RUNEPRIEST-RUNE_PRIEST.eventDeathPrevention": "The runes will not let me fall... not yet.",
+  "RUNEPRIEST-RUNE_PRIEST.aromaPrinciple": "TODO: Add lore for the Rune Priest.",
+  "RUNEPRIEST-RUNE_PRIEST.cardsModifierTitle": "Rune Cards",
+  "RUNEPRIEST-RUNE_PRIEST.cardsModifierDescription": "Rune cards will now appear in rewards and shops.",
+  "RUNEPRIEST-RUNE_PRIEST.banter.alive.endTurnPing": "The runes grow impatient.",
+  "RUNEPRIEST-RUNE_PRIEST.banter.dead.endTurnPing": "..."
+}
