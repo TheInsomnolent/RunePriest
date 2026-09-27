@@ -1,6 +1,6 @@
 # The Rune Priest — a Slay the Spire 2 character mod
 
-A spellwright inspired by **Noita**'s wand-building. Rune Priest cards **Inscribe** glyphs into an
+A spellwright inspired by **Noita**'s wand-building. Rune Priest cards **Inscribe** runes into an
 **Incantation** that floats above your head. At the end of each turn the Incantation is **Spoken**: evaluated
 left to right like a tiny program. Damage, block, loops, multipliers, targeting and self-inflicted costs all
 combine, and the order you play your cards matters. If a spell doesn't make sense it simply fizzles.
@@ -60,10 +60,10 @@ combine, and the order you play your cards matters. If a spell doesn't make sens
 ---
 
 ## How to play (quick primer)
-- **Inscribe:** cards add glyphs to your Incantation. If a glyph matches the one before it, they merge and their values add up.
+- **Inscribe:** cards add runes to your Incantation. If a rune matches the one before it, they merge and their values add up.
 - **Speak:** at end of turn the Incantation resolves left to right, then clears. **Invoke** and similar cards speak it mid-turn.
 - **Effect runes:** Strike (a real attack), Block (block), Mend (heal), Blood (lose HP), Kindle (energy), Soul (draw), Weakening, Expose, Venom.
-- **Modifiers** empower the *next* glyph, or a whole loop: Add +X, Multiply ×N, Echo, Sanctify.
+- **Modifiers** empower the *next* rune, or a whole loop: Add +X, Multiply ×N, Echo, Sanctify.
 - **Targeting runes** last until the next targeting rune: Anchor (default), Chaos, Nova, Execution, and the cursed Mirror.
 - **Flow runes:** Loop N … End Loop, and Seal (stop here; the rest waits until next turn).
 - Hover the runes over your head, or the Incantation buff, to see each rune's text and a **Forecast** of what will happen.
