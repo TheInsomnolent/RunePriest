@@ -69,7 +69,8 @@ Rules:
 - A modifier applies to **all** scalable payloads in the glyph — including `Blood`. Doubling `Strike 14 + Blood 3` doubles both.
 - **Target glyphs are transparent**: modifiers pass through them to the following glyph.
 - If the next glyph is a **Loop**, the modifier applies to **the entire loop body on every iteration**.
-- A modifier with nothing valid after it (end of Incantation, `End Loop`, `Seal`) **fizzles**.
+- A modifier with nothing valid after it (end of Incantation, `Seal`) **fizzles**.
+- Loop boundaries are transparent: a modifier at the end of a loop body **rolls over** to the first glyph of the next iteration (`[Loop 3][Strike 6][Echo]` → iterations 2 and 3 strike twice), and after the last iteration to the glyph after the loop. Target modes already persist across iterations.
 
 ### Targets (persist until changed)
 Each payload rune declares a `RuneTargeting`: **Enemy** (Strike, Weakening, Expose), **Ally** (Block, Mend), or **Self**
@@ -105,7 +106,8 @@ while pc < glyphs.Count:
       Target   -> ctx.target = g.mode                                  ; pc++
       Modifier -> ctx.pendingMods.Add(g)                               ; pc++
       LoopOpen -> push {start: pc+1, remaining: N × (1+echoes), mods: take(pendingMods)} ; pc++   (≤0 → skip to matching End)
-      LoopEnd  -> if loopStack empty: fizzle(StrayEnd); pc++
+      LoopEnd  -> (pendingMods carry over)
+                  if loopStack empty: fizzle(StrayEnd); pc++
                   else if --top.remaining > 0: pc = top.start else pop; pc++
       Seal     -> retain glyphs[pc+1..]; stop
       Payload  -> mods = active loop mods (outer→inner) ++ take(pendingMods)

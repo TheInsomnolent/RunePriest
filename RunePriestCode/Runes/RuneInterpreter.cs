@@ -34,7 +34,6 @@ public static class RuneInterpreter
             if (pc >= glyphs.Count)
             {
                 if (loops.Count == 0) break;
-                await FizzlePending(ctx, pending, "loop ended before it could apply");
                 pc = CloseInnermostLoop(loops, pc);
                 continue;
             }
@@ -84,8 +83,8 @@ public static class RuneInterpreter
                     break;
                 }
 
+                // Pending modifiers roll over to the next iteration's first glyph, or past the loop on the last one.
                 case RuneKind.Flow when glyph.Runes[0] is EndLoopRune:
-                    await FizzlePending(ctx, pending, "nothing to empower before End Loop");
                     if (loops.Count == 0)
                     {
                         await Fizzle(ctx, pc, glyph, "no open loop");
