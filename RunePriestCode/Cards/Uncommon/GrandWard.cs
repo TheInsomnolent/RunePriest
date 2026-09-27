@@ -11,7 +11,7 @@ public sealed class GrandWard() : RuneCard(2, CardType.Skill, CardRarity.Uncommo
     protected override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar("Ward", 16m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new WardRune(Var("Ward"))).AnchoredTo(anchor)];
+        [Glyph.Of(new BlockRune(Var("Ward"))).AnchoredTo(anchor)];
 
     protected override void OnUpgrade() => DynamicVars["Ward"].UpgradeValueBy(5m);
 }

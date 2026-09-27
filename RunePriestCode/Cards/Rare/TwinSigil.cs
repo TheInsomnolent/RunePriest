@@ -9,7 +9,7 @@ public sealed class TwinSigil() : RuneCard(1, CardType.Skill, CardRarity.Rare, T
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Twin", 2m)];
 
-    protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new TwinRune(Var("Twin")))];
+    protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new MultiplyRune(Var("Twin")))];
 
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

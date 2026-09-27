@@ -15,6 +15,6 @@ public sealed class WardingLitanyPower : RunePriestPower
     {
         if (player != Owner.Player) return;
         Flash();
-        await RuneCmd.Inscribe(choiceContext, player, [Glyph.Of(new WardRune(Amount))], null);
+        await RuneCmd.Inscribe(choiceContext, player, [Glyph.Of(new BlockRune(Amount))], null);
     }
 }

@@ -12,7 +12,7 @@ public sealed class ScatterMarks() : RuneCard(1, CardType.Attack, CardRarity.Com
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
-        Glyph.Of(new TargetRune(TargetMode.Seek)),
+        Glyph.Of(new TargetRune(TargetMode.Chaos)),
         Glyph.Of(new StrikeRune(Var("Strike"))),
         Glyph.Of(new StrikeRune(Var("Strike")))
     ];

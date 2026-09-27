@@ -13,7 +13,7 @@ public sealed class SigilOfSeeking() : RuneCard(1, CardType.Attack, CardRarity.U
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
-        Glyph.Of(new TargetRune(TargetMode.Seek)),
+        Glyph.Of(new TargetRune(TargetMode.Chaos)),
         Glyph.Of(new LoopRune(Var("Loop"))),
         Glyph.Of(new StrikeRune(Var("Strike"))),
         Glyph.Of(new EndLoopRune())

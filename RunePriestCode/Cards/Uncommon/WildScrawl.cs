@@ -14,7 +14,7 @@ public sealed class WildScrawl() : RuneCard(1, CardType.Attack, CardRarity.Uncom
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new DamageVar("Strike", 12m, ValueProp.Move), new CardsVar(2)];
 
-    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromCard<SmudgedGlyph>()];
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromCard<SmudgedRune>()];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor)];
@@ -22,7 +22,7 @@ public sealed class WildScrawl() : RuneCard(1, CardType.Attack, CardRarity.Uncom
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await base.OnPlay(choiceContext, cardPlay);
-        await AddToDrawPile<SmudgedGlyph>(DynamicVars.Cards.IntValue);
+        await AddToDrawPile<SmudgedRune>(DynamicVars.Cards.IntValue);
     }
 
     protected override void OnUpgrade() => DynamicVars["Strike"].UpgradeValueBy(4m);

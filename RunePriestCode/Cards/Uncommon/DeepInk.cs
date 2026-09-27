@@ -11,7 +11,7 @@ public sealed class DeepInk() : RuneCard(1, CardType.Skill, CardRarity.Uncommon,
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(2), new IntVar("Amplify", 2m)];
 
-    protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new AmplifyRune(Var("Amplify")))];
+    protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new AddRune(Var("Amplify")))];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

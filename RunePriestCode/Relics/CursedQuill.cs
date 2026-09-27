@@ -15,13 +15,13 @@ public sealed class CursedQuill : RunePriestRelic, IRuneListener
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Bonus", 2m)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
-        [..new StrikeRune(0).HoverTips, ..new WardRune(0).HoverTips, ..HoverTipFactory.FromCardWithCardHoverTips<StrayGlyph>()];
+        [..new StrikeRune(0).HoverTips, ..new BlockRune(0).HoverTips, ..HoverTipFactory.FromCardWithCardHoverTips<StrayRune>()];
 
     public int ModifyRuneValue(RuneContext ctx, PayloadRune rune, int value) =>
-        rune is StrikeRune or WardRune ? value + DynamicVars["Bonus"].IntValue : value;
+        rune is StrikeRune or BlockRune ? value + DynamicVars["Bonus"].IntValue : value;
 
     public override async Task AfterObtained()
     {
-        await CardPileCmd.AddCurseToDeck<StrayGlyph>(Owner);
+        await CardPileCmd.AddCurseToDeck<StrayRune>(Owner);
     }
 }

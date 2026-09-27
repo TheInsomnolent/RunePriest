@@ -12,7 +12,7 @@ public sealed class HexCircle() : RuneCard(1, CardType.Skill, CardRarity.Uncommo
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
         Glyph.Of(new TargetRune(TargetMode.Nova)),
-        Glyph.Of(new HexRune(Var("Hex")), new ExposeRune(Var("Expose")))
+        Glyph.Of(new WeakeningRune(Var("Hex")), new ExposeRune(Var("Expose")))
     ];
 
     protected override void OnUpgrade()

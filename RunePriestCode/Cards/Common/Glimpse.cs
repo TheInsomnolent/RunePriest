@@ -9,7 +9,7 @@ public sealed class Glimpse() : RuneCard(1, CardType.Skill, CardRarity.Common, T
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar("Insight", 2)];
 
-    protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new InsightRune(Var("Insight")))];
+    protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new SoulRune(Var("Insight")))];
 
     protected override void OnUpgrade() => DynamicVars["Insight"].UpgradeValueBy(1m);
 }

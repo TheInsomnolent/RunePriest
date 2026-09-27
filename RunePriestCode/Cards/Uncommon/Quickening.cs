@@ -13,7 +13,7 @@ public sealed class Quickening() : RuneCard(0, CardType.Skill, CardRarity.Uncomm
         [new EnergyVar("Kindle", 1), new CardsVar("Insight", 1), new HpLossVar("Blood", 3m)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new KindleRune(Var("Kindle")), new InsightRune(Var("Insight")), new BloodRune(Var("Blood")))];
+        [Glyph.Of(new KindleRune(Var("Kindle")), new SoulRune(Var("Insight")), new BloodRune(Var("Blood")))];
 
     protected override void OnUpgrade() => DynamicVars["Blood"].UpgradeValueBy(-1m);
 }

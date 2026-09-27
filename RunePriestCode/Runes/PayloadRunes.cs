@@ -58,10 +58,10 @@ public sealed class StrikeRune(int value) : PayloadRune(value)
     }
 }
 
-public sealed class WardRune(int value) : PayloadRune(value)
+public sealed class BlockRune(int value) : PayloadRune(value)
 {
-    public override string Key => "WARD";
-    public override Rune WithValue(int value) => new WardRune(value);
+    public override string Key => "BLOCK";
+    public override Rune WithValue(int value) => new BlockRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Ally;
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
@@ -110,10 +110,10 @@ public sealed class KindleRune(int value) : PayloadRune(value)
     }
 }
 
-public sealed class InsightRune(int value) : PayloadRune(value)
+public sealed class SoulRune(int value) : PayloadRune(value)
 {
-    public override string Key => "INSIGHT";
-    public override Rune WithValue(int value) => new InsightRune(value);
+    public override string Key => "SOUL";
+    public override Rune WithValue(int value) => new SoulRune(value);
     public override bool Scalable => false;
     public override RuneTargeting Targeting => RuneTargeting.Self;
 
@@ -126,10 +126,10 @@ public sealed class InsightRune(int value) : PayloadRune(value)
     }
 }
 
-public sealed class HexRune(int value) : PayloadRune(value)
+public sealed class WeakeningRune(int value) : PayloadRune(value)
 {
-    public override string Key => "HEX";
-    public override Rune WithValue(int value) => new HexRune(value);
+    public override string Key => "WEAKENING";
+    public override Rune WithValue(int value) => new WeakeningRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
     public override IEnumerable<IHoverTip> HoverTips => [..base.HoverTips, HoverTipFactory.FromPower<WeakPower>()];
 

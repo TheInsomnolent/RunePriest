@@ -13,8 +13,8 @@ public sealed class CullTheWeak() : RuneCard(2, CardType.Attack, CardRarity.Unco
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
-        Glyph.Of(new TargetRune(TargetMode.Cull)),
-        Glyph.Of(new TwinRune(Var("Twin"))),
+        Glyph.Of(new TargetRune(TargetMode.Execution)),
+        Glyph.Of(new MultiplyRune(Var("Twin"))),
         Glyph.Of(new StrikeRune(Var("Strike")))
     ];
 

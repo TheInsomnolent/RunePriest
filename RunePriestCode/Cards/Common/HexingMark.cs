@@ -10,7 +10,7 @@ public sealed class HexingMark() : RuneCard(1, CardType.Skill, CardRarity.Common
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Hex", 1m), new IntVar("Expose", 1m)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new HexRune(Var("Hex")), new ExposeRune(Var("Expose"))).AnchoredTo(anchor)];
+        [Glyph.Of(new WeakeningRune(Var("Hex")), new ExposeRune(Var("Expose"))).AnchoredTo(anchor)];
 
     protected override void OnUpgrade()
     {

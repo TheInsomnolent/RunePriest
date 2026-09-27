@@ -11,7 +11,7 @@ namespace RunePriest.RunePriestCode.Nodes;
 public partial class NRuneBuffer : Node2D
 {
     /// <summary>First glyph (spoken first) sits on the right when true.</summary>
-    public const bool ReadRightToLeft = true;
+    public const bool ReadRightToLeft = false;
 
     private const float HeightAboveHead = 70f;
     private const float GlyphSpacing = 58f;

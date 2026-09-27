@@ -6,7 +6,7 @@ using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Basic;
 
-public sealed class Etch() : RuneCard(1, CardType.Attack, CardRarity.Basic, TargetType.AnyEnemy)
+public sealed class StrikeRuneCard() : RuneCard(1, CardType.Attack, CardRarity.Basic, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 6m, ValueProp.Move)];
 

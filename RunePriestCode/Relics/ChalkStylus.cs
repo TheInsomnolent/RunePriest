@@ -15,7 +15,7 @@ public sealed class ChalkStylus : RunePriestRelic
 
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Ward", 4m)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, ..new WardRune(0).HoverTips];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, ..new BlockRune(0).HoverTips];
 
     // Early phase so the Incantation (spoken in BeforeSideTurnEnd) includes the new glyph.
     public override async Task BeforeSideTurnEndEarly(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
@@ -24,6 +24,6 @@ public sealed class ChalkStylus : RunePriestRelic
         if (RuneCmd.GetBuffer(Owner.Creature)?.Glyphs.Count > 0) return;
 
         Flash();
-        await RuneCmd.Inscribe(choiceContext, Owner, [Glyph.Of(new WardRune(DynamicVars["Ward"].IntValue))], null);
+        await RuneCmd.Inscribe(choiceContext, Owner, [Glyph.Of(new BlockRune(DynamicVars["Ward"].IntValue))], null);
     }
 }

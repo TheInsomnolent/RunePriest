@@ -20,15 +20,15 @@ public class RunePriest : PlaceholderCharacterModel
     public override int StartingHp => 70;
     
     public override IEnumerable<CardModel> StartingDeck => [
-        ModelDb.Card<StrikeRunePriest>(),
-        ModelDb.Card<StrikeRunePriest>(),
-        ModelDb.Card<StrikeRunePriest>(),
-        ModelDb.Card<StrikeRunePriest>(),
-        ModelDb.Card<DefendRunePriest>(),
-        ModelDb.Card<DefendRunePriest>(),
-        ModelDb.Card<DefendRunePriest>(),
-        ModelDb.Card<DefendRunePriest>(),
-        ModelDb.Card<Etch>(),
+        ModelDb.Card<StrikeRuneCard>(),
+        ModelDb.Card<StrikeRuneCard>(),
+        ModelDb.Card<StrikeRuneCard>(),
+        ModelDb.Card<StrikeRuneCard>(),
+        ModelDb.Card<StrikeRuneCard>(),
+        ModelDb.Card<DefendRuneCard>(),
+        ModelDb.Card<DefendRuneCard>(),
+        ModelDb.Card<DefendRuneCard>(),
+        ModelDb.Card<DefendRuneCard>(),
         ModelDb.Card<EchoSign>()
     ];
 

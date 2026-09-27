@@ -10,18 +10,18 @@ public abstract class ModifierRune(int value) : Rune(value)
     public virtual int ExtraExecutions => 0;
 }
 
-public sealed class AmplifyRune(int value) : ModifierRune(value)
+public sealed class AddRune(int value) : ModifierRune(value)
 {
-    public override string Key => "AMPLIFY";
-    public override Rune WithValue(int value) => new AmplifyRune(value);
+    public override string Key => "ADD";
+    public override Rune WithValue(int value) => new AddRune(value);
     public override string ValueLabel => $"+{Value}";
     public override int Apply(PayloadRune rune, int value) => value + Value;
 }
 
-public sealed class TwinRune(int value) : ModifierRune(value)
+public sealed class MultiplyRune(int value) : ModifierRune(value)
 {
-    public override string Key => "TWIN";
-    public override Rune WithValue(int value) => new TwinRune(value);
+    public override string Key => "MULTIPLY";
+    public override Rune WithValue(int value) => new MultiplyRune(value);
     public override string ValueLabel => $"×{Value}";
     public override int Apply(PayloadRune rune, int value) => value * Value;
 }

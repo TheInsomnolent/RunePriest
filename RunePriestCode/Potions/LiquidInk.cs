@@ -14,8 +14,8 @@ public sealed class LiquidInk : RunePriestPotion
     public override PotionUsage Usage => PotionUsage.CombatOnly;
     public override TargetType TargetType => TargetType.AnyPlayer;
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Amplify", 5m)];
-    public override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, ..new AmplifyRune(0).HoverTips];
+    public override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, ..new AddRune(0).HoverTips];
 
     protected override Task OnUse(PlayerChoiceContext choiceContext, Creature? target) =>
-        RuneCmd.Inscribe(choiceContext, target?.Player ?? Owner, [Glyph.Of(new AmplifyRune(DynamicVars["Amplify"].IntValue))], null);
+        RuneCmd.Inscribe(choiceContext, target?.Player ?? Owner, [Glyph.Of(new AddRune(DynamicVars["Amplify"].IntValue))], null);
 }

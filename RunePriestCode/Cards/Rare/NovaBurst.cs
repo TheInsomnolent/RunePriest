@@ -14,7 +14,7 @@ public sealed class NovaBurst() : RuneCard(2, CardType.Attack, CardRarity.Rare, 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
         Glyph.Of(new TargetRune(TargetMode.Nova)),
-        Glyph.Of(new TwinRune(Var("Twin"))),
+        Glyph.Of(new MultiplyRune(Var("Twin"))),
         Glyph.Of(new StrikeRune(Var("Strike")))
     ];
 

@@ -11,7 +11,7 @@ public sealed class CullingMark() : RuneCard(1, CardType.Attack, CardRarity.Comm
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 8m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new TargetRune(TargetMode.Cull)), Glyph.Of(new StrikeRune(Var("Strike")))];
+        [Glyph.Of(new TargetRune(TargetMode.Execution)), Glyph.Of(new StrikeRune(Var("Strike")))];
 
     protected override void OnUpgrade() => DynamicVars["Strike"].UpgradeValueBy(3m);
 }

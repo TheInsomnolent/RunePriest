@@ -13,8 +13,8 @@ chalk dust and the rest keeps going.
 ## 2. Terminology
 | Term | Meaning | Code |
 |---|---|---|
-| **Rune** | Atomic instruction: `Strike 5`, `Loop ×2`, `Seek`. | `Rune` |
-| **Glyph** | What one card inscribes into one slot. Usually 1 rune; **compound** glyphs bundle several payload runes (e.g. `Strike 14 + Blood 3`). A card may inscribe several glyphs. | `Glyph` |
+| **Rune** | Atomic instruction: `Strike 5`, `Loop ×2`, `Chaos`. | `Rune` |
+| **Glyph** | *Code-only term.* What one card inscribes into one slot. Usually 1 rune; **compound** glyphs bundle several payload runes (e.g. `Strike 14, Blood 3`). A card may inscribe several glyphs. **Player-facing text always says "rune"** (a compound glyph counts as one rune). | `Glyph` |
 | **Incantation** | The ordered glyph buffer above the head. Unlimited by default; content can impose a **capacity** (§13). | `RuneBuffer` |
 | **Inscribe** | Append glyph(s) to the Incantation. Shown as a static hover tip (`RuneTips.Inscribe`), not a `CardKeyword`. | `RuneCmd.Inscribe` |
 | **Speak** | Evaluate the Incantation. Happens automatically at end of turn; the **Invoke** card speaks it mid-turn. | `RuneCmd.Speak` |
@@ -33,7 +33,7 @@ are always their own glyph (a card can inscribe several glyphs, e.g. `[Loop 2][S
 grammar trivially parseable and the visuals readable.
 
 **Merging:** when a cast's *first* glyph matches the glyph currently at the end of the Incantation (same kind, same
-runes in the same order, same anchor), they merge and values add: `[Strike 6]` + Etch → `[Strike 12]`,
+runes in the same order, same anchor), they merge and values add: `[Strike 6]` + Strike Rune → `[Strike 12]`,
 `[Strike 14 + Blood 3]` × 2 → `[Strike 28 + Blood 6]`, `[Loop 2]` + `[Loop 2]` → `[Loop 4]`, Echo + Echo → Echo +2.
 Mergeable runes implement `Rune.WithValue`; targets, End Loop, Seal and Sanctify never merge. A single card's own
 glyph sequence (Double Stroke's two Strikes) stays separate, so multi-hit cards keep their per-hit behaviour.
@@ -45,47 +45,46 @@ Merging does not use a capacity slot.
 | Rune | Effect | Scalable¹ | Notes |
 |---|---|---|---|
 | **Strike X** | Deal X damage to the current target(s). | ✔ | Powered attack (`ValueProp.Move`) so Vulnerable/Weak/Strength apply per hit, like multi-hit attacks (see §7). |
-| **Ward X** | Gain X Block. | ✔ | Powered (`BlockProps.card`) so Dexterity/Frail apply. Block at end of turn still protects during enemy turn. |
+| **Block X** | Gain X Block. | ✔ | Powered (`BlockProps.card`) so Dexterity/Frail apply. Block at end of turn still protects during enemy turn. |
 | **Mend X** | Heal X HP. | ✔ | Strong in StS — keep rare, low values, often Exhaust. |
 | **Blood X** | Lose X HP (unblockable, self). | ✔ | The drawback half of compound glyphs. Scales with modifiers — that's the point. |
 | **Kindle X** | Gain X Energy. | ✘ | End-of-turn → `EnergyNextTurnPower`. Invoked → immediate. |
-| **Insight X** | Draw X cards. | ✘ | End-of-turn → `DrawCardsNextTurnPower`. Invoked → immediate. |
-| **Hex X** | Apply X Weak to target(s). | ✔ | |
+| **Soul X** | Draw X cards. | ✘ | End-of-turn → `DrawCardsNextTurnPower`. Invoked → immediate. |
+| **Weakening X** | Apply X Weak to target(s). | ✔ | |
 | **Expose X** | Apply X Vulnerable to target(s). | ✔ | Order matters: Expose before Strike within an Incantation amplifies later hits. |
 | **Venom X** | Apply X Poison to target(s). | ✔ | Phase 4. |
 
-¹ *Scalable* payloads are affected by Amplify/Multiply. Non-scalable ones still repeat in loops.
+¹ *Scalable* payloads are affected by Add/Multiply. Non-scalable ones still repeat in loops.
 
 ### Modifiers (apply to the **next glyph**)
 | Rune | Effect |
 |---|---|
-| **Amplify +X** | +X to every scalable payload in the next glyph. |
-| **Twin ×N** | Multiply every scalable payload in the next glyph by N. |
+| **Add +X** | +X to every scalable payload in the next glyph. |
+| **Multiply ×N** | Multiply every scalable payload in the next glyph by N. |
 | **Echo** | Execute the next glyph one extra time. |
 | **Sanctify** | Blood runes in the next glyph (or whole loop body) resolve as 0. Phase 4. |
 
 Rules:
-- Pending modifiers **stack and apply in inscription order**: `Amplify 3, Twin ×2, Strike 5` → (5+3)×2 = 16; `Twin ×2, Amplify 3, Strike 5` → 5×2+3 = 13. Ordering *is* the skill expression.
+- Pending modifiers **stack and apply in inscription order**: `Add 3, Multiply ×2, Strike 5` → (5+3)×2 = 16; `Multiply ×2, Add 3, Strike 5` → 5×2+3 = 13. Ordering *is* the skill expression.
 - A modifier applies to **all** scalable payloads in the glyph — including `Blood`. Doubling `Strike 14 + Blood 3` doubles both.
 - **Target glyphs are transparent**: modifiers pass through them to the following glyph.
 - If the next glyph is a **Loop**, the modifier applies to **the entire loop body on every iteration**.
 - A modifier with nothing valid after it (end of Incantation, `End Loop`, `Seal`) **fizzles**.
 
 ### Targets (persist until changed)
-Each payload rune declares a `RuneTargeting`: **Enemy** (Strike, Hex, Expose), **Ally** (Ward, Mend), or **Self**
-(Blood, Kindle, Insight — always the caster, ignores target mode). The mode picks from the relevant side:
+Each payload rune declares a `RuneTargeting`: **Enemy** (Strike, Weakening, Expose), **Ally** (Block, Mend), or **Self**
+(Blood, Kindle, Soul — always the caster, ignores target mode). The mode picks from the relevant side:
 
 | Rune | Enemy payloads | Ally payloads |
 |---|---|---|
 | *(default)* **Anchor** | The enemy targeted when the glyph's card was played; if dead/none → random enemy. | The ally targeted by the card; if none → the caster. |
-| **Seek** | Random enemy, re-rolled **per execution** (loops scatter). | Random ally. |
+| **Chaos** | Random enemy, re-rolled **per execution** (loops scatter). | Random ally. |
 | **Nova** | All enemies. | All allies. |
-| **Chain** | Enemies in order, one per execution (wraps). | Allies in order. |
-| **Cull** | Lowest current HP enemy. | Lowest current HP ally (good with Mend). |
+| **Execution** | Lowest current HP enemy. | Lowest current HP ally (good with Mend). |
 | **Mirror** *(curse rune)* | **You.** | A random enemy. |
 
 Mirror is a mode like the others: it lasts until the next targeting rune, so any target-control card counters it.
-`[Mirror][Strike][Ward][Strike]` → both Strikes hit you and the Ward goes to an enemy.
+`[Mirror][Strike][Block][Strike]` → both Strikes hit you and the Block goes to an enemy.
 
 Mirror is only for curses/status/enemy effects — no player card inscribes it yet.
 
@@ -119,7 +118,7 @@ Also capped at MaxSteps (500) glyph visits so empty nested loops can't spin.
 ```
 Resolution details:
 - Payload values ≤ 0 after modifiers are skipped. Numbers are ints.
-- Listener adjustments (e.g. Resonance) apply to the base value **before** modifiers, so Twin doubles Resonance too.
+- Listener adjustments (e.g. Resonance) apply to the base value **before** modifiers, so Multiply doubles Resonance too.
 - Targets are resolved **at execution time**, so a loop keeps working as enemies die. Dead/untargetable anchor → random.
 - If all enemies die, combat ends and evaluation stops (hooks stop firing anyway). Remaining glyphs just vanish.
 - If Blood kills the player, the player dies. That's the risk; relics/cards can mitigate.
@@ -140,16 +139,16 @@ Resolution details:
 ## 6. Example programs
 - `[Strike 5]` → 5 damage to anchor.
 - `[Loop 3][Strike 4][End]` → 12 damage.
-- `[Twin ×2][Loop 3][Strike 14 + Blood 3][End]` → Twin empowers the whole loop: 84 damage, **18 HP loss**. Adding `[Mend 3]` inside the loop gets doubled too (heal 6/iteration) and fully cancels the Blood — placement is the puzzle.
-- `[Seek][Loop 4][Strike 3][End]` → 4 random 3-damage hits.
+- `[Multiply ×2][Loop 3][Strike 14 + Blood 3][End]` → Multiply empowers the whole loop: 84 damage, **18 HP loss**. Adding `[Mend 3]` inside the loop gets doubled too (heal 6/iteration) and fully cancels the Blood — placement is the puzzle.
+- `[Chaos][Loop 4][Strike 3][End]` → 4 random 3-damage hits.
 - `[Expose 2][Nova][Strike 6]` → Expose hits the anchor only (Nova comes after), then 9 to the Vulnerable anchor and 6 to the rest.
 - `[Strike 8][Seal][Loop 2]` → 8 now; `[Loop 2]` waits at the front of next turn's Incantation.
 
 ## 7. Balance principles
 - **Delay is almost free** in StS (enemies act after end of turn), so base rune values should sit **below** plain Strike/Defend (Strike rune ~5 vs Strike 6). The upside is composability.
-- Rune damage/block is **powered**, because `VulnerablePower`/`WeakPower` only affect powered attacks (`props.IsPoweredAttack()`), and Unpowered runes would make Expose/Hex pointless. Consequence: Strength/Dexterity apply per payload execution, exactly like base-game multi-hit attacks — so loops are "multi-hit" and must be costed that way. The character's own scaling stat is **Resonance** (power): +N to every Strike and Ward payload, analogous to Defect Focus. Fallback lever if Strength loops break balance: make Strike runes Unpowered and have Expose/Hex apply bespoke rune-only debuffs.
-- Non-scalable Kindle/Insight prevent multiplier abuse; loops still repeat them → keep them rare, compound with Blood, and consider a per-Incantation cap (lever).
-- Loops and Twin are the explosive pieces → Uncommon/Rare, higher cost, or Exhaust.
+- Rune damage/block is **powered**, because `VulnerablePower`/`WeakPower` only affect powered attacks (`props.IsPoweredAttack()`), and Unpowered runes would make Expose/Weakening pointless. Consequence: Strength/Dexterity apply per payload execution, exactly like base-game multi-hit attacks — so loops are "multi-hit" and must be costed that way. The character's own scaling stat is **Resonance** (power): +N to every Strike and Block payload, analogous to Defect Focus. Fallback lever if Strength loops break balance: make Strike runes Unpowered and have Expose/Weakening apply bespoke rune-only debuffs.
+- Non-scalable Kindle/Soul prevent multiplier abuse; loops still repeat them → keep them rare, compound with Blood, and consider a per-Incantation cap (lever).
+- Loops and Multiply are the explosive pieces → Uncommon/Rare, higher cost, or Exhaust.
 - Drawbacks (Blood, Mirror) scale with the same modifiers as the upside — self-balancing by design.
 - Levers available without redesign: `MaxPayloadExecutions`, Overload backlash, Incantation capacity (future orb-like slots), per-rune caps.
 
@@ -158,8 +157,8 @@ Resolution details:
 RunePriestCode/
   Runes/
     Rune.cs               abstract base: Value, Kind, Key (loc key RUNEPRIEST-RUNE_<Key>), Label, HoverTips
-    PayloadRunes.cs       PayloadRune (Scalable, Targeting, Resolve) + Strike/Ward/Mend/Blood/Kindle/Insight/Hex/Expose
-    ModifierRunes.cs      ModifierRune (Apply, ExtraExecutions) + Amplify/Twin/Echo
+    PayloadRunes.cs       PayloadRune (Scalable, Targeting, Resolve) + Strike/Block/Mend/Blood/Kindle/Soul/Weakening/Expose
+    ModifierRunes.cs      ModifierRune (Apply, ExtraExecutions) + Add/Multiply/Echo
     TargetRune.cs         TargetRune(TargetMode)
     FlowRunes.cs          Loop/EndLoop/Seal
     Glyph.cs              runes + Anchor + Source card; Kind == null means malformed
@@ -173,7 +172,7 @@ RunePriestCode/
     RunePreview.cs        dry-run totals for the Forecast tooltip
   Powers/
     IncantationPower.cs   hosts RuneBuffer (InitInternalData → fresh per clone); Speaks in BeforeSideTurnEnd; DisplayAmount = glyph count; hover tip lists glyphs
-    ResonancePower.cs     IRuneListener: +Amount to Strike/Ward
+    ResonancePower.cs     IRuneListener: +Amount to Strike/Block
     ScriptoriumPower.cs   AfterPlayerTurnStart → Inscribe Strike(Amount)
   Cards/
     RuneCard.cs           abstract Glyphs(Creature? anchor); OnPlay → RuneCmd.Inscribe; auto hover tips for Inscribe + runes; Var(name)
@@ -193,7 +192,7 @@ Key decisions:
 - Strike runes are real attacks via `DamageCmd.Attack(...).FromCard(glyph.Source, null)`; glyphs without a source card (relic/power-inscribed) fall back to `CreatureCmd.Damage` with `ValueProp.Move`.
 - Deterministic RNG only (`RunState.Rng.CombatTargets`).
 - Rune text lives in `static_hover_tips.json` (`RUNEPRIEST-RUNE_<KEY>.title/.description`). **Not checked by the analyzer** — add entries by hand for every new rune/target mode.
-- Card text convention: `[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}.`; drawbacks use `inverseDiff()`.
+- Card text convention (full rules in `.github/instructions/localization.instructions.md`): one `[gold]Inscribe[/gold] ...` line per sequential glyph; runes of a compound glyph on one line separated by commas (`[blue]Strike[/blue] {Strike:diff()}, [blue]Blood[/blue] {Blood:diff()}`); drawbacks use `inverseDiff()`.
 - `RuneCmd.Speak` catches unexpected exceptions and treats them as a total fizzle so a buggy rune can't crash a run.
 - Risk to verify: power internal data isn't network-serialized (`NetFullCombatState`) — fine for lockstep play, may desync on co-op reconnect.
 
@@ -218,33 +217,33 @@ Rune-inscribing damage cards are **Attacks** (with AnyEnemy targeting to set the
 |---|---|---|---|---|---|
 | Strike (`StrikeRunePriest`) | Basic | Attack | 1 | Deal 6 damage. (×4) | +3 |
 | Defend (`DefendRunePriest`) | Basic | Skill | 1 | Gain 5 Block. (×4) | +3 |
-| Etch | Basic | Attack | 1 | Inscribe [Strike 6]. | +3 |
+| Strike Rune (`StrikeRuneCard`) | Basic | Attack | 1 | Inscribe [Strike 6]. (×5) | +3 |
+| Defend Rune (`DefendRuneCard`) | Basic | Skill | 1 | Inscribe [Block 5]. (×4) | +3 |
 | Echo Sign | Basic | Skill | 1 | Inscribe [Echo]. | cost 0 |
 | Blood Etching | Common | Attack | 1 | Inscribe [Strike 14 + Blood 3]. | Strike +4 |
-| Scatter Marks | Common | Attack | 1 | Inscribe [Seek][Strike 4][Strike 4]. | +2 each |
-| Warding Rune | Common | Skill | 1 | Inscribe [Ward 6]. | +3 |
+| Scatter Marks | Common | Attack | 1 | Inscribe [Chaos][Strike 4][Strike 4]. | +2 each |
 | Nova Sigil | Common | Skill | 0 | Inscribe [Nova]. | Retain |
 | Quick Carve | Common | Attack | 0 | Deal 3 damage. Inscribe [Strike 3]. | +1 / +1 |
-| Hexing Mark | Common | Skill | 1 | Inscribe [Hex 1 + Expose 1]. | +1 / +1 |
+| Hexing Mark | Common | Skill | 1 | Inscribe [Weakening 1 + Expose 1]. | +1 / +1 |
 | Open Circle | Uncommon | Skill | 1 | Inscribe [Loop 2]. | cost 0 |
 | Close Circle | Uncommon | Skill | 0 | Inscribe [End Loop]. Draw 1. | Draw +1 |
-| Amplifying Rune | Uncommon | Skill | 1 | Inscribe [Amplify +4]. | +2 |
+| Amplifying Rune | Uncommon | Skill | 1 | Inscribe [Add +4]. | +2 |
 | Invoke | Uncommon | Skill | 1 | Speak your Incantation now. Exhaust. | cost 0 |
 | Kindling Mark | Uncommon | Skill | 0 | Inscribe [Kindle 1 + Blood 2]. | Blood −1 |
-| Mending Glyph | Uncommon | Skill | 1 | Inscribe [Mend 2]. Exhaust. | +1 |
+| Mending Rune | Uncommon | Skill | 1 | Inscribe [Mend 2]. Exhaust. | +1 |
 | Resonance | Uncommon | Power | 1 | Gain 1 Resonance. | +1 |
 | Grand Circle | Rare | Skill | 2 | Inscribe [Loop 3]. | +1 |
-| Twin Sigil | Rare | Skill | 1 | Inscribe [Twin ×2]. | cost 0 |
+| Twin Sigil | Rare | Skill | 1 | Inscribe [Multiply ×2]. | cost 0 |
 | Seal of Patience | Rare | Skill | 1 | Inscribe [Seal]. Retain. | cost 0 |
 | Blood Covenant | Rare | Attack | 2 | Inscribe [Strike 30 + Blood 8]. | Strike +8 |
 | Scriptorium | Rare | Power | 2 | At the start of your turn, Inscribe [Strike 4]. | +2 |
 
-Starter relic: **Chalk Stylus** — "At the end of your turn, if your Incantation is empty, Inscribe [Ward 4]."
+Starter relic: **Chalk Stylus** — "At the end of your turn, if your Incantation is empty, Inscribe [Block 4]."
 Relic pool and potions: see §13.
 
 ## 10. Roadmap
 1. ~~**Phase 0 – Scaffolding**~~ ✔ starter deck/relic replaced, hover tips.
-2. ~~**Phase 1 – Rune core**~~ ✔ all v1 runes (incl. Chain/Cull/Mirror, Echo/Seal, Kindle/Insight/Hex/Expose), power-hover UI, `[Rune]` logging.
+2. ~~**Phase 1 – Rune core**~~ ✔ all v1 runes (incl. Execution/Mirror, Echo/Seal, Kindle/Soul/Weakening/Expose), power-hover UI, `[Rune]` logging.
 3. ~~**Phase 2 – Cards**~~ ✔ §9 list, Chalk Stylus, localization.
 4. ~~**Phase 3 – Overhead UI**~~ ✔ see §12.
 5. ~~**Phase 4 – Expansion**~~ ✔ see §13. Remaining: in-game playtesting + balance pass, real art, card-level damage preview, co-op testing.
@@ -255,27 +254,29 @@ Relic pool and potions: see §13.
 - Default target is **Anchor**; supports enemies for offensive runes and allies/self for supportive ones.
 - **Mend** is in v1 with very low values.
 - Incantation **clears every turn**; **Seal** is the retention mechanism.
+- Playtest pass 1: renamed Ward→Block, Insight→Soul, Hex→Weakening, Amplify→Add, Twin→Multiply, Seek→Chaos, Cull→Execution; removed Chain (and Chain Sigil, Chain Lightning, Cascade); buffer reads left to right; starter deck 5 Etch / 4 Warding Rune / 1 Echo Sign.
+- Playtest pass 2: player-facing text says "rune" only (no "glyph"); card text uses one Inscribe line per sequential rune and commas for compound runes; Etch → Strike Rune, Warding Rune → Defend Rune, Mending Glyph → Mending Rune, Glyph Guard → Rune Guard, Smudged/Stray Glyph → Smudged/Stray Rune, Glyph Draught → Rune Draught.
 
 ## 12. Overhead visuals (Phase 3)
-From the user's sketch: runes float in a row over the head, **read right to left** (first glyph spoken is rightmost;
+From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;
 flip with `NRuneBuffer.ReadRightToLeft`). Compound glyphs stack vertically = "these resolve together".
 
-- **Colour = family**: Offense red (Strike/Hex/Expose), Support green (Ward/Mend), Resource gold (Kindle/Insight),
+- **Colour = family**: Offense red (Strike/Weakening/Expose), Support green (Block/Mend), Resource gold (Kindle/Soul),
   Cost crimson (Blood), Modifier violet, Target pink, Flow pale blue.
 - **Shape = effect, character = value** (higher value → later/denser character):
 
 | Rune | Script | Characters |
 |---|---|---|
 | Strike | Kanji by stroke count (step 3) | 刀刃斤矛伐戒刺剣殺斬裂戦撃闘轟 |
-| Ward | Greek (step 2) | αβγ…ωΩ |
+| Block | Greek (step 2) | αβγ…ωΩ |
 | Mend | Hangul | 가나다…하 |
 | Blood | Cyrillic | БГДЖ…Я |
 | Kindle | Thai | กขค… |
-| Insight | Katakana | アイウ… |
-| Hex | Hiragana | あいう… |
+| Soul | Katakana | アイウ… |
+| Weakening | Hiragana | あいう… |
 | Expose | Bopomofo | ㄅㄆㄇ… |
-| Amplify / Twin / Echo | math | ⊕ ⊗ 〃 |
-| Anchor / Seek / Nova / Chain / Cull / Mirror | symbols | ◎ ∴ ☆ ∞ ▽ ◇ |
+| Add / Multiply / Echo | math | ⊕ ⊗ 〃 |
+| Anchor / Chaos / Nova / Execution / Mirror | symbols | ◎ ∴ ☆ ▽ ◇ |
 | Loop / End Loop / Seal | CJK brackets / seal mark | 〔 〕 〆 |
 
 - Small numeric value label on valued runes (hover the Incantation power for full text).
@@ -292,8 +293,8 @@ Decisions made autonomously (user unavailable; revisit on review):
 - **Capacity is opt-in via content.** Default stays unlimited. `IRuneListener.ModifyCapacity` (smallest wins). When a glyph
   would exceed capacity it **Overflows**: the oldest glyph is Spoken alone, immediately (`RuneCmd.SpeakAt`), like Defect evoke.
   UI draws faint empty-slot rings when a capacity is active. Sources: Tight Script (power, 4), Slate Tablet (relic, 5).
-- **Curse-rune sources are our own cards.** Status **Smudged Glyph** (in `StatusCardPool`; Unplayable, Ethereal; when drawn
-  Inscribe Mirror) comes from Hasty Scrawl / Wild Scrawl. Curse **Stray Glyph** (in `CurseCardPool`; when drawn Inscribe
+- **Curse-rune sources are our own cards.** Status **Smudged Rune** (in `StatusCardPool`; Unplayable, Ethereal; when drawn
+  Inscribe Mirror) comes from Hasty Scrawl / Wild Scrawl. Curse **Stray Rune** (in `CurseCardPool`; when drawn Inscribe
   Blood 2) comes from the Cursed Quill relic. Counterplay: Steady Hand (Inscribe Anchor), Erase (remove first glyph).
 - **Forecast**: the Incantation power tooltip shows a dry run (`RuneCmd.Forecast` → interpreter with `RunePreview`): totals
   per payload, fizzles, overload. Base values only; preview never resolves targets so it can't advance the combat RNG.
@@ -306,29 +307,29 @@ Content added (all placeholder art):
 
 | Rarity | Cards |
 |---|---|
-| Common (+14) | Chalk Line, Rune Slash, Steady Hand, Chain Sigil, Culling Mark, Venom Etching, Warding Circle, Hasty Scrawl, Glimpse, Sanguine Ward, Etched Guard, Double Stroke, Hex Bolt, Reinscribe |
-| Uncommon (+23) | Blood Ritual, Venomous Circle, Lifeline, Wild Scrawl, Recite, Utter, Resounding Sign, Grand Ward, Quickening, Warding Litany (P), Chalk Dust (P), Echoing Hymn (P), Sigil of Seeking, Cull the Weak, Deep Ink, Hex Circle, Rune Barrage, Etched Shield, Honing Stroke, Erase, Chain Lightning, Tight Script (P), Glyph Guard |
-| Rare (+12) | Sanctify Sigil, Infinite Circle, Rehearse, Eternal Script (P), Blood Sonnet, Nova Burst, Ink Covenant (P), Arcane Flow (P), Final Word, Palimpsest, Word of Power, Cascade |
-| Status / Curse | Smudged Glyph, Stray Glyph |
+| Common (+13) | Chalk Line, Rune Slash, Steady Hand, Culling Mark, Venom Etching, Warding Circle, Hasty Scrawl, Glimpse, Sanguine Ward, Etched Guard, Double Stroke, Hex Bolt, Reinscribe |
+| Uncommon (+22) | Blood Ritual, Venomous Circle, Lifeline, Wild Scrawl, Recite, Utter, Resounding Sign, Grand Ward, Quickening, Warding Litany (P), Chalk Dust (P), Echoing Hymn (P), Sigil of Seeking, Cull the Weak, Deep Ink, Hex Circle, Rune Barrage, Etched Shield, Honing Stroke, Erase, Tight Script (P), Rune Guard |
+| Rare (+11) | Sanctify Sigil, Infinite Circle, Rehearse, Eternal Script (P), Blood Sonnet, Nova Burst, Ink Covenant (P), Arcane Flow (P), Final Word, Palimpsest, Word of Power |
+| Status / Curse | Smudged Rune, Stray Rune |
 
-Totals: 4 Basic, 20 Common, 30 Uncommon, 17 Rare (+2 status/curse) = 73.
+Totals: 5 Basic, 18 Common, 29 Uncommon, 16 Rare (+2 status/curse) = 70.
 
 | Relic | Rarity | Effect |
 |---|---|---|
-| Chalk Stylus | Starter | End of turn, if Incantation empty, Inscribe Ward 4. |
+| Chalk Stylus | Starter | End of turn, if Incantation empty, Inscribe Block 4. |
 | Whetstone Rune | Common | Strike runes +1. |
-| Warding Charm | Common | Start of combat, Inscribe Ward 6. |
+| Warding Charm | Common | Start of combat, Inscribe Block 6. |
 | Blood Chalice | Uncommon | Blood runes −1. |
 | Ink Pot | Uncommon | Speak 5+ glyphs at once → +1 Energy (next turn if end of turn). |
 | Ouroboros | Rare | Loops repeat +1 time. |
-| Cursed Quill | Rare | Strike/Ward runes +2; adds a Stray Glyph curse on pickup. |
+| Cursed Quill | Rare | Strike/Block runes +2; adds a Stray Rune curse on pickup. |
 | Slate Tablet | Rare | +1 max Energy; capacity 5 (Overflow). |
 | Tuning Fork | Shop | Start of combat, gain 1 Resonance. |
 
 | Potion | Rarity | Effect |
 |---|---|---|
-| Liquid Ink | Common | Inscribe Amplify +5. |
-| Glyph Draught | Uncommon | Speak your Incantation now. |
+| Liquid Ink | Common | Inscribe Add +5. |
+| Rune Draught | Uncommon | Speak your Incantation now. |
 | Loop Tonic | Rare | Inscribe Loop 3. |
 
 Balance watch-list for playtesting: Eternal Script + loops (bounded by the 60-payload Overload), Palimpsest doubling,

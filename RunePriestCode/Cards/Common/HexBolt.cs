@@ -12,7 +12,7 @@ public sealed class HexBolt() : RuneCard(1, CardType.Attack, CardRarity.Common, 
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(6m, ValueProp.Move), new IntVar("Hex", 1m)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new HexRune(Var("Hex"))).AnchoredTo(anchor)];
+        [Glyph.Of(new WeakeningRune(Var("Hex"))).AnchoredTo(anchor)];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

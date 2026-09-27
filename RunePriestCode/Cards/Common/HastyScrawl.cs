@@ -13,7 +13,7 @@ public sealed class HastyScrawl() : RuneCard(0, CardType.Attack, CardRarity.Comm
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 6m, ValueProp.Move)];
 
-    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromCard<SmudgedGlyph>()];
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromCard<SmudgedRune>()];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor)];
@@ -21,7 +21,7 @@ public sealed class HastyScrawl() : RuneCard(0, CardType.Attack, CardRarity.Comm
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await base.OnPlay(choiceContext, cardPlay);
-        await AddToDrawPile<SmudgedGlyph>(1);
+        await AddToDrawPile<SmudgedRune>(1);
     }
 
     protected override void OnUpgrade() => DynamicVars["Strike"].UpgradeValueBy(3m);

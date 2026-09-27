@@ -28,25 +28,24 @@ public static class RuneVisuals
     {
         // Kanji ordered by stroke count, so bigger hits look denser.
         ["STRIKE"] = new(RuneFamily.Offense, "刀刃斤矛伐戒刺剣殺斬裂戦撃闘轟", 3),
-        ["HEX"] = new(RuneFamily.Offense, "あいうえおかきくけこさしすせそ"),
+        ["WEAKENING"] = new(RuneFamily.Offense, "あいうえおかきくけこさしすせそ"),
         ["EXPOSE"] = new(RuneFamily.Offense, "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏ"),
         ["VENOM"] = new(RuneFamily.Offense, "㋐㋑㋒㋓㋔㋕㋖㋗㋘㋙"),
-        ["WARD"] = new(RuneFamily.Support, "αβγδεζηθικλμνξοπρστυφχψωΩ", 2),
+        ["BLOCK"] = new(RuneFamily.Support, "αβγδεζηθικλμνξοπρστυφχψωΩ", 2),
         ["MEND"] = new(RuneFamily.Support, "가나다라마바사아자차카타파하"),
         ["BLOOD"] = new(RuneFamily.Cost, "БГДЖЗИЛФЦЧШЩЪЫЭЮЯ"),
         ["KINDLE"] = new(RuneFamily.Resource, "กขคงจฉชซญฎฏฐ"),
-        ["INSIGHT"] = new(RuneFamily.Resource, "アイウエオカキクケコ"),
+        ["SOUL"] = new(RuneFamily.Resource, "アイウエオカキクケコ"),
 
-        ["AMPLIFY"] = new(RuneFamily.Modifier, "⊕"),
-        ["TWIN"] = new(RuneFamily.Modifier, "⊗"),
+        ["ADD"] = new(RuneFamily.Modifier, "⊕"),
+        ["MULTIPLY"] = new(RuneFamily.Modifier, "⊗"),
         ["ECHO"] = new(RuneFamily.Modifier, "〃"),
         ["SANCTIFY"] = new(RuneFamily.Modifier, "⊘"),
 
         ["ANCHOR"] = new(RuneFamily.Target, "◎"),
-        ["SEEK"] = new(RuneFamily.Target, "∴"),
+        ["CHAOS"] = new(RuneFamily.Target, "∴"),
         ["NOVA"] = new(RuneFamily.Target, "☆"),
-        ["CHAIN"] = new(RuneFamily.Target, "∞"),
-        ["CULL"] = new(RuneFamily.Target, "▽"),
+        ["EXECUTION"] = new(RuneFamily.Target, "▽"),
         ["MIRROR"] = new(RuneFamily.Target, "◇"),
 
         ["LOOP"] = new(RuneFamily.Flow, "〔"),

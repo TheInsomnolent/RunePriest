@@ -15,8 +15,6 @@ public enum SpeakTiming
 public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner, RuneBuffer buffer, SpeakTiming timing, RunePreview? preview = null)
 {
     private readonly HashSet<Glyph> _spoken = [];
-    private int _enemyChainIndex;
-    private int _allyChainIndex;
 
     public PlayerChoiceContext ChoiceContext { get; } = choiceContext;
     public Player Owner { get; } = owner;
@@ -51,10 +49,9 @@ public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner,
 
         return TargetMode switch
         {
-            TargetMode.Seek => PickRandom(pool),
+            TargetMode.Chaos => PickRandom(pool),
             TargetMode.Nova => pool,
-            TargetMode.Chain => [pool[hitsEnemies ? _enemyChainIndex++ % pool.Count : _allyChainIndex++ % pool.Count]],
-            TargetMode.Cull => [pool.MinBy(c => c.CurrentHp)!],
+            TargetMode.Execution => [pool.MinBy(c => c.CurrentHp)!],
             _ when glyph.Anchor != null && pool.Contains(glyph.Anchor) => [glyph.Anchor],
             _ => hitsEnemies ? PickRandom(pool) : [Creature]
         };

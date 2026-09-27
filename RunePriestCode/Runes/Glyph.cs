@@ -33,7 +33,7 @@ public sealed class Glyph
         }
     }
 
-    public string Label => string.Join(" + ", Runes.Select(r => r.Label));
+    public string Label => string.Join(", ", Runes.Select(r => r.Label));
 
     public static Glyph Of(params Rune[] runes) => new(runes, null, null);
 

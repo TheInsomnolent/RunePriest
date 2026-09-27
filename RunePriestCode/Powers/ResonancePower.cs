@@ -10,5 +10,5 @@ public sealed class ResonancePower : RunePriestPower, IRuneListener
     public override PowerStackType StackType => PowerStackType.Counter;
 
     public int ModifyRuneValue(RuneContext ctx, PayloadRune rune, int value) =>
-        rune is StrikeRune or WardRune ? value + Amount : value;
+        rune is StrikeRune or BlockRune ? value + Amount : value;
 }

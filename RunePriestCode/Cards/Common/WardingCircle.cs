@@ -11,7 +11,7 @@ public sealed class WardingCircle() : RuneCard(1, CardType.Skill, CardRarity.Com
     protected override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar("Ward", 5m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new TargetRune(TargetMode.Nova)), Glyph.Of(new WardRune(Var("Ward")))];
+        [Glyph.Of(new TargetRune(TargetMode.Nova)), Glyph.Of(new BlockRune(Var("Ward")))];
 
     protected override void OnUpgrade() => DynamicVars["Ward"].UpgradeValueBy(3m);
 }

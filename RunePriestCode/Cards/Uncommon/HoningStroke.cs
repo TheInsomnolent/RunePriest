@@ -9,7 +9,7 @@ public sealed class HoningStroke() : RuneCard(0, CardType.Skill, CardRarity.Unco
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Amplify", 2m)];
 
-    protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new AmplifyRune(Var("Amplify")))];
+    protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new AddRune(Var("Amplify")))];
 
     protected override void OnUpgrade() => DynamicVars["Amplify"].UpgradeValueBy(1m);
 }

@@ -30,7 +30,8 @@ must **fizzle gracefully**, never crash.
   Never copy decompiled code verbatim into the repo; reference it.
 
 ## Conventions
-- Model IDs are `<MODID>-<SLUGIFIED_CLASS_NAME>` in upper snake case, e.g. class `RunePriest` → `RUNEPRIEST-RUNE_PRIEST`. Localization keys use that ID: `RUNEPRIEST-ETCH.title`.
+- Model IDs are `<MODID>-<SLUGIFIED_CLASS_NAME>` in upper snake case, e.g. class `RunePriest` → `RUNEPRIEST-RUNE_PRIEST`. Localization keys use that ID: `RUNEPRIEST-STRIKE_RUNE_CARD.title`.
+- Player-facing text says **rune**, never "glyph" (`Glyph` is code-only). Card text rules: [.github/instructions/localization.instructions.md](.github/instructions/localization.instructions.md).
 - Card descriptions use SmartFormat vars: `"Deal {Damage:diff()} damage."` (not `[[Damage]]`).
 - Cards extend `RunePriestCard` (auto-registered to `RunePriestCardPool` via `[Pool]`). Rune-casting cards extend `RuneCard` and implement `Glyphs(Creature? anchor)`. Folders by rarity: `Cards/Basic|Common|Uncommon|Rare`.
 - New runes need hand-written `RUNEPRIEST-RUNE_<KEY>.title/.description` in `static_hover_tips.json` (the analyzer doesn't check these).

@@ -14,7 +14,7 @@ public sealed class Lifeline() : RuneCard(1, CardType.Skill, CardRarity.Uncommon
         [new HealVar("Mend", 2m), new BlockVar("Ward", 5m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new MendRune(Var("Mend")), new WardRune(Var("Ward"))).AnchoredTo(anchor)];
+        [Glyph.Of(new MendRune(Var("Mend")), new BlockRune(Var("Ward"))).AnchoredTo(anchor)];
 
     protected override void OnUpgrade()
     {
