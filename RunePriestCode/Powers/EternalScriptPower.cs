@@ -8,6 +8,7 @@ public sealed class EternalScriptPower : RunePriestPower, IRuneListener
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Single;
+    public override bool Concentration => true;
 
     public bool KeepsIncantation => true;
 }

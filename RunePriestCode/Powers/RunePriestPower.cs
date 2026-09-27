@@ -1,7 +1,11 @@
 ﻿using BaseLib.Abstracts;
 using BaseLib.Extensions;
+using RunePriest.RunePriestCode.Cards;
 using RunePriest.RunePriestCode.Extensions;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Powers;
+using MegaCrit.Sts2.Core.HoverTips;
 
 namespace RunePriest.RunePriestCode.Powers;
 
@@ -28,4 +32,19 @@ public abstract class RunePriestPower : CustomPowerModel
     /// Single, but you're suggested to use Single as it is more explicit about how it will work.
     /// </summary>
     public abstract override PowerStackType StackType { get; }
+
+    /// <summary>Concentration powers are removed when their owner loses HP.</summary>
+    public virtual bool Concentration => false;
+
+    protected override IEnumerable<IHoverTip> ExtraHoverTips =>
+        Concentration ? [HoverTipFactory.FromKeyword(RunePriestKeywords.Concentration)] : [];
+
+    public override async Task AfterCurrentHpChanged(Creature creature, decimal delta)
+    {
+        if (Concentration && creature == Owner && delta < 0)
+        {
+            MainFile.Logger.Info($"[Rune] {Id.Entry} lost Concentration");
+            await PowerCmd.Remove(this);
+        }
+    }
 }

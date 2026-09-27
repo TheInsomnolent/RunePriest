@@ -10,6 +10,7 @@ description: "Card/power/relic text conventions for RunePriest localization file
 - Rune names are blue: `[blue]Strike[/blue]`, `[blue]Block[/blue]`, `[blue]Loop[/blue]`. Game keywords/powers are gold: `[gold]Block[/gold]`, `[gold]Weak[/gold]`.
   - `[blue]Block[/blue]` = the Block *rune*; `[gold]Block[/gold]` = actually gaining block now.
 - Current rune names: Strike, Block, Mend, Blood, Kindle, Soul, Weakening, Expose, Venom · Add, Multiply, Echo, Sanctify · Anchor, Chaos, Nova, Execution, Mirror · Loop, End Loop, Seal.
+- **Concentration** is a custom keyword (`card_keywords.json`). Cards get it via `CanonicalKeywords` (auto-prefixed, don't write it in the card text); Concentration powers start their description with `[gold]Concentration[/gold].\n`.
 
 ## Inscribe lines
 - **Sequential runes** (separate `Glyph.Of(...)` entries): one `Inscribe` line each, separated by `\n`.

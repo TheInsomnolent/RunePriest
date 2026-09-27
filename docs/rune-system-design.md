@@ -258,6 +258,7 @@ Relic pool and potions: see §13.
 - Incantation **clears every turn**; **Seal** is the retention mechanism.
 - Playtest pass 1: renamed Ward→Block, Insight→Soul, Hex→Weakening, Amplify→Add, Twin→Multiply, Seek→Chaos, Cull→Execution; removed Chain (and Chain Sigil, Chain Lightning, Cascade); buffer reads left to right; starter deck 5 Etch / 4 Warding Rune / 1 Echo Sign.
 - Playtest pass 2: player-facing text says "rune" only (no "glyph"); card text uses one Inscribe line per sequential rune and commas for compound runes; Etch → Strike Rune, Warding Rune → Defend Rune, Mending Glyph → Mending Rune, Glyph Guard → Rune Guard, Smudged/Stray Glyph → Smudged/Stray Rune, Glyph Draught → Rune Draught.
+- **Concentration** keyword (`RunePriestKeywords.Concentration`, card keyword shown before the text): the granted power overrides `RunePriestPower.Concentration => true` and is removed the moment its owner loses HP (`AfterCurrentHpChanged`, delta < 0 — Blood runes count). First user: Eternal Script.
 
 ## 12. Overhead visuals (Phase 3)
 From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;

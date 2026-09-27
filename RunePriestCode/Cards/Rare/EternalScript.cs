@@ -8,6 +8,8 @@ namespace RunePriest.RunePriestCode.Cards.Rare;
 
 public sealed class EternalScript() : RunePriestCard(3, CardType.Power, CardRarity.Rare, TargetType.Self)
 {
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [RunePriestKeywords.Concentration];
+
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [HoverTipFactory.FromPower<EternalScriptPower>()];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
