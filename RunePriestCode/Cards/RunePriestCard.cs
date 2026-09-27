@@ -3,7 +3,11 @@ using BaseLib.Extensions;
 using BaseLib.Utils;
 using RunePriest.RunePriestCode.Character;
 using RunePriest.RunePriestCode.Extensions;
+using RunePriest.RunePriestCode.Runes;
+using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Models;
 
 namespace RunePriest.RunePriestCode.Cards;
 
@@ -29,4 +33,24 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
     //Uses card_portraits/card_name.png as image path. These should be smaller images.
     public override string PortraitPath => $"{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".CardImagePath();
     public override string BetaPortraitPath => $"beta/{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".CardImagePath();
+
+    protected RuneBuffer? Incantation => RuneCmd.GetBuffer(Owner.Creature);
+
+    protected int IncantationSize => Incantation?.Glyphs.Count ?? 0;
+
+    protected async Task DealDamage(PlayerChoiceContext choiceContext, CardPlay cardPlay, decimal amount)
+    {
+        if (cardPlay.Target == null || amount <= 0) return;
+        await DamageCmd.Attack(amount).FromCard(this, cardPlay).Targeting(cardPlay.Target)
+            .WithHitFx("vfx/vfx_attack_slash").Execute(choiceContext);
+    }
+
+    protected async Task AddToDrawPile<T>(int count) where T : CardModel
+    {
+        for (var i = 0; i < count; i++)
+        {
+            var card = CombatState!.CreateCard<T>(Owner);
+            CardCmd.PreviewCardPileAdd(await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Draw, Owner, CardPilePosition.Random));
+        }
+    }
 }

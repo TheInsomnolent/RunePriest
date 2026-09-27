@@ -18,7 +18,18 @@
         <NoWarn>$(NoWarn);MSB3270</NoWarn>
     </PropertyGroup>
 
-    <ItemGroup Condition="Exists('$(Sts2DataDir)')" >
+    <!-- No local game (e.g. GitHub Actions): compile against reference stubs and pack the .pck without Godot.
+         Keep the stub version in sync with the game version the mod targets. -->
+    <PropertyGroup>
+        <UseSts2RefAssemblies Condition="'$(UseSts2RefAssemblies)' == '' And !Exists('$(Sts2DataDir)/sts2.dll')">true</UseSts2RefAssemblies>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(UseSts2RefAssemblies)' == 'true'">
+        <PackageReference Include="BSchneppe.Sts2.ReferenceAssemblies" Version="0.111.0-beta-41cef1ea" PrivateAssets="All" />
+        <PackageReference Include="BSchneppe.StS2.PckPacker" Version="0.1.1" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(UseSts2RefAssemblies)' != 'true'" >
         <Reference Include="0Harmony">
             <HintPath>$(Sts2DataDir)/0Harmony.dll</HintPath>
             <Private>false</Private>
@@ -68,7 +79,7 @@
       <Folder Include="RunePriest\images\relics\big\" />
     </ItemGroup>
     
-    <Target Name="CheckDependencyPaths" >
+    <Target Name="CheckDependencyPaths" Condition="'$(UseSts2RefAssemblies)' != 'true'">
         <Error
                 Text=" Slay the Spire 2 data not found at path '$(Sts2DataDir)'"
                 Condition="'$(Sts2DataDir)' == '' or !Exists('$(Sts2DataDir)')" />
@@ -98,14 +109,14 @@
                  Importance="high" />
     </Target>
     
-    <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent">
+    <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent" Condition="'$(UseSts2RefAssemblies)' != 'true'">
         <Message Text="Copying .dll .pdb and .json to mods folder." Importance="high" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
         <Copy SourceFiles="$(AssemblyName).json" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
         <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
     </Target>
 
-    <Target Name="CopyQuickPck" AfterTargets="PackPck" Condition="Exists('$(PckPackerOutputPath)') And '$(PckPackerSkipped)' != 'true'">
+    <Target Name="CopyQuickPck" AfterTargets="PackPck" Condition="Exists('$(PckPackerOutputPath)') And '$(PckPackerSkipped)' != 'true' And '$(UseSts2RefAssemblies)' != 'true'">
         <Message Text="Copying quick .pck to mods folder." Importance="high"/>
         <Copy SourceFiles="$(PckPackerOutputPath)"
               DestinationFolder="$(ModsPath)/$(MSBuildProjectName)" />

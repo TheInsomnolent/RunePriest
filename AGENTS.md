@@ -11,7 +11,9 @@ must **fizzle gracefully**, never crash.
 
 ## Build
 - `dotnet build RunePriest.csproj` — compiles DLL and copies to the StS2 `mods/` folder. .NET SDK 9+ (10 works), targets `net9.0`.
-- **Publish** (Rider "Publish → Local folder") is required for any non-code change (localization, images, scenes) — it builds the `.pck` via MegaDot (`GodotPath` in `Directory.Build.props`, which is gitignored/per-machine).
+- **Publish** is required for any non-code change (localization, images, scenes) — it exports the `.pck` via MegaDot (`GodotPath` in `Directory.Build.props`, gitignored/per-machine). Works from CLI: `dotnet publish RunePriest.csproj` (or Rider "Publish → Local folder").
+- Runtime logs: rune evaluation logs every step with a `[Rune]` prefix via `MainFile.Logger`.
+- **CI** (`.github/workflows/build.yml`): without a local game, the csproj sets `UseSts2RefAssemblies=true` and compiles against `BSchneppe.Sts2.ReferenceAssemblies` (pinned to the game version in `release_info.json`), then packs the `.pck` with `BSchneppe.StS2.PckPacker` (no Godot). Simulate locally: `dotnet build RunePriest.csproj -c Release -p:UseSts2RefAssemblies=true` (needs .NET 9 runtime or `DOTNET_ROLL_FORWARD=Major`). Stubs may omit non-public members, so avoid relying on publicized private game API.
 - The Roslyn analyzer `Alchyr.Sts2.ModAnalyzers` fails the build (STS001) when a model is missing localization keys. Fix by adding keys to `RunePriest/localization/eng/*.json`, not by suppressing.
 
 ## Layout
@@ -30,11 +32,13 @@ must **fizzle gracefully**, never crash.
 ## Conventions
 - Model IDs are `<MODID>-<SLUGIFIED_CLASS_NAME>` in upper snake case, e.g. class `RunePriest` → `RUNEPRIEST-RUNE_PRIEST`. Localization keys use that ID: `RUNEPRIEST-ETCH.title`.
 - Card descriptions use SmartFormat vars: `"Deal {Damage:diff()} damage."` (not `[[Damage]]`).
-- Cards extend `RunePriestCard` (auto-registered to `RunePriestCardPool` via `[Pool]`). Rune-casting cards will extend `RuneCard` (see design doc).
+- Cards extend `RunePriestCard` (auto-registered to `RunePriestCardPool` via `[Pool]`). Rune-casting cards extend `RuneCard` and implement `Glyphs(Creature? anchor)`. Folders by rarity: `Cards/Basic|Common|Uncommon|Rare`.
+- New runes need hand-written `RUNEPRIEST-RUNE_<KEY>.title/.description` in `static_hover_tips.json` (the analyzer doesn't check these).
 - Art: **use placeholder assets only**; an artist will supply art later. Missing images fall back to `card.png`/`power.png`/`relic.png` via `Extensions/StringExtensions.cs`.
 - Randomness in combat must use `Owner.RunState.Rng.CombatTargets` (or another `RunRngSet` stream) — never `System.Random` (breaks co-op determinism / replays).
 - All effects go through game commands (`DamageCmd`, `CreatureCmd`, `PowerCmd`, `PlayerCmd`, `CardPileCmd`) and are `await`ed with the `PlayerChoiceContext`.
 - Keep the rune interpreter free of Godot/UI dependencies; UI observes buffer change events.
+- Custom Godot nodes (`RunePriestCode/Nodes/`) must be `partial` and are created in code (no scenes); `MainFile` calls `ScriptManagerBridge.LookupScriptsInAssembly` so their callbacks run.
 
 ## External references
 - Template wiki: https://github.com/Alchyr/ModTemplate-StS2/wiki (Setup, Adding Cards, Modding Basics, Decompiling)

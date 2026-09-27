@@ -1,0 +1,53 @@
+using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Localization;
+
+namespace RunePriest.RunePriestCode.Runes;
+
+public enum RuneKind
+{
+    Payload,
+    Modifier,
+    Target,
+    Flow
+}
+
+/// <summary>
+/// Atomic instruction in the Incantation language. Immutable; values are baked in when inscribed.
+/// Text lives in static_hover_tips.json under <c>RUNEPRIEST-RUNE_{Key}.title/.description</c>.
+/// </summary>
+public abstract class Rune(int value = 0)
+{
+    public int Value { get; } = value;
+
+    public abstract RuneKind Kind { get; }
+
+    public abstract string Key { get; }
+
+    public virtual bool ShowsValue => true;
+
+    public virtual string ValueLabel => Value.ToString();
+
+    public string LocKey => $"{RuneTips.Prefix}RUNE_{Key}";
+
+    public LocString TitleLoc => new(RuneTips.Table, LocKey + ".title");
+
+    public LocString DescriptionLoc
+    {
+        get
+        {
+            var loc = new LocString(RuneTips.Table, LocKey + ".description");
+            // Value 0 is used for generic tooltips (e.g. on relics), so show a placeholder instead.
+            loc.Add("Value", Value > 0 ? Value.ToString() : "X");
+            return loc;
+        }
+    }
+
+    public string Label => ShowsValue ? $"{TitleLoc.GetFormattedText()} {ValueLabel}" : TitleLoc.GetFormattedText();
+
+    public virtual IEnumerable<IHoverTip> HoverTips => [new HoverTip(TitleLoc, DescriptionLoc)];
+
+    /// <summary>Same rune with a new value, or null if this rune never merges (targets, End Loop, Seal, Sanctify).</summary>
+    public virtual Rune? WithValue(int value) => null;
+
+    public override string ToString() => ShowsValue ? $"{Key} {ValueLabel}" : Key;
+}

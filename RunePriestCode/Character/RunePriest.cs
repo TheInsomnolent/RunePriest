@@ -1,11 +1,11 @@
 ﻿using BaseLib.Abstracts;
 using BaseLib.Utils.NodeFactories;
+using RunePriest.RunePriestCode.Cards.Basic;
 using RunePriest.RunePriestCode.Extensions;
+using RunePriest.RunePriestCode.Relics;
 using Godot;
 using MegaCrit.Sts2.Core.Entities.Characters;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Models.Cards;
-using MegaCrit.Sts2.Core.Models.Relics;
 
 namespace RunePriest.RunePriestCode.Character;
 
@@ -20,21 +20,21 @@ public class RunePriest : PlaceholderCharacterModel
     public override int StartingHp => 70;
     
     public override IEnumerable<CardModel> StartingDeck => [
-        ModelDb.Card<StrikeIronclad>(),
-        ModelDb.Card<StrikeIronclad>(),
-        ModelDb.Card<StrikeIronclad>(),
-        ModelDb.Card<StrikeIronclad>(),
-        ModelDb.Card<StrikeIronclad>(),
-        ModelDb.Card<DefendIronclad>(),
-        ModelDb.Card<DefendIronclad>(),
-        ModelDb.Card<DefendIronclad>(),
-        ModelDb.Card<DefendIronclad>(),
-        ModelDb.Card<DefendIronclad>()
+        ModelDb.Card<StrikeRunePriest>(),
+        ModelDb.Card<StrikeRunePriest>(),
+        ModelDb.Card<StrikeRunePriest>(),
+        ModelDb.Card<StrikeRunePriest>(),
+        ModelDb.Card<DefendRunePriest>(),
+        ModelDb.Card<DefendRunePriest>(),
+        ModelDb.Card<DefendRunePriest>(),
+        ModelDb.Card<DefendRunePriest>(),
+        ModelDb.Card<Etch>(),
+        ModelDb.Card<EchoSign>()
     ];
 
     public override IReadOnlyList<RelicModel> StartingRelics =>
     [
-        ModelDb.Relic<BurningBlood>()
+        ModelDb.Relic<ChalkStylus>()
     ];
     
     public override CardPoolModel CardPool => ModelDb.CardPool<RunePriestCardPool>();

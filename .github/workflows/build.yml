@@ -1,0 +1,88 @@
+# Builds an installable mod zip without the game or Godot:
+# compiles against reference-assembly stubs and packs the .pck with BSchneppe.StS2.PckPacker (see RunePriest.csproj).
+#   - pull requests: build + short-lived artifact for testers
+#   - push to main:  refresh the rolling "nightly" pre-release
+#   - tag v*:        publish a versioned release
+name: Build mod
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths-ignore: ['**.md', 'docs/**', '.gitignore', '.gitattributes']
+  pull_request:
+    paths-ignore: ['**.md', 'docs/**', '.gitignore', '.gitattributes']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  # Lets the net9.0 PCK packer tool run on a newer runtime if that's what the runner has.
+  DOTNET_ROLL_FORWARD: Major
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('*.csproj', 'Sts2PathDiscovery.props') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Stamp release version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: jq --arg v "$GITHUB_REF_NAME" '.version = $v' RunePriest.json > tmp.json && mv tmp.json RunePriest.json
+
+      # Godot editor import files would duplicate the remaps the packer generates.
+      - name: Remove editor import files
+        run: find RunePriest -name '*.import' -delete
+
+      - name: Build
+        run: dotnet build RunePriest.csproj -c Release -p:UseSts2RefAssemblies=true
+
+      - name: Package
+        run: |
+          out=.godot/mono/temp/bin/Release
+          mkdir -p dist/RunePriest
+          cp "$out/RunePriest.dll" "$out/RunePriest.pck" RunePriest.json dist/RunePriest/
+          (cd dist && zip -qr ../RunePriest.zip RunePriest)
+
+      - name: Upload test build
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: RunePriest
+          path: dist/
+          retention-days: 7
+
+      - name: Publish nightly pre-release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete nightly --cleanup-tag --yes || true
+          gh release create nightly RunePriest.zip --prerelease --target "$GITHUB_SHA" \
+            --title "Nightly build" \
+            --notes "Automatic build of \`main\` at ${GITHUB_SHA::7}. May be unstable. See the README for install steps."
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" RunePriest.zip --title "RunePriest $GITHUB_REF_NAME" --generate-notes
