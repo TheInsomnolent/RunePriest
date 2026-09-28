@@ -49,7 +49,7 @@ public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner,
 
         return TargetMode switch
         {
-            TargetMode.Chaos => PickRandom(pool),
+            TargetMode.Scatter => PickRandom(pool),
             TargetMode.Nova => pool,
             TargetMode.Execution => [pool.MinBy(c => c.CurrentHp)!],
             _ when glyph.Anchor != null && pool.Contains(glyph.Anchor) => [glyph.Anchor],

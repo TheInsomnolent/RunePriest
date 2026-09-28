@@ -9,17 +9,24 @@ namespace RunePriest.RunePriestCode.Runes;
 
 public static class RuneCmd
 {
+    /// <summary>Value added to each scalable payload of a glyph per Imbue.</summary>
+    public const int ImbueBonus = 2;
+
     public static RuneBuffer? GetBuffer(Creature creature) => creature.GetPower<IncantationPower>()?.Buffer;
 
     public static async Task Inscribe(PlayerChoiceContext choiceContext, Player player, IEnumerable<Glyph> glyphs, CardModel? source)
     {
-        var list = glyphs.Select(g => g.Source == null ? g.WithSource(source) : g).ToList();
+        IReadOnlyList<Glyph> list = glyphs.Select(g => g.Source == null ? g.WithSource(source) : g).ToList();
         if (list.Count == 0) return;
 
         var creature = player.Creature;
         var power = creature.GetPower<IncantationPower>()
                     ?? await PowerCmd.Apply<IncantationPower>(choiceContext, creature, 1, creature, source);
         if (power == null) return;
+
+        foreach (var listener in RuneListeners.Of(player))
+            list = listener.ModifyInscription(player, list);
+        if (list.Count == 0) return;
 
         var buffer = power.Buffer;
         for (var i = 0; i < list.Count; i++)
@@ -45,6 +52,73 @@ public static class RuneCmd
         MainFile.Logger.Info($"[Rune] Inscribed {string.Join(" ", list)}");
         foreach (var listener in RuneListeners.Of(player))
             await listener.AfterInscribed(choiceContext, player, list);
+    }
+
+    /// <summary>
+    /// Imbues up to <paramref name="count"/> glyphs (most recently inscribed first) that can be Imbued.
+    /// </summary>
+    /// <returns>How many glyphs were Imbued.</returns>
+    public static async Task<int> Imbue(PlayerChoiceContext choiceContext, Player player, int count)
+    {
+        var buffer = GetBuffer(player.Creature);
+        if (buffer == null || buffer.IsSpeaking || count <= 0) return 0;
+
+        var indices = Enumerable.Range(0, buffer.Glyphs.Count).Reverse()
+            .Where(i => buffer.Glyphs[i].CanImbue).Take(count).ToList();
+        return await ImbueAt(choiceContext, player, buffer, indices);
+    }
+
+    /// <returns>How many glyphs were Imbued.</returns>
+    public static async Task<int> ImbueAll(PlayerChoiceContext choiceContext, Player player)
+    {
+        var buffer = GetBuffer(player.Creature);
+        if (buffer == null || buffer.IsSpeaking) return 0;
+
+        var indices = Enumerable.Range(0, buffer.Glyphs.Count).Where(i => buffer.Glyphs[i].CanImbue).ToList();
+        return await ImbueAt(choiceContext, player, buffer, indices);
+    }
+
+    private static async Task<int> ImbueAt(PlayerChoiceContext choiceContext, Player player, RuneBuffer buffer, List<int> indices)
+    {
+        var listeners = RuneListeners.Of(player);
+        foreach (var index in indices)
+        {
+            var imbued = buffer.Glyphs[index].Imbue(ImbueBonus);
+            buffer.Replace(index, imbued);
+            MainFile.Logger.Info($"[Rune] Imbued #{index} -> {imbued}");
+            foreach (var listener in listeners)
+                await listener.AfterImbued(choiceContext, player, imbued);
+        }
+        return indices.Count;
+    }
+
+    /// <summary>Rewrites every glyph in place (no Imbue events). Used by Pacify, Thrumming Elixir.</summary>
+    public static void Transform(Player player, Func<Glyph, Glyph> transform)
+    {
+        var buffer = GetBuffer(player.Creature);
+        if (buffer == null || buffer.IsSpeaking) return;
+
+        for (var i = 0; i < buffer.Glyphs.Count; i++)
+        {
+            var glyph = buffer.Glyphs[i];
+            var changed = transform(glyph);
+            if (!ReferenceEquals(glyph, changed)) buffer.Replace(i, changed);
+        }
+    }
+
+    /// <summary>Removes a glyph without Speaking it. Index -1 removes the most recently inscribed glyph.</summary>
+    public static async Task<Glyph?> Remove(PlayerChoiceContext choiceContext, Player player, int index = -1)
+    {
+        var buffer = GetBuffer(player.Creature);
+        if (buffer == null || buffer.IsSpeaking || buffer.Glyphs.Count == 0) return null;
+
+        var glyph = buffer.RemoveAt(index < 0 ? buffer.Glyphs.Count - 1 : index);
+        if (glyph == null) return null;
+
+        MainFile.Logger.Info($"[Rune] Removed {glyph}");
+        foreach (var listener in RuneListeners.Of(player))
+            await listener.AfterRemoved(choiceContext, player, glyph);
+        return glyph;
     }
 
     /// <param name="keep">Keep the Incantation after speaking (also forced by any <see cref="IRuneListener.KeepsIncantation"/>).</param>

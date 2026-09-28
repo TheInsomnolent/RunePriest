@@ -1,8 +1,8 @@
 {
-  "RUNEPRIEST-LIQUID_INK.title": "Liquid Ink",
-  "RUNEPRIEST-LIQUID_INK.description": "[gold]Inscribe[/gold] [blue]Add[/blue] +{Amplify}.",
-  "RUNEPRIEST-RUNE_DRAUGHT.title": "Rune Draught",
-  "RUNEPRIEST-RUNE_DRAUGHT.description": "[gold]Speak[/gold] your Incantation now.",
-  "RUNEPRIEST-LOOP_TONIC.title": "Loop Tonic",
-  "RUNEPRIEST-LOOP_TONIC.description": "[gold]Inscribe[/gold] [blue]Loop[/blue] {Loop}."
+  "RUNEPRIEST-ECHO_BREW.title": "Echo Brew",
+  "RUNEPRIEST-ECHO_BREW.description": "[gold]Inscribe[/gold] [blue]Echo[/blue].",
+  "RUNEPRIEST-LINGERING_AROMA.title": "Lingering Aroma",
+  "RUNEPRIEST-LINGERING_AROMA.description": "This turn, your Incantation is not cleared after you [gold]Speak[/gold].",
+  "RUNEPRIEST-THRUMMING_ELIXIR.title": "Thrumming Elixir",
+  "RUNEPRIEST-THRUMMING_ELIXIR.description": "Every rune in your Incantation that can be amplified gains {Amplify}."
 }

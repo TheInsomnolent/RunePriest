@@ -19,7 +19,19 @@ public interface IRuneListener
     /// <summary>If any listener returns true, Speaking does not clear the Incantation.</summary>
     bool KeepsIncantation => false;
 
+    /// <summary>
+    /// Reshapes one card's glyphs right before they are inscribed (e.g. double a value, wrap them in a Loop).
+    /// Called once per Inscribe, in listener order; return the glyphs to actually inscribe.
+    /// </summary>
+    IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs) => glyphs;
+
     Task AfterInscribed(PlayerChoiceContext choiceContext, Player player, IReadOnlyList<Glyph> glyphs) => Task.CompletedTask;
+
+    /// <summary>A glyph in the Incantation was Imbued (see <see cref="RuneCmd.Imbue"/>).</summary>
+    Task AfterImbued(PlayerChoiceContext choiceContext, Player player, Glyph glyph) => Task.CompletedTask;
+
+    /// <summary>A glyph left the Incantation without being Spoken (see <see cref="RuneCmd.Remove"/>).</summary>
+    Task AfterRemoved(PlayerChoiceContext choiceContext, Player player, Glyph glyph) => Task.CompletedTask;
 
     Task AfterPayload(RuneContext ctx, PayloadRune rune, int value, IReadOnlyList<Creature> targets) => Task.CompletedTask;
 

@@ -10,6 +10,7 @@ public static class RuneTips
 
     public static IHoverTip Inscribe => Tip("INSCRIBE");
     public static IHoverTip Speak => Tip("SPEAK");
+    public static IHoverTip Imbue => Tip("IMBUE");
     public static IHoverTip Overflow => Tip("OVERFLOW");
 
     public static LocString IncantationScriptTitle => new(Table, Prefix + "INCANTATION_SCRIPT.title");

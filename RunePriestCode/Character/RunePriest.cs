@@ -1,4 +1,4 @@
-﻿using BaseLib.Abstracts;
+using BaseLib.Abstracts;
 using BaseLib.Utils.NodeFactories;
 using RunePriest.RunePriestCode.Cards.Basic;
 using RunePriest.RunePriestCode.Extensions;
@@ -29,7 +29,7 @@ public class RunePriest : PlaceholderCharacterModel
         ModelDb.Card<DefendRuneCard>(),
         ModelDb.Card<DefendRuneCard>(),
         ModelDb.Card<DefendRuneCard>(),
-        ModelDb.Card<EchoSign>()
+        ModelDb.Card<EchoRuneCard>()
     ];
 
     public override IReadOnlyList<RelicModel> StartingRelics =>

@@ -61,10 +61,11 @@ combine, and the order you play your cards matters. If a spell doesn't make sens
 
 ## How to play (quick primer)
 - **Inscribe:** cards add runes to your Incantation. If a rune matches the one before it, they merge and their values add up.
-- **Speak:** at end of turn the Incantation resolves left to right, then clears. **Invoke** and similar cards speak it mid-turn.
-- **Effect runes:** Strike (a real attack), Block (block), Mend (heal), Blood (lose HP), Kindle (energy), Soul (draw), Weakening, Expose, Venom.
-- **Modifiers** empower the *next* rune, or a whole loop: Add +X, Multiply ×N, Echo, Sanctify.
-- **Targeting runes** last until the next targeting rune: Anchor (default), Chaos, Nova, Execution, and the cursed Mirror.
+- **Speak:** at end of turn the Incantation resolves left to right, then clears.
+- **Imbue:** some cards empower runes you have already inscribed (+2 to each value), newest first.
+- **Effect runes:** Strike (a real attack), Defend (block), Mend (heal), Strength, Hex (Weak + Vulnerable), Cleanse (remove debuffs), Kindle (energy), Swift (draw).
+- **Modifiers** empower the *next* rune, or a whole loop: Amplify +X, Twin ×2, Echo.
+- **Targeting runes** last until the next targeting rune: Anchor (default), Scatter, Nova, Execution.
 - **Flow runes:** Loop N … End Loop, and Seal (stop here; the rest waits until next turn).
 - Hover the runes over your head, or the Incantation buff, to see each rune's text and a **Forecast** of what will happen.
 
