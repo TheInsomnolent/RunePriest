@@ -8,10 +8,10 @@ namespace RunePriest.RunePriestCode.Cards.Basic;
 
 public sealed class DefendRuneCard() : RuneCard(1, CardType.Skill, CardRarity.Basic, TargetType.Self)
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar("Ward", 5m, ValueProp.Move)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar("Defend", 4m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new BlockRune(Var("Ward"))).AnchoredTo(anchor)];
+        [Glyph.Of(new DefendRune(Var("Defend"))).AnchoredTo(anchor)];
 
-    protected override void OnUpgrade() => DynamicVars["Ward"].UpgradeValueBy(3m);
+    protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

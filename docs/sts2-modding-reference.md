@@ -14,7 +14,7 @@ Game version at time of writing: min_game_version 0.107.0, BaseLib 3.4.7. Re-ver
 | Potion pool | 0 OK | 2–3 | BaseLib default empty |
 | Localization | all STS001 keys in `characters.json` + `ancients.json` | | analyzer |
 
-**Current state:** 73 cards (4 Basic, 20 Common, 30 Uncommon, 17 Rare, plus 1 status in `StatusCardPool` and 1 curse in `CurseCardPool`), 9 relics, 3 potions.
+**Current state:** 48 cards (3 Basic, 16 Common, 21 Uncommon, 8 Rare), 6 relics (1 starter), 3 potions. No status/curse cards at the moment.
 - Status/curse cards: subclass `RunePriestCard` and override the pool with `[Pool(typeof(StatusCardPool))]` / `[Pool(typeof(CurseCardPool))]`; set `CanBeGeneratedInCombat => false`, `MaxUpgradeLevel => 0`, cost -1, keyword Unplayable. "When drawn" = `AfterCardDrawn(ctx, card, fromHandDraw)` with `card == this`.
 - Generated cards: `CombatState.CreateCard<T>(Owner)` → `CardPileCmd.AddGeneratedCardToCombat(card, PileType.Draw, Owner, CardPilePosition.Random)`; curse to deck: `CardPileCmd.AddCurseToDeck<T>(player)` in a relic's `AfterObtained` (+ `HasUponPickupEffect => true`).
 - Max energy relic: override `ModifyMaxEnergy(Player, decimal)`. Potions: `PotionRarity`, `PotionUsage.CombatOnly`, `TargetType.AnyPlayer`, `OnUse(ctx, target)`.

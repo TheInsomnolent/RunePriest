@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
@@ -20,7 +21,7 @@ public abstract class PayloadRune(int value) : Rune(value)
 {
     public override RuneKind Kind => RuneKind.Payload;
 
-    /// <summary>Whether Amplify/Twin affect this rune. Non-scalable runes still repeat in loops.</summary>
+    /// <summary>Whether Amplify/Twin/Imbue affect this rune. Non-scalable runes still repeat in loops.</summary>
     public virtual bool Scalable => true;
 
     public abstract RuneTargeting Targeting { get; }
@@ -58,10 +59,10 @@ public sealed class StrikeRune(int value) : PayloadRune(value)
     }
 }
 
-public sealed class BlockRune(int value) : PayloadRune(value)
+public sealed class DefendRune(int value) : PayloadRune(value)
 {
-    public override string Key => "BLOCK";
-    public override Rune WithValue(int value) => new BlockRune(value);
+    public override string Key => "DEFEND";
+    public override Rune WithValue(int value) => new DefendRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Ally;
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
@@ -81,6 +82,33 @@ public sealed class MendRune(int value) : PayloadRune(value)
     {
         foreach (var target in targets)
             await CreatureCmd.Heal(target, value);
+    }
+}
+
+public sealed class StrengthRune(int value) : PayloadRune(value)
+{
+    public override string Key => "STRENGTH";
+    public override Rune WithValue(int value) => new StrengthRune(value);
+    public override RuneTargeting Targeting => RuneTargeting.Ally;
+    public override IEnumerable<IHoverTip> HoverTips => [..base.HoverTips, HoverTipFactory.FromPower<StrengthPower>()];
+
+    public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
+        PowerCmd.Apply<StrengthPower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
+}
+
+/// <summary>Removes every debuff from the target(s). Has no value; never merges.</summary>
+public sealed class CleanseRune() : PayloadRune(1)
+{
+    public override string Key => "CLEANSE";
+    public override bool ShowsValue => false;
+    public override bool Scalable => false;
+    public override RuneTargeting Targeting => RuneTargeting.Ally;
+
+    public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
+    {
+        foreach (var target in targets)
+        foreach (var debuff in target.Powers.Where(p => p.Type == PowerType.Debuff).ToList())
+            await PowerCmd.Remove(debuff);
     }
 }
 
@@ -110,10 +138,10 @@ public sealed class KindleRune(int value) : PayloadRune(value)
     }
 }
 
-public sealed class SoulRune(int value) : PayloadRune(value)
+public sealed class SwiftRune(int value) : PayloadRune(value)
 {
-    public override string Key => "SOUL";
-    public override Rune WithValue(int value) => new SoulRune(value);
+    public override string Key => "SWIFT";
+    public override Rune WithValue(int value) => new SwiftRune(value);
     public override bool Scalable => false;
     public override RuneTargeting Targeting => RuneTargeting.Self;
 
@@ -126,35 +154,19 @@ public sealed class SoulRune(int value) : PayloadRune(value)
     }
 }
 
-public sealed class WeakeningRune(int value) : PayloadRune(value)
+/// <summary>Applies Weak and Vulnerable equal to its value.</summary>
+public sealed class HexRune(int value = 1) : PayloadRune(value)
 {
-    public override string Key => "WEAKENING";
-    public override Rune WithValue(int value) => new WeakeningRune(value);
+    public override string Key => "HEX";
+    public override Rune WithValue(int value) => new HexRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
-    public override IEnumerable<IHoverTip> HoverTips => [..base.HoverTips, HoverTipFactory.FromPower<WeakPower>()];
 
-    public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
-        PowerCmd.Apply<WeakPower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
-}
+    public override IEnumerable<IHoverTip> HoverTips =>
+        [..base.HoverTips, HoverTipFactory.FromPower<WeakPower>(), HoverTipFactory.FromPower<VulnerablePower>()];
 
-public sealed class ExposeRune(int value) : PayloadRune(value)
-{
-    public override string Key => "EXPOSE";
-    public override Rune WithValue(int value) => new ExposeRune(value);
-    public override RuneTargeting Targeting => RuneTargeting.Enemy;
-    public override IEnumerable<IHoverTip> HoverTips => [..base.HoverTips, HoverTipFactory.FromPower<VulnerablePower>()];
-
-    public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
-        PowerCmd.Apply<VulnerablePower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
-}
-
-public sealed class VenomRune(int value) : PayloadRune(value)
-{
-    public override string Key => "VENOM";
-    public override Rune WithValue(int value) => new VenomRune(value);
-    public override RuneTargeting Targeting => RuneTargeting.Enemy;
-    public override IEnumerable<IHoverTip> HoverTips => [..base.HoverTips, HoverTipFactory.FromPower<PoisonPower>()];
-
-    public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
-        PowerCmd.Apply<PoisonPower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
+    public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
+    {
+        await PowerCmd.Apply<WeakPower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
+        await PowerCmd.Apply<VulnerablePower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
+    }
 }

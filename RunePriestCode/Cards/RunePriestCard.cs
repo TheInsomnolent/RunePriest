@@ -1,4 +1,4 @@
-﻿using BaseLib.Abstracts;
+using BaseLib.Abstracts;
 using BaseLib.Extensions;
 using BaseLib.Utils;
 using RunePriest.RunePriestCode.Character;
@@ -37,6 +37,11 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
     protected RuneBuffer? Incantation => RuneCmd.GetBuffer(Owner.Creature);
 
     protected int IncantationSize => Incantation?.Glyphs.Count ?? 0;
+
+    /// <returns>How many runes were Imbued.</returns>
+    protected Task<int> Imbue(PlayerChoiceContext choiceContext, int count) => RuneCmd.Imbue(choiceContext, Owner, count);
+
+    protected Task Draw(PlayerChoiceContext choiceContext, decimal count) => CardPileCmd.Draw(choiceContext, count, Owner);
 
     protected async Task DealDamage(PlayerChoiceContext choiceContext, CardPlay cardPlay, decimal amount)
     {

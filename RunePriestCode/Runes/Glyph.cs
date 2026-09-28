@@ -9,11 +9,12 @@ namespace RunePriest.RunePriestCode.Runes;
 /// </summary>
 public sealed class Glyph
 {
-    private Glyph(IReadOnlyList<Rune> runes, Creature? anchor, CardModel? source)
+    private Glyph(IReadOnlyList<Rune> runes, Creature? anchor, CardModel? source, int imbued = 0)
     {
         Runes = runes;
         Anchor = anchor;
         Source = source;
+        Imbued = imbued;
     }
 
     public IReadOnlyList<Rune> Runes { get; }
@@ -22,6 +23,9 @@ public sealed class Glyph
     public Creature? Anchor { get; }
 
     public CardModel? Source { get; }
+
+    /// <summary>How many times this glyph has been Imbued (its values already include the bonus).</summary>
+    public int Imbued { get; }
 
     public RuneKind? Kind
     {
@@ -33,16 +37,39 @@ public sealed class Glyph
         }
     }
 
+    /// <summary>Imbue only empowers payload glyphs that carry a scalable value.</summary>
+    public bool CanImbue => Kind == RuneKind.Payload && Runes.Any(r => r is PayloadRune { Scalable: true });
+
     public string Label => string.Join(", ", Runes.Select(r => r.Label));
 
     public static Glyph Of(params Rune[] runes) => new(runes, null, null);
 
-    public Glyph AnchoredTo(Creature? anchor) => new(Runes, anchor, Source);
+    public Glyph AnchoredTo(Creature? anchor) => new(Runes, anchor, Source, Imbued);
 
-    public Glyph WithSource(CardModel? source) => new(Runes, Anchor, source);
+    public Glyph WithSource(CardModel? source) => new(Runes, Anchor, source, Imbued);
 
     /// <summary>A new, distinct glyph with the same runes, anchor and source.</summary>
-    public Glyph Copy() => new(Runes, Anchor, Source);
+    public Glyph Copy() => new(Runes, Anchor, Source, Imbued);
+
+    /// <summary>Adds <paramref name="bonus"/> to every scalable payload rune and marks the glyph as Imbued.</summary>
+    public Glyph Imbue(int bonus) => new(Empowered(bonus), Anchor, Source, Imbued + 1);
+
+    /// <summary>Adds <paramref name="bonus"/> to every scalable payload rune without counting as an Imbue.</summary>
+    public Glyph Empower(int bonus) => new(Empowered(bonus), Anchor, Source, Imbued);
+
+    private List<Rune> Empowered(int bonus) =>
+        Runes.Select(r => r is PayloadRune { Scalable: true } ? r.WithValue(r.Value + bonus) ?? r : r).ToList();
+
+    /// <summary>Multiplies every mergeable rune's value (Strike, Loop, Echo, Amplify…). Valueless runes are unchanged.</summary>
+    public Glyph Scaled(int factor) =>
+        new(Runes.Select(r => r.WithValue(r.Value * factor) ?? r).ToList(), Anchor, Source, Imbued);
+
+    /// <summary>Replaces every payload rune with a single Mend worth their combined value.</summary>
+    public Glyph AsMend()
+    {
+        if (Kind != RuneKind.Payload) return this;
+        return new Glyph([new MendRune(Runes.Sum(r => r.Value))], Anchor, Source, Imbued);
+    }
 
     /// <summary>
     /// Merges a glyph inscribed right after this one: same kind, same runes in the same order, same anchor.
@@ -60,7 +87,7 @@ public sealed class Glyph
             if (rune == null) return null;
             merged[i] = rune;
         }
-        return new Glyph(merged, Anchor, Source);
+        return new Glyph(merged, Anchor, Source, Imbued + next.Imbued);
     }
 
     public override string ToString() => $"[{string.Join(" + ", Runes)}]";

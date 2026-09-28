@@ -3,7 +3,7 @@ namespace RunePriest.RunePriestCode.Runes;
 public enum TargetMode
 {
     Anchor,
-    Chaos,
+    Scatter,
     Nova,
     Execution,
     Mirror
