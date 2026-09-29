@@ -4,7 +4,7 @@
   "RUNEPRIEST-SPEAK.title": "Speak",
   "RUNEPRIEST-SPEAK.description": "Resolve your Incantation from left to right, then clear it. Runes that make no sense fizzle harmlessly.",
   "RUNEPRIEST-IMBUE.title": "Imbue",
-  "RUNEPRIEST-IMBUE.description": "Remove the X most recently inscribed runes from your Incantation and bind them to this card, filling its Imbue slot. Once Imbued, playing the card [gold]Inscribes[/gold] its runes instead. An Imbued card can't be Imbued again.",
+  "RUNEPRIEST-IMBUE.description": "Remove the X most recently inscribed runes from your Incantation and bind them to this card for the rest of combat, filling its Imbue slot. Once Imbued, playing the card [gold]Inscribes[/gold] its runes instead, aimed at the enemy you target. An Imbued card can't be Imbued again.",
   "RUNEPRIEST-IMBUED.title": "Imbued",
   "RUNEPRIEST-IMBUED.description": "This card holds:\n{Runes}",
   "RUNEPRIEST-IMBUED.inscribe": "[gold]Inscribe[/gold] {Runes}.",

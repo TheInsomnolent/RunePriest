@@ -11,7 +11,6 @@ using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
-using MegaCrit.Sts2.Core.Saves.Runs;
 
 namespace RunePriest.RunePriestCode.Cards;
 
@@ -42,16 +41,42 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
 
     protected int IncantationSize => Incantation?.Glyphs.Count ?? 0;
 
+    /// <summary>Individual runes in the Incantation: simultaneous runes (one compound glyph) each count.</summary>
+    protected int IncantationRuneCount => Incantation?.Glyphs.Sum(g => g.Runes.Count) ?? 0;
+
     /// <summary>
     /// Runes bound to this card by Imbue, as <see cref="GlyphCodec"/> text ("" = the Imbue slot is free).
-    /// Saved with the run, so an Imbued deck card keeps its runes in later combats.
+    /// Only set on the combat copy of a card, so Imbues end with the combat.
     /// </summary>
-    [SavedProperty]
     public string ImbuedRunes { get; set; } = "";
 
     public bool IsImbued => !string.IsNullOrEmpty(ImbuedRunes);
 
-    public IReadOnlyList<Glyph> ImbuedGlyphs => GlyphCodec.Decode(ImbuedRunes);
+    private string? _decodedRunes;
+    private IReadOnlyList<Glyph> _decodedGlyphs = [];
+
+    public IReadOnlyList<Glyph> ImbuedGlyphs
+    {
+        get
+        {
+            if (_decodedRunes != ImbuedRunes)
+            {
+                _decodedGlyphs = GlyphCodec.Decode(ImbuedRunes);
+                _decodedRunes = ImbuedRunes;
+            }
+            return _decodedGlyphs;
+        }
+    }
+
+    /// <summary>
+    /// An Imbued card that doesn't normally pick an enemy asks for one while it holds enemy-targeting runes, so the
+    /// bound runes are anchored to the chosen enemy instead of hitting a random one.
+    /// </summary>
+    public override TargetType TargetType =>
+        base.TargetType is TargetType.Self or TargetType.None
+        && ImbuedGlyphs.Any(g => g.Runes.Any(r => r is PayloadRune { Targeting: RuneTargeting.Enemy }))
+            ? TargetType.AnyEnemy
+            : base.TargetType;
 
     /// <summary>Imbue hover tip, plus the runes bound to this card once it is Imbued.</summary>
     protected IEnumerable<IHoverTip> ImbueHoverTips =>
@@ -87,10 +112,8 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
         var taken = await RuneCmd.TakeForImbue(choiceContext, Owner, count, filter);
         if (taken.Count == 0) return 0;
 
+        // Combat cards are copies of the deck cards, so the runes are gone once the combat ends.
         ImbuedRunes = GlyphCodec.Encode(taken);
-        // Combat cards are copies; write through to the deck card so the runes stay for the rest of the run.
-        if (DeckVersion is RunePriestCard deckCard && !ReferenceEquals(deckCard, this))
-            deckCard.ImbuedRunes = ImbuedRunes;
         return taken.Count;
     }
 

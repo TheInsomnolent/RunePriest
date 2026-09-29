@@ -59,11 +59,13 @@ Sigil and Thrumming Elixir. Non-amplifiable ones (Cleanse, Kindle, Swift, and ev
 Amplify) keep their value, but still repeat in loops.
 
 ### Imbue (instant, not a rune)
-Every card has one **Imbue slot** (`RunePriestCard.ImbuedRunes`, a `[SavedProperty]` encoded by `GlyphCodec`, written
-through to the deck card so it lasts the run). **Imbue X** on a card with a free slot removes the X most recently
+Every card has one **Imbue slot** (`RunePriestCard.ImbuedRunes`, encoded by `GlyphCodec`). It is only set on the
+combat copy of the card (not saved, not written to the deck card), so Imbues last until the end of combat. **Imbue X** on a card with a free slot removes the X most recently
 inscribed glyphs (any kind, newest first; `RuneCmd.TakeForImbue`) and binds them to the card. Once filled, the slot
 can't be overwritten: playing the card Inscribes the bound glyphs instead (anchored to the card's target), before the
-card's other effects. A card may pass a filter to choose which runes it takes. Listeners get `AfterImbued` per glyph
+card's other effects. While an Imbued `Self`/`None`-target card holds an enemy-targeting payload (Strike, Hex…), its
+`TargetType` becomes `AnyEnemy`, so the player picks the enemy the bound runes are anchored to instead of a random one.
+A card may pass a filter to choose which runes it takes. Listeners get `AfterImbued` per glyph
 (Paladin Sigil). Once filled, the card's own text shows the bound runes (`ImbuedCount` / `ImbuedRunes` description
 vars added in `RunePriestCard.AddExtraArgsToDescription`; loc uses `{ImbuedCount:choose(0):<imbue text>|{ImbuedRunes}}`).
 Cards: Blank Rune, Spellbook, Transmute, Ancient Tablet (every rune), Holy Smite (bonus per bound
@@ -272,7 +274,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Alchemize | Uncommon | Skill | 0 | Remove the last rune. Draw 2. | also Imbue 1 |
 | Holy Water | Uncommon | Skill | 1 | Inscribe [Cleanse][Mend 4]. Exhaust. | cost 0 |
 | Twin Blades | Uncommon | Attack | 2 | Inscribe [Twin ×2][Strike 10]. | Strike 12 |
-| Candlelight | Uncommon | Skill | 2 | Inscribe [Kindle N], N = runes in the Incantation. | cost 1 |
+| Candlelight | Uncommon | Skill | 2 | Inscribe [Kindle N], N = runes in the Incantation (simultaneous runes each count). | cost 1 |
 | Spellbook | Uncommon | Skill | 1 | Imbue 3. | cost 0 |
 | Transmute | Uncommon | Skill | 1 | Imbue 1. Inscribe [Swift 3]. | Imbue 2 |
 | Holy Smite | Uncommon | Attack | 1 | Imbue 2. Deal 11 + 5 per rune Imbued into it. | 14 / 6 |
@@ -355,6 +357,7 @@ Odd Sigil + Blessing, Eternal Sigil + loops (bounded by the 60-payload Overload)
 - **Concentration** keyword (`RunePriestKeywords.Concentration`, card keyword shown before the text): the granted power overrides `RunePriestPower.Concentration => true` and is removed the moment its owner loses HP (`AfterCurrentHpChanged`, delta < 0 — Blood runes count). First user was Eternal Script; no current card uses it (Eternal Sigil is Ethereal instead), the keyword stays available.
 - Design pass 3 (CSV card set): renamed back Add→**Amplify**, Multiply→**Twin**, Soul→**Swift**, Chaos→**Scatter**, Block→**Defend** (rune; avoids `[blue]Block[/blue]` vs `[gold]Block[/gold]`), Weakening→**Hex** (now Weak + Vulnerable). Removed Expose/Venom (folded into Hex). Added **Strength**, **Cleanse**, and **Imbue** (instant +2 to inscribed runes). All prototype cards/relics/potions and the Smudged/Stray Rune status/curse were deleted; Blood/Sanctify/Seal/Mirror remain engine-only. Chalk Stylus became "first Inscribe each turn → 4 Block".
 - Design sync 9/29/2026 (issue #9): Strength rune grants **temporary** Strength; Cursed Spirits deal 5 (Unpowered) and only attack Black-Marked enemies; Imbued cards show their bound runes in their own text; Blessed Toolbox only offers Commons with "Rune" in the name; Ritual/Chant keep their runes after Speaking; new cards Flint & Steel, Darkness Falls, Flagellation. Assumptions: Blood Sacrifice+ puts its Echo after the Blood runes (before the Strikes); Flint & Steel's bare Kindle = Kindle 1; Flagellation triggers on unblocked damage taken while it is the player side's turn.
+- Design sync 9/29/2026 (issue #12): Candlelight counts simultaneous runes individually (`IncantationRuneCount`); Imbue lasts only for the combat (no deck write-through / saved property); Imbued Self-target cards holding enemy runes target an enemy so the bound runes aren't random.
 
 ## 12. Overhead visuals (Phase 3)
 From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;
