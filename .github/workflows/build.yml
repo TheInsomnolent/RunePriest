@@ -1,8 +1,9 @@
 # Builds an installable mod zip without the game or Godot:
 # compiles against reference-assembly stubs and packs the .pck with BSchneppe.StS2.PckPacker (see RunePriest.csproj).
 #   - pull requests: build + short-lived artifact for testers
-#   - push to main:  refresh the rolling "nightly" pre-release
-#   - tag v*:        publish a versioned release
+#   - push to main:  refresh the rolling "nightly" pre-release + friends-only nightly Workshop item
+#   - tag v*:        publish a versioned release + update the release Workshop item
+# Workshop uploads are skipped until the WORKSHOP_NIGHTLY_ID / WORKSHOP_RELEASE_ID repo variables are set.
 name: Build mod
 
 on:
@@ -63,8 +64,7 @@ jobs:
           cp "$out/RunePriest.dll" "$out/RunePriest.pck" RunePriest.json dist/RunePriest/
           (cd dist && zip -qr ../RunePriest.zip RunePriest)
 
-      - name: Upload test build
-        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: RunePriest
@@ -86,3 +86,78 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" RunePriest.zip --title "RunePriest $GITHUB_REF_NAME" --generate-notes
+
+  workshop:
+    needs: build
+    # Item IDs must be repository variables (environment variables aren't visible to job-level `if`).
+    if: >-
+      github.event_name != 'pull_request' && (
+        (github.ref == 'refs/heads/main' && vars.WORKSHOP_NIGHTLY_ID != '') ||
+        (startsWith(github.ref, 'refs/tags/v') && vars.WORKSHOP_RELEASE_ID != ''))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Holds the Steam secrets; restrict its deployment branches to main and v* tags.
+    environment: steam-workshop
+    permissions:
+      contents: read
+    env:
+      ITEM_ID: ${{ startsWith(github.ref, 'refs/tags/v') && vars.WORKSHOP_RELEASE_ID || vars.WORKSHOP_NIGHTLY_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: RunePriest/mod_image.png
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: RunePriest
+          path: dist
+
+      # Official Valve tarball rather than a third-party action, since this job holds account credentials.
+      - name: Install SteamCMD
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lib32gcc-s1
+          mkdir -p ~/steamcmd
+          curl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz | tar -xz -C ~/steamcmd
+          # First run self-updates and can exit non-zero.
+          ~/steamcmd/steamcmd.sh +quit || true
+
+      - name: Upload to Steam Workshop
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          for d in ~/steamcmd/config ~/Steam/config; do
+            mkdir -p "$d"
+            printf '%s' "$STEAM_CONFIG_VDF" | base64 -d > "$d/config.vdf"
+          done
+
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            note="$GITHUB_REF_NAME - https://github.com/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF_NAME"
+            visibility=''
+          else
+            note="Nightly ${GITHUB_SHA::7}: $(printf '%s' "$COMMIT_MSG" | head -n1 | tr -d '"\\')"
+            visibility='"visibility" "1"'
+          fi
+
+          cat > workshop.vdf <<EOF
+          "workshopitem"
+          {
+            "appid" "2868840"
+            "publishedfileid" "$ITEM_ID"
+            "contentfolder" "$PWD/dist"
+            "previewfile" "$PWD/RunePriest/mod_image.png"
+            "changenote" "$note"
+            $visibility
+          }
+          EOF
+
+          timeout 10m ~/steamcmd/steamcmd.sh +@ShutdownOnFailedCommand 1 +@NoPromptForPassword 1 \
+            +login "$STEAM_USERNAME" +workshop_build_item "$PWD/workshop.vdf" +quit
+
+      - name: Remove Steam credentials
+        if: always()
+        run: rm -f ~/steamcmd/config/config.vdf ~/Steam/config/config.vdf

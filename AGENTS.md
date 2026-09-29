@@ -14,6 +14,7 @@ must **fizzle gracefully**, never crash.
 - **Publish** is required for any non-code change (localization, images, scenes) — it exports the `.pck` via MegaDot (`GodotPath` in `Directory.Build.props`, gitignored/per-machine). Works from CLI: `dotnet publish RunePriest.csproj` (or Rider "Publish → Local folder").
 - Runtime logs: rune evaluation logs every step with a `[Rune]` prefix via `MainFile.Logger`.
 - **CI** (`.github/workflows/build.yml`): without a local game, the csproj sets `UseSts2RefAssemblies=true` and compiles against `BSchneppe.Sts2.ReferenceAssemblies` (pinned to the game version in `release_info.json`), then packs the `.pck` with `BSchneppe.StS2.PckPacker` (no Godot). Simulate locally: `dotnet build RunePriest.csproj -c Release -p:UseSts2RefAssemblies=true` (needs .NET 9 runtime or `DOTNET_ROLL_FORWARD=Major`). Stubs may omit non-public members, so avoid relying on publicized private game API.
+- **Steam Workshop** (app `2868840`): the `workshop` job in `build.yml` uploads via SteamCMD — `main` → friends-only nightly item (`vars.WORKSHOP_NIGHTLY_ID`), `v*` tags → release item (`vars.WORKSHOP_RELEASE_ID`). Credentials (`STEAM_USERNAME`, base64 `STEAM_CONFIG_VDF`) live in the `steam-workshop` environment. Setup/re-auth/release steps: [docs/steam-workshop.md](docs/steam-workshop.md).
 - The Roslyn analyzer `Alchyr.Sts2.ModAnalyzers` fails the build (STS001) when a model is missing localization keys. Fix by adding keys to `RunePriest/localization/eng/*.json`, not by suppressing.
 
 ## Layout
