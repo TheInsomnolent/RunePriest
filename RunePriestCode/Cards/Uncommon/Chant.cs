@@ -9,13 +9,13 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
-/// <summary>Speak the Incantation right now.</summary>
-public sealed class Chant() : RunePriestCard(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
+/// <summary>Speak the Incantation right now; its runes remain afterwards.</summary>
+public sealed class Chant() : RunePriestCard(2, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
 {
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Speak];
 
     protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
-        RuneCmd.Speak(choiceContext, Owner, SpeakTiming.Invoked);
+        RuneCmd.Speak(choiceContext, Owner, SpeakTiming.Invoked, keep: true);
 
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

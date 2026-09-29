@@ -12,7 +12,7 @@ using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Powers;
 
-/// <summary>Cursed Spirits attack enemies with Black Mark first.</summary>
+/// <summary>Cursed Spirits only attack enemies with Black Mark.</summary>
 public sealed class BlackMarkPower : RunePriestPower
 {
     public override PowerType Type => PowerType.Debuff;

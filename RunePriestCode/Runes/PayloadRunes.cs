@@ -4,6 +4,7 @@ using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
+using RunePriest.RunePriestCode.Powers;
 
 namespace RunePriest.RunePriestCode.Runes;
 
@@ -85,6 +86,7 @@ public sealed class MendRune(int value) : PayloadRune(value)
     }
 }
 
+/// <summary>Grants temporary Strength (<see cref="StrengthRunePower"/>), lost at the end of the turn.</summary>
 public sealed class StrengthRune(int value) : PayloadRune(value)
 {
     public override string Key => "STRENGTH";
@@ -93,7 +95,7 @@ public sealed class StrengthRune(int value) : PayloadRune(value)
     public override IEnumerable<IHoverTip> HoverTips => [..base.HoverTips, HoverTipFactory.FromPower<StrengthPower>()];
 
     public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
-        PowerCmd.Apply<StrengthPower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
+        PowerCmd.Apply<StrengthRunePower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
 }
 
 /// <summary>Removes every debuff from you (the caster, regardless of target mode). Has no value; never merges.</summary>

@@ -35,6 +35,9 @@
   "RUNEPRIEST-PALADIN_SIGIL_POWER.title": "Paladin Sigil",
   "RUNEPRIEST-PALADIN_SIGIL_POWER.description": "Whenever you [gold]Imbue[/gold] a rune, gain [gold]Strength[/gold].",
   "RUNEPRIEST-PALADIN_SIGIL_POWER.smartDescription": "Whenever you [gold]Imbue[/gold] a rune, gain {Amount} [gold]Strength[/gold].",
+  "RUNEPRIEST-FLAGELLATION_POWER.title": "Flagellation",
+  "RUNEPRIEST-FLAGELLATION_POWER.description": "Whenever you lose HP during your turn, [gold]Inscribe[/gold] [blue]Defend[/blue].",
+  "RUNEPRIEST-FLAGELLATION_POWER.smartDescription": "Whenever you lose HP during your turn, [gold]Inscribe[/gold] [blue]Defend[/blue] {Amount}.",
   "RUNEPRIEST-LINGERING_AROMA_POWER.title": "Lingering Aroma",
   "RUNEPRIEST-LINGERING_AROMA_POWER.description": "This turn, your Incantation is not cleared after you [gold]Speak[/gold].",
   "RUNEPRIEST-LINGERING_AROMA_POWER.smartDescription": "This turn, your Incantation is not cleared after you [gold]Speak[/gold].",
@@ -52,9 +55,9 @@
   "RUNEPRIEST-CURSED_REFLECT_POWER.description": "Until your next turn, whenever an enemy makes you lose HP, it takes that much damage.",
   "RUNEPRIEST-CURSED_REFLECT_POWER.smartDescription": "Until your next turn, whenever an enemy makes you lose HP, it takes that much damage.",
   "RUNEPRIEST-CURSED_SPIRITS_POWER.title": "Cursed Spirits",
-  "RUNEPRIEST-CURSED_SPIRITS_POWER.description": "At the end of your turn, each spirit deals 2 damage to a random enemy, preferring enemies with [gold]Black Mark[/gold]. Gain a spirit at the start of each turn.",
-  "RUNEPRIEST-CURSED_SPIRITS_POWER.smartDescription": "At the end of your turn, each of your {Amount} {Amount:plural:spirit|spirits} deals 2 damage to a random enemy, preferring enemies with [gold]Black Mark[/gold]. Gain a spirit at the start of each turn.",
+  "RUNEPRIEST-CURSED_SPIRITS_POWER.description": "At the end of your turn, each spirit deals 5 damage to a random enemy with [gold]Black Mark[/gold]. [gold]Strength[/gold] doesn't affect spirits. Gain a spirit at the start of each turn.",
+  "RUNEPRIEST-CURSED_SPIRITS_POWER.smartDescription": "At the end of your turn, each of your {Amount} {Amount:plural:spirit|spirits} deals 5 damage to a random enemy with [gold]Black Mark[/gold]. [gold]Strength[/gold] doesn't affect spirits. Gain a spirit at the start of each turn.",
   "RUNEPRIEST-BLACK_MARK_POWER.title": "Black Mark",
-  "RUNEPRIEST-BLACK_MARK_POWER.description": "Cursed spirits attack this enemy first.",
-  "RUNEPRIEST-BLACK_MARK_POWER.smartDescription": "Cursed spirits attack this enemy first."
+  "RUNEPRIEST-BLACK_MARK_POWER.description": "Cursed spirits can attack this enemy.",
+  "RUNEPRIEST-BLACK_MARK_POWER.smartDescription": "Cursed spirits can attack this enemy."
 }
