@@ -15,6 +15,7 @@ public partial class NRuneSymbol : Node2D
     private Vector2 _phase;
     private double _time;
     private CpuParticles2D? _particles;
+    private NVoidVortex? _vortex;
 
     public static NRuneSymbol Create(Rune rune)
     {
@@ -36,6 +37,7 @@ public partial class NRuneSymbol : Node2D
     /// <summary>Briefly boosts the particles, e.g. when the glyph is spoken.</summary>
     public void Burst()
     {
+        _vortex?.Burst();
         if (_particles == null) return;
         _particles.SpeedScale = 3f;
         GetTree().CreateTimer(0.35).Timeout += () =>
@@ -62,6 +64,13 @@ public partial class NRuneSymbol : Node2D
         _amplitude = new Vector2(2f + GD.Randf() * 3f, 3f + GD.Randf() * 4f);
         _frequency = new Vector2(0.8f + GD.Randf() * 0.9f, 1.0f + GD.Randf() * 1.1f);
         _phase = new Vector2(GD.Randf() * Mathf.Tau, GD.Randf() * Mathf.Tau);
+
+        if (rune is VoidRune)
+        {
+            _vortex = new NVoidVortex();
+            AddChild(_vortex);
+            return;
+        }
 
         _particles = CreateParticles(color, intensity);
         AddChild(_particles);
