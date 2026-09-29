@@ -43,8 +43,12 @@ public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner,
     {
         if (rune.Targeting == RuneTargeting.Self) return [Creature];
 
+        // Runes only affect the player who inscribed them: the ally side is always just the caster, whatever the
+        // target mode, so other players' Incantations never reach you (share runes with Choral Evocation instead).
         var hitsEnemies = (rune.Targeting == RuneTargeting.Enemy) != Mirrored;
-        var pool = hitsEnemies ? CombatState.HittableEnemies.ToList() : Allies();
+        if (!hitsEnemies) return [Creature];
+
+        var pool = CombatState.HittableEnemies.ToList();
         if (pool.Count == 0) return [];
 
         return TargetMode switch
@@ -53,7 +57,7 @@ public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner,
             TargetMode.Nova => pool,
             TargetMode.Execution => [pool.MinBy(c => c.CurrentHp)!],
             _ when glyph.Anchor != null && pool.Contains(glyph.Anchor) => [glyph.Anchor],
-            _ => hitsEnemies ? PickRandom(pool) : [Creature]
+            _ => PickRandom(pool)
         };
     }
 
@@ -62,13 +66,6 @@ public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner,
     {
         Mirrored = mode == TargetMode.Mirror;
         TargetMode = Mirrored ? TargetMode.Anchor : mode;
-    }
-
-    private List<Creature> Allies()
-    {
-        var allies = CombatState.GetTeammatesOf(Creature).Where(c => c.IsAlive).ToList();
-        if (!allies.Contains(Creature)) allies.Insert(0, Creature);
-        return allies;
     }
 
     private IReadOnlyList<Creature> PickRandom(List<Creature> pool)

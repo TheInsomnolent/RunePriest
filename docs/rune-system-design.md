@@ -1,6 +1,6 @@
 # Rune System Design — "The Incantation"
 
-Status: **v0.6 — design sync 9/29/2026** (rune core, 64 cards incl. 4 special cursed weapons, 7 relics, 3 potions, card-slot Imbue, overhead UI, capacity, forecast).
+Status: **v0.7 — design sync 9/29/2026 (#14)** (rune core, 65 cards incl. 4 special cursed weapons, 8 relics, 4 potions, card-slot Imbue, overhead UI, capacity, forecast, co-op rune sharing).
 Untested in-game; all numbers are first-pass. Update this doc when decisions change.
 
 ## 1. Pitch
@@ -47,7 +47,7 @@ Merging does not use a capacity slot.
 | **Strike X** | Deal X damage to the current target(s). | ✔ | Powered attack (`ValueProp.Move`) so Vulnerable/Weak/Strength apply per hit, like multi-hit attacks (see §7). |
 | **Defend X** | Gain X Block. | ✔ | Powered (`ValueProp.Move`) so Dexterity/Frail apply. Block at end of turn still protects during enemy turn. |
 | **Mend X** | Heal X HP. | ✔ | Strong in StS — keep rare, low values, often Exhaust. |
-| **Strength X** | Grant X temporary Strength to the target ally (you by default); lost when that side's turn ends (`StrengthRunePower`, a BaseLib `CustomTemporaryPowerModelWrapper`). | ✔ | Ally-targeted so Nova shares it in co-op. Spoken at end of turn, it only empowers runes Spoken after it. |
+| **Strength X** | Gain X temporary Strength; lost when that side's turn ends (`StrengthRunePower`, a BaseLib `CustomTemporaryPowerModelWrapper`). | ✔ | Ally-side (only you; Mirror gives it to an enemy). Spoken at end of turn, it only empowers runes Spoken after it. |
 | **Hex X** | Apply X Weak **and** X Vulnerable to target(s). | ✔ | Order matters: Hex before Strike amplifies later hits. |
 | **Cleanse** | Remove all debuffs from you. | ✘ | Self-targeted (ignores target mode). Valueless (internally 1); never merges. |
 | **Kindle X** | Gain X Energy. | ✘ | End-of-turn → `EnergyNextTurnPower`. Invoked → immediate. |
@@ -60,7 +60,9 @@ Amplify) keep their value, but still repeat in loops.
 
 ### Imbue (instant, not a rune)
 Every card has one **Imbue slot** (`RunePriestCard.ImbuedRunes`, encoded by `GlyphCodec`). It is only set on the
-combat copy of the card (not saved, not written to the deck card), so Imbues last until the end of combat. **Imbue X** on a card with a free slot removes the X most recently
+combat copy of the card (not written to the deck card), so Imbues last until the end of combat — unless the **Aether Quill**
+potion copies it onto the deck card (`RunePriestCard.MakeImbuePermanent`; `ImbuedRunes` is a `[SavedProperty]`, so a
+permanent Imbue is saved with the run and every later combat copy starts Imbued). **Imbue X** on a card with a free slot removes the X most recently
 inscribed glyphs (any kind, newest first; `RuneCmd.TakeForImbue`) and binds them to the card. Once filled, the slot
 can't be overwritten: playing the card Inscribes the bound glyphs instead (anchored to the card's target), before the
 card's other effects. While an Imbued `Self`/`None`-target card holds an enemy-targeting payload (Strike, Hex…), its
@@ -89,16 +91,20 @@ Rules:
 - Loop boundaries are transparent: a modifier at the end of a loop body **rolls over** to the first glyph of the next iteration (`[Loop 2][Strike 6][Echo]` → iterations 2 and 3 strike twice), and after the last iteration to the glyph after the loop. Target modes already persist across iterations.
 
 ### Targets (persist until changed)
-Each payload rune declares a `RuneTargeting`: **Enemy** (Strike, Hex), **Ally** (Defend, Mend, Strength, Cleanse), or **Self**
-(Blood, Kindle, Swift — always the caster, ignores target mode). The mode picks from the relevant side:
+Each payload rune declares a `RuneTargeting`: **Enemy** (Strike, Hex), **Ally** (Defend, Mend, Strength), or **Self**
+(Cleanse, Blood, Kindle, Swift — always the caster, ignores target mode). The mode picks the enemies:
 
 | Rune | Enemy payloads | Ally payloads |
 |---|---|---|
-| *(default)* **Anchor** | The enemy targeted when the glyph's card was played; if dead/none → random enemy. | The ally targeted by the card; if none → the caster. |
-| **Scatter** | Random enemy, re-rolled **per execution** (loops scatter). | Random ally. |
-| **Nova** | All enemies. | All allies. |
-| **Execution** | Lowest current HP enemy. | Lowest current HP ally (good with Mend). |
+| *(default)* **Anchor** | The enemy targeted when the glyph's card was played; if dead/none → random enemy. | You. |
+| **Scatter** | Random enemy, re-rolled **per execution** (loops scatter). | You. |
+| **Nova** | All enemies. | You. |
+| **Execution** | Lowest current HP enemy. | You. |
 | **Mirror** *(curse rune)* | **You.** | A random enemy. |
+
+**Co-op rule: runes only affect the player who inscribed them** (and the enemies). Ally payloads never reach other
+players, whatever the target mode, so every player's Incantation behaves the same whether or not teammates have
+runes of their own. The only way to give runes to other players is **Choral Evocation** (§14).
 
 Mirror is a mode like the others: it lasts until the next targeting rune, so any target-control card counters it.
 `[Mirror][Strike][Block][Strike]` → both Strikes hit you and the Block goes to an enemy.
@@ -187,7 +193,7 @@ RunePriestCode/
     RuneProgram.cs        pure loop-bracket matching
     RuneInterpreter.cs    executes glyphs (loops, modifiers, echo, seal, budget, fizzles, logging)
     RuneContext.cs        per-Speak state + target resolution
-    RuneCmd.cs            Inscribe / Prepend / Speak / SpeakAt / TakeForImbue / Fizzle / Remove / Transform / Forecast / GetBuffer
+    RuneCmd.cs            Inscribe / Share / Prepend / Speak / SpeakAt / TakeForImbue / Fizzle / Remove / Transform / Forecast / GetBuffer
     RuneTips.cs           static hover tips (Inscribe, Speak, Imbue, Imbued, Overflow, Incantation script title)
     IRuneListener.cs      ModifyRuneValue / ModifyLoopCount / ModifyCapacity / KeepsIncantation / ModifyInscription / AfterInscribed / AfterImbued / AfterRemoved / AfterPayload / AfterFizzle / AfterSpeak (+ RuneListeners helper)
     RunePreview.cs        dry-run totals for the Forecast tooltip
@@ -196,6 +202,7 @@ RunePriestCode/
     AmplifySigilPower.cs  IRuneListener: every rune Spoken as if preceded by Amplify +Amount (amplifiable runes only)
     RunicFormPower.cs     ModifyInscription: wraps the first two glyphs each turn in [Loop 1] … [End Loop]
     OddSigilPower.cs      ModifyInscription: every 2nd glyph each turn is Scaled(2)
+    ChoralEvocationPower.cs  AfterInscribed: shares your Defend runes (Plus: every rune) with the other players this turn
     TurnCounter.cs        mutable per-turn counter for power InitInternalData
   Cards/
     RuneCard.cs           abstract Glyphs(Creature? anchor); OnPlay → RuneCmd.Inscribe; auto hover tips for Inscribe + runes; Var(name)
@@ -209,6 +216,7 @@ RunePriestCode/
     RuneVisuals.cs        style table: family → colour, effect → script, value → character
     RuneFont.cs           composite FontVariation from the game's bundled jpn/kor/tha/rus fonts; HasChar fallback
   Patches/NCreatureRuneBufferPatch.cs  Harmony postfix on NCreature._Ready → attach NRuneBuffer for players
+  Patches/NeowAetherQuillPatch.cs      Harmony postfix on Neow.GenerateInitialOptions → sometimes offers the Aether Inkwell
 ```
 Key decisions:
 - **Buffer lives on a Power** (`IncantationPower`) on the player creature: auto-receives hooks with a correctly owned `PlayerChoiceContext` (co-op safe), auto-cleans at combat end, and its icon + hover tip is the v1 UI. Applied lazily on first Inscribe; stays for the rest of combat (Amount fixed at 1).
@@ -302,6 +310,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Energy Overflow | Uncommon | Power | 1 | Whenever a rune fizzles, deal 5 damage to ALL enemies. | cost 0 |
 | Dark Magick | Rare | Skill | 1 | Inscribe [Void]. Add 2 upgraded Loop Runes to your hand. | also Inscribe [Kindle 1] |
 | Unforgiveable Curse | Rare | Power | 1 | Whenever a rune fizzles, add a random cursed weapon to your hand (end-of-turn fizzles deliver next turn). | also Inscribe [Echo] ×3 |
+| Choral Evocation | Rare | Skill | 0 | Multiplayer only. This turn, [Defend] runes you Inscribe are also Inscribed for all other players. Exhaust. | every rune is shared |
 
 Special (Token rarity, `TokenCardPool`; only created by Unforgiveable Curse / Cursed Spirits):
 
@@ -312,7 +321,7 @@ Special (Token rarity, `TokenCardPool`; only created by Unforgiveable Curse / Cu
 | Cursed Spirits | Power | 1 | Summon 3 spirits (+1 each turn start); at end of turn each deals 5 (Unpowered, so Strength doesn't apply) to a random Black-Marked enemy; no marked enemy → no attack. Add a Black Mark to hand. | 5 spirits |
 | Black Mark | Skill | 0 | Apply Black Mark (only marked enemies are attacked by spirits). | draw 1 |
 
-Totals: 3 Basic, 18 Common, 29 Uncommon, 10 Rare = 60, plus 4 special.
+Totals: 3 Basic, 18 Common, 29 Uncommon, 11 Rare = 61, plus 4 special.
 
 Assumptions made where the CSV was silent (revisit on review): bare "Inscribe Loop/Twin/Kindle/Hex" = Loop 1 (was Loop 2 before Loop N meant N extra runs) / Twin ×2 /
 Kindle 1 / Hex 1; bare "Inscribe Swift" = Swift 2; "Draw 1" upgrades draw on play; Imbue takes the newest
@@ -328,15 +337,18 @@ without being Spoken, which includes fizzles; Holy Water Sigil uses the heal amo
 | Runic Sphere | Uncommon | Cards that Inscribe (`RuneCard`s) have Retain (single-turn retain re-applied on draw and at turn start). |
 | Enchanted Anvil | Rare | Whenever you Inscribe, deal 2 damage to ALL enemies. |
 | Midas Hand | Rare | Whenever you Inscribe, gain 2 Gold. |
+| Aether Inkwell | Ancient | Upon pickup, obtain an Aether Quill. Neow-only wrapper for the potion (see §14); Ancient rarity keeps it out of regular relic rewards. |
 
 | Potion | Rarity | Effect |
 |---|---|---|
 | Echo Brew | Common | Inscribe [Echo]. |
 | Lingering Aroma | Rare | This turn the Incantation is kept after Speaking (`LingeringAromaPower`, removed at your next turn start). |
 | Thrumming Elixir | Rare | Every amplifiable rune already inscribed gains +2 (`Glyph.Empower`; not a modifier, so loops don't multiply it). |
+| Aether Quill | Event | Choose an Imbued card in your hand; its Imbue becomes permanent (only usable while such a card is in hand). Never a random potion; from Neow via Aether Inkwell. |
 
 Balance watch-list: Blind Rage (15 for 1), Strength Rune in loops, Imbued Teacup + Runic Form (doubles the Loop),
-Odd Sigil + Blessing, Eternal Sigil + loops (bounded by the 60-payload Overload), Holy Water Sigil + Nova Mend.
+Odd Sigil + Blessing, Eternal Sigil + loops (bounded by the 60-payload Overload), Choral Evocation+ with loops (every
+player gets the whole program), permanent Imbues from Aether Quill.
 
 ## 10. Roadmap
 1. ~~**Phase 0 – Scaffolding**~~ ✔ starter deck/relic replaced, hover tips.
@@ -358,6 +370,7 @@ Odd Sigil + Blessing, Eternal Sigil + loops (bounded by the 60-payload Overload)
 - Design pass 3 (CSV card set): renamed back Add→**Amplify**, Multiply→**Twin**, Soul→**Swift**, Chaos→**Scatter**, Block→**Defend** (rune; avoids `[blue]Block[/blue]` vs `[gold]Block[/gold]`), Weakening→**Hex** (now Weak + Vulnerable). Removed Expose/Venom (folded into Hex). Added **Strength**, **Cleanse**, and **Imbue** (instant +2 to inscribed runes). All prototype cards/relics/potions and the Smudged/Stray Rune status/curse were deleted; Blood/Sanctify/Seal/Mirror remain engine-only. Chalk Stylus became "first Inscribe each turn → 4 Block".
 - Design sync 9/29/2026 (issue #9): Strength rune grants **temporary** Strength; Cursed Spirits deal 5 (Unpowered) and only attack Black-Marked enemies; Imbued cards show their bound runes in their own text; Blessed Toolbox only offers Commons with "Rune" in the name; Ritual/Chant keep their runes after Speaking; new cards Flint & Steel, Darkness Falls, Flagellation. Assumptions: Blood Sacrifice+ puts its Echo after the Blood runes (before the Strikes); Flint & Steel's bare Kindle = Kindle 1; Flagellation triggers on unblocked damage taken while it is the player side's turn.
 - Design sync 9/29/2026 (issue #12): Candlelight counts simultaneous runes individually (`IncantationRuneCount`); Imbue lasts only for the combat (no deck write-through / saved property); Imbued Self-target cards holding enemy runes target an enemy so the bound runes aren't random.
+- Design sync 9/29/2026 (issue #14): runes only affect the player who inscribed them (ally payloads always hit the caster, Nova/Scatter/Execution/Anchor only pick enemies); new multiplayer-only Choral Evocation; new Event potion Aether Quill (permanent Imbue, via a saved `ImbuedRunes` written to the deck card) offered by Neow through the Aether Inkwell relic. See §14 for assumptions.
 
 ## 12. Overhead visuals (Phase 3)
 From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;
@@ -413,3 +426,23 @@ Decisions made autonomously (user unavailable; revisit on review):
 The Phase 4 prototype content (Chalk Line, Tight Script, Slate Tablet, Smudged/Stray Rune, …) was **removed** in Phase 5 in
 favour of the designed set in §9. The engine features above (capacity/Overflow, curse runes, Forecast, listener hooks,
 keep/SpeakAt) are still available for future content.
+
+## 14. Co-op sharing and permanent Imbue (issue #14)
+- **Choral Evocation** (`Cards/Rare/ChoralEvocation.cs`, `CardMultiplayerConstraint.MultiplayerOnly`, Exhaust) applies
+  `ChoralEvocationPower` (upgraded: `ChoralEvocationPlusPower`) until the end of the turn. On `AfterInscribed`, the
+  power copies what you just inscribed into every other living player's Incantation with `RuneCmd.Share`:
+  unupgraded only the Defend runes of each glyph (`Glyph.Only`, so Quick Scribe shares `[Defend 3]`), upgraded every
+  glyph as-is (modifiers, targets, loops and Blood included). Runes inscribed by playing an Imbued card count too.
+- Shared copies **belong to the receiving player**: no source card (so a shared Strike is dealt by them and uses their
+  Strength), same anchor, merged/Overflowed like an Inscribe, and Spoken with their Incantation. `Share` raises no
+  inscription listeners, so two Choral Evocations can't bounce runes back and forth and a teammate's Flow State / Midas
+  Hand don't trigger on your cards. Works for any character (the Incantation power is applied on demand).
+- Assumptions: "inscribed this turn" means from the moment the card is played until the end of the turn (runes
+  already in the Incantation aren't shared); if both versions are active only the upgraded one shares.
+- **Aether Quill** (`Potions/AetherQuill.cs`, `PotionRarity.Event`, combat only): choose an Imbued card in hand that
+  has a deck card; `MakeImbuePermanent` writes its `ImbuedRunes` to the deck card, which is saved with the run. Cards
+  generated in combat have no deck card and can't be chosen.
+- **Neow**: `NeowAetherQuillPatch` postfixes `Neow.GenerateInitialOptions`; for a Rune Priest in a regular (no
+  modifier) run it replaces one of the two positive offers with the Aether Inkwell relic
+  (`NeowAetherQuillPatch.Chance` = 25%, rolled with the event's own RNG so co-op and reloads agree). The relic grants
+  the potion on pickup — Neow's offers are relic options, so the relic is the carrier.

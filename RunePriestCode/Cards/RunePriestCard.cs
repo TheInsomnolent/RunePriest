@@ -11,6 +11,7 @@ using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using MegaCrit.Sts2.Core.Saves.Runs;
 
 namespace RunePriest.RunePriestCode.Cards;
 
@@ -46,11 +47,30 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
 
     /// <summary>
     /// Runes bound to this card by Imbue, as <see cref="GlyphCodec"/> text ("" = the Imbue slot is free).
-    /// Only set on the combat copy of a card, so Imbues end with the combat.
+    /// Imbue only sets it on the combat copy of a card, so Imbues end with the combat; Aether Quill writes it through
+    /// to the deck card (<see cref="MakeImbuePermanent"/>), which saves it with the run.
     /// </summary>
+    [SavedProperty]
     public string ImbuedRunes { get; set; } = "";
 
     public bool IsImbued => !string.IsNullOrEmpty(ImbuedRunes);
+
+    /// <summary>Whether this combat card is Imbued and has a deck card its Imbue can be made permanent on.</summary>
+    public bool CanMakeImbuePermanent =>
+        IsImbued && DeckVersion is RunePriestCard deckCard && !ReferenceEquals(deckCard, this)
+        && deckCard.ImbuedRunes != ImbuedRunes;
+
+    /// <summary>
+    /// Aether Quill: copies this combat card's Imbue onto its deck card, so it starts every later combat Imbued.
+    /// </summary>
+    /// <returns>False if the card isn't Imbued or has no deck card (e.g. it was generated this combat).</returns>
+    public bool MakeImbuePermanent()
+    {
+        if (!CanMakeImbuePermanent) return false;
+        ((RunePriestCard)DeckVersion!).ImbuedRunes = ImbuedRunes;
+        MainFile.Logger.Info($"[Rune] {Id.Entry} permanently Imbued with {ImbuedRunes}");
+        return true;
+    }
 
     private string? _decodedRunes;
     private IReadOnlyList<Glyph> _decodedGlyphs = [];

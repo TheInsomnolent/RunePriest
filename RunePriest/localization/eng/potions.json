@@ -4,5 +4,8 @@
   "RUNEPRIEST-LINGERING_AROMA.title": "Lingering Aroma",
   "RUNEPRIEST-LINGERING_AROMA.description": "This turn, your Incantation is not cleared after you [gold]Speak[/gold].",
   "RUNEPRIEST-THRUMMING_ELIXIR.title": "Thrumming Elixir",
-  "RUNEPRIEST-THRUMMING_ELIXIR.description": "Every rune in your Incantation that can be amplified gains {Amplify}."
+  "RUNEPRIEST-THRUMMING_ELIXIR.description": "Every rune in your Incantation that can be amplified gains {Amplify}.",
+  "RUNEPRIEST-AETHER_QUILL.title": "Aether Quill",
+  "RUNEPRIEST-AETHER_QUILL.description": "Choose an [gold]Imbued[/gold] card in your hand. It stays [gold]Imbued[/gold] with its runes for the rest of the run.",
+  "RUNEPRIEST-AETHER_QUILL.selectionScreenPrompt": "Choose an [gold]Imbued[/gold] card to keep its runes permanently."
 }
