@@ -25,7 +25,34 @@ public static class RuneCmd
             list = listener.ModifyInscription(player, list);
         if (list.Count == 0) return;
 
-        var buffer = power.Buffer;
+        await Place(choiceContext, player, power.Buffer, list);
+
+        MainFile.Logger.Info($"[Rune] Inscribed {string.Join(" ", list)}");
+        foreach (var listener in RuneListeners.Of(player))
+            await listener.AfterInscribed(choiceContext, player, list);
+    }
+
+    /// <summary>
+    /// Inscribes copies of <paramref name="glyphs"/> into another player's Incantation (Choral Evocation). The copies
+    /// belong to that player: they have no source card, so they resolve as that player's own runes. Merges and
+    /// Overflows like an Inscribe, but raises no inscription listeners, so sharing can never echo back and forth.
+    /// </summary>
+    public static async Task Share(PlayerChoiceContext choiceContext, Player player, IEnumerable<Glyph> glyphs, CardModel? source)
+    {
+        IReadOnlyList<Glyph> list = glyphs.Select(g => g.WithSource(null)).ToList();
+        if (list.Count == 0 || player.Creature.IsDead) return;
+
+        var creature = player.Creature;
+        var power = creature.GetPower<IncantationPower>()
+                    ?? await PowerCmd.Apply<IncantationPower>(choiceContext, creature, 1, creature, source);
+        if (power == null) return;
+
+        await Place(choiceContext, player, power.Buffer, list);
+        MainFile.Logger.Info($"[Rune] Shared {string.Join(" ", list)} with {player.Creature}");
+    }
+
+    private static async Task Place(PlayerChoiceContext choiceContext, Player player, RuneBuffer buffer, IReadOnlyList<Glyph> list)
+    {
         for (var i = 0; i < list.Count; i++)
         {
             // Only the first glyph of a cast merges; a card's own glyph sequence (e.g. Strike, Strike) stays separate.
@@ -45,10 +72,6 @@ public static class RuneCmd
             while (capacity != null && buffer.Glyphs.Count > capacity && !buffer.IsSpeaking)
                 await SpeakAt(choiceContext, player, 0);
         }
-
-        MainFile.Logger.Info($"[Rune] Inscribed {string.Join(" ", list)}");
-        foreach (var listener in RuneListeners.Of(player))
-            await listener.AfterInscribed(choiceContext, player, list);
     }
 
     /// <summary>

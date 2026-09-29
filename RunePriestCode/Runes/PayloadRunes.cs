@@ -12,7 +12,7 @@ public enum RuneTargeting
 {
     /// <summary>Picks from enemies using the current target mode.</summary>
     Enemy,
-    /// <summary>Picks from allies (anchor ally, else the caster) using the current target mode.</summary>
+    /// <summary>Supportive: always the caster (runes never affect other players), but Mirror turns it on an enemy.</summary>
     Ally,
     /// <summary>Always the caster; ignores target mode.</summary>
     Self

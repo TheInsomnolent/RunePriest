@@ -20,5 +20,8 @@
   "RUNEPRIEST-HOLY_SPARKLER.flavor": "Every misfire still makes a pretty light.",
   "RUNEPRIEST-BLESSED_TOOLBOX.title": "Blessed Toolbox",
   "RUNEPRIEST-BLESSED_TOOLBOX.description": "Upon pickup, add a random Common card with Rune in its name to your deck. The first time you play a rune card each combat, draw {Cards} {Cards:plural:card|cards}.",
-  "RUNEPRIEST-BLESSED_TOOLBOX.flavor": "Every chisel inside has been blessed. Twice, to be safe."
+  "RUNEPRIEST-BLESSED_TOOLBOX.flavor": "Every chisel inside has been blessed. Twice, to be safe.",
+  "RUNEPRIEST-AETHER_INKWELL.title": "Aether Inkwell",
+  "RUNEPRIEST-AETHER_INKWELL.description": "Upon pickup, obtain an [gold]Aether Quill[/gold].",
+  "RUNEPRIEST-AETHER_INKWELL.flavor": "The ink never dries, and neither do the runes it writes."
 }

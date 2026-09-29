@@ -59,5 +59,11 @@
   "RUNEPRIEST-CURSED_SPIRITS_POWER.smartDescription": "At the end of your turn, each of your {Amount} {Amount:plural:spirit|spirits} deals 5 damage to a random enemy with [gold]Black Mark[/gold]. [gold]Strength[/gold] doesn't affect spirits. Gain a spirit at the start of each turn.",
   "RUNEPRIEST-BLACK_MARK_POWER.title": "Black Mark",
   "RUNEPRIEST-BLACK_MARK_POWER.description": "Cursed spirits can attack this enemy.",
-  "RUNEPRIEST-BLACK_MARK_POWER.smartDescription": "Cursed spirits can attack this enemy."
+  "RUNEPRIEST-BLACK_MARK_POWER.smartDescription": "Cursed spirits can attack this enemy.",
+  "RUNEPRIEST-CHORAL_EVOCATION_POWER.title": "Choral Evocation",
+  "RUNEPRIEST-CHORAL_EVOCATION_POWER.description": "This turn, [blue]Defend[/blue] runes you [gold]Inscribe[/gold] are also [gold]Inscribed[/gold] for all other players.",
+  "RUNEPRIEST-CHORAL_EVOCATION_POWER.smartDescription": "This turn, [blue]Defend[/blue] runes you [gold]Inscribe[/gold] are also [gold]Inscribed[/gold] for all other players.",
+  "RUNEPRIEST-CHORAL_EVOCATION_PLUS_POWER.title": "Choral Evocation+",
+  "RUNEPRIEST-CHORAL_EVOCATION_PLUS_POWER.description": "This turn, every rune you [gold]Inscribe[/gold] is also [gold]Inscribed[/gold] for all other players.",
+  "RUNEPRIEST-CHORAL_EVOCATION_PLUS_POWER.smartDescription": "This turn, every rune you [gold]Inscribe[/gold] is also [gold]Inscribed[/gold] for all other players."
 }

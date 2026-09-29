@@ -47,6 +47,14 @@ public sealed class Glyph
     /// <summary>A new, distinct glyph with the same runes, anchor and source.</summary>
     public Glyph Copy() => new(Runes, Anchor, Source);
 
+    /// <summary>Keeps only the runes matching <paramref name="keep"/> (same anchor and source); null if none match.</summary>
+    public Glyph? Only(Func<Rune, bool> keep)
+    {
+        var runes = Runes.Where(keep).ToList();
+        if (runes.Count == 0) return null;
+        return runes.Count == Runes.Count ? this : new Glyph(runes, Anchor, Source);
+    }
+
     /// <summary>Adds <paramref name="bonus"/> to every amplifiable payload rune.</summary>
     public Glyph Empower(int bonus) =>
         new(Runes.Select(r => r is PayloadRune { Amplifiable: true } ? r.WithValue(r.Value + bonus) ?? r : r).ToList(), Anchor, Source);

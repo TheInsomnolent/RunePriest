@@ -38,6 +38,7 @@ must **fizzle gracefully**, never crash.
 - New runes need hand-written `RUNEPRIEST-RUNE_<KEY>.title/.description` in `static_hover_tips.json` (the analyzer doesn't check these).
 - Art: **use placeholder assets only**; an artist will supply art later. Missing images fall back to `card.png`/`power.png`/`relic.png` via `Extensions/StringExtensions.cs`.
 - Randomness in combat must use `Owner.RunState.Rng.CombatTargets` (or another `RunRngSet` stream) — never `System.Random` (breaks co-op determinism / replays).
+- Co-op: runes only affect the player who inscribed them (ally payloads always hit the caster; target modes only pick enemies). Giving runes to other players goes through `RuneCmd.Share` (Choral Evocation), which raises no inscription listeners.
 - All effects go through game commands (`DamageCmd`, `CreatureCmd`, `PowerCmd`, `PlayerCmd`, `CardPileCmd`) and are `await`ed with the `PlayerChoiceContext`.
 - Keep the rune interpreter free of Godot/UI dependencies; UI observes buffer change events.
 - Custom Godot nodes (`RunePriestCode/Nodes/`) must be `partial` and are created in code (no scenes); `MainFile` calls `ScriptManagerBridge.LookupScriptsInAssembly` so their callbacks run.

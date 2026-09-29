@@ -131,5 +131,7 @@
   "RUNEPRIEST-CURSED_SPIRITS.title": "Cursed Spirits",
   "RUNEPRIEST-CURSED_SPIRITS.description": "Summon {CursedSpiritsPower:diff()} spirits. Gain a spirit at the start of each turn.\nAdd a [gold]Black Mark[/gold] to your hand.",
   "RUNEPRIEST-BLACK_MARK.title": "Black Mark",
-  "RUNEPRIEST-BLACK_MARK.description": "Apply [gold]Black Mark[/gold].{IfUpgraded:show:\nDraw {Cards} {Cards:plural:card|cards}.|}"
+  "RUNEPRIEST-BLACK_MARK.description": "Apply [gold]Black Mark[/gold].{IfUpgraded:show:\nDraw {Cards} {Cards:plural:card|cards}.|}",
+  "RUNEPRIEST-CHORAL_EVOCATION.title": "Choral Evocation",
+  "RUNEPRIEST-CHORAL_EVOCATION.description": "This turn, {IfUpgraded:show:every rune|[blue]Defend[/blue] runes} you [gold]Inscribe[/gold] {IfUpgraded:show:is|are} also [gold]Inscribed[/gold] for all other players."
 }
