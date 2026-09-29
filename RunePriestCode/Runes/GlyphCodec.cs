@@ -1,7 +1,7 @@
 namespace RunePriest.RunePriestCode.Runes;
 
 /// <summary>
-/// Text form of glyphs, used to save runes Imbued into cards: glyphs separated by <c>;</c>, runes by <c>,</c>,
+/// Text form of glyphs, used to store runes Imbued into cards: glyphs separated by <c>;</c>, runes by <c>,</c>,
 /// each rune as <c>KEY:VALUE</c> (e.g. <c>STRIKE:10,BLOOD:3;AMPLIFY:2</c>). Anchors and sources are not stored.
 /// Unknown runes are dropped, so a corrupt glyph decodes as malformed and simply fizzles when spoken.
 /// </summary>

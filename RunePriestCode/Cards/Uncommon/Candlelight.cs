@@ -9,7 +9,7 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
-/// <summary>Inscribe Kindle equal to the number of runes currently in the Incantation.</summary>
+/// <summary>Inscribe Kindle equal to the number of runes currently in the Incantation (simultaneous runes each count).</summary>
 public sealed class Candlelight() : RuneCard(2, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
 {
     // Glyphs(null) is only used for hover tips; the real count is read when played.
@@ -17,7 +17,7 @@ public sealed class Candlelight() : RuneCard(2, CardType.Skill, CardRarity.Uncom
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        var count = IncantationSize;
+        var count = IncantationRuneCount;
         if (count <= 0) return;
         await RuneCmd.Inscribe(choiceContext, Owner, [Glyph.Of(new KindleRune(count))], this);
     }
