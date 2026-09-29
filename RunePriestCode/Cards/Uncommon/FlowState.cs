@@ -8,9 +8,9 @@ using MegaCrit.Sts2.Core.ValueProps;
 using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
-namespace RunePriest.RunePriestCode.Cards.Common;
+namespace RunePriest.RunePriestCode.Cards.Uncommon;
 /// <summary>This turn, draw a card whenever you Inscribe.</summary>
-public sealed class FlowState() : RunePriestCard(1, CardType.Skill, CardRarity.Common, TargetType.Self)
+public sealed class FlowState() : RunePriestCard(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 

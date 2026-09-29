@@ -27,7 +27,7 @@
   "RUNEPRIEST-RUNIC_BARRAGE.title": "Runic Barrage",
   "RUNEPRIEST-RUNIC_BARRAGE.description": "Deal {Damage:diff()} damage for each rune in your Incantation.",
   "RUNEPRIEST-QUICK_SCRIBE.title": "Quick Scribe",
-  "RUNEPRIEST-QUICK_SCRIBE.description": "{IfUpgraded:show:[gold]Inscribe[/gold] [blue]Loop[/blue] {Loop}.\n|}[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}.\n[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}.{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]End Loop[/blue].|}",
+  "RUNEPRIEST-QUICK_SCRIBE.description": "{IfUpgraded:show:[gold]Inscribe[/gold] [blue]Loop[/blue] {Loop}.\n|}[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}, [blue]Defend[/blue] {Defend}.{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]End Loop[/blue].|}",
   "RUNEPRIEST-AMPLIFICATION_RUNE_CARD.title": "Amplification Rune",
   "RUNEPRIEST-AMPLIFICATION_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Amplify[/blue] +{Amplify:diff()}.",
   "RUNEPRIEST-BLANK_RUNE_CARD.title": "Blank Rune",

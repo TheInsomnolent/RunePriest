@@ -150,7 +150,8 @@ Resolution details:
 - `[Loop 3][Strike 4][End]` → 12 damage.
 - `[Twin ×2][Loop 3][Strike 14 + Blood 3][End]` → Twin empowers the whole loop: 84 damage, **18 HP loss**. Adding `[Mend 3]` inside the loop gets doubled too (heal 6/iteration) and fully cancels the Blood — placement is the puzzle.
 - `[Scatter][Loop 4][Strike 3][End]` → 4 random 3-damage hits.
-- `[Loop 2][Strike 3][Defend 3][End]` (Quick Scribe+) → 6 damage and 6 Block. Runic Form wraps the first two runes of every turn like this.
+- `[Loop 2][Strike 3 + Defend 3][End]` (Quick Scribe+) → 6 damage and 6 Block.
+- `[Loop 2][Strike 3][Defend 3][End]` → same result; Runic Form wraps the first two runes of every turn like this.
 - `[Hex 2][Nova][Strike 6]` → Hex hits the anchor only (Nova comes after), then 9 to the Vulnerable anchor and 6 to the rest.
 - `[Strike 8][Seal][Loop 2]` → 8 now; `[Loop 2]` waits at the front of next turn's Incantation.
 
@@ -236,14 +237,13 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Nova Rune | Common | Skill | 1 | Inscribe [Nova]. | cost 0 |
 | Chain Lightning | Common | Attack | 2 | Inscribe [Scatter][Strike 3]×3. | cost 1 |
 | Execution Rune | Common | Attack | 1 | Inscribe [Execution][Strike 10]. | Strike 15 |
-| Flow State | Common | Skill | 1 | This turn, whenever you Inscribe, draw 1. Exhaust. | no Exhaust |
 | Hex Rune | Common | Skill | 1 | Inscribe [Hex 1]. | cost 0 |
 | Blind Rage | Common | Attack | 1 | Inscribe [Scatter][Strike 15]. | Strike 20 |
 | Quick Jab | Common | Attack | 0 | Deal 3. Inscribe [Strike 3]. | 4 / 4 |
 | Mending Rune | Common | Skill | 1 | Inscribe [Mend 2]. Exhaust. | Mend 4 |
 | Strength Rune | Common | Skill | 1 | Inscribe [Strength 2]. | cost 0 |
 | Runic Barrage | Common | Attack | 1 | Deal 3 damage per rune in the Incantation (one hit each). | 4 |
-| Quick Scribe | Common | Attack | 1 | Inscribe [Strike 3][Defend 3]. | wrapped in [Loop 2]…[End Loop] |
+| Quick Scribe | Common | Attack | 1 | Inscribe [Strike 3 + Defend 3]. | wrapped in [Loop 2]…[End Loop] |
 | Amplification Rune | Common | Skill | 1 | Inscribe [Amplify +4]. | +6 |
 | Blank Rune | Common | Skill | 0 | Imbue 1. Exhaust. | no Exhaust |
 | Hasty Scrawl | Common | Attack | 0 | Inscribe [Strike 3][Swift 1]. | Swift 2 |
@@ -269,6 +269,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Pacify | Uncommon | Skill | 1 | Every payload rune becomes [Mend] of the same total value. Exhaust. | cost 0 |
 | Holy Water Sigil | Uncommon | Power | 1 | Healing deals that much damage to a random enemy. | ALL enemies |
 | Barrier of Light | Uncommon | Skill | 2 | Until your next turn, damage taken is halved. | cost 1 |
+| Flow State | Uncommon | Skill | 1 | This turn, whenever you Inscribe, draw 1. Exhaust. | no Exhaust |
 | Paladin Sigil | Uncommon | Power | 2 | Whenever you Imbue a rune, gain 1 Strength. | cost 1 |
 | Eternal Sigil | Rare | Power | 3 | Incantation is kept after Speaking. Ethereal. | no Ethereal |
 | Runic Form | Rare | Power | 3 | First two runes inscribed each turn are wrapped in [Loop 2]…[End Loop]. | cost 2 |
@@ -279,7 +280,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Ancient Tablet | Rare | Skill | 2 | Imbue every rune. | cost 1 |
 | Holy Dagger | Rare | Attack | 2 | Deal 1. Gain Dexterity = unblocked damage dealt. | 2 |
 
-Totals: 3 Basic, 16 Common, 21 Uncommon, 8 Rare = 48.
+Totals: 3 Basic, 15 Common, 22 Uncommon, 8 Rare = 48.
 
 Assumptions made where the CSV was silent (revisit on review): bare "Inscribe Loop/Twin/Kindle/Hex" = Loop 2 / Twin ×2 /
 Kindle 1 / Hex 1; bare "Inscribe Swift" = Swift 2; Echoing Ward costs 2; "Draw 1" upgrades draw on play; Imbue = +2 per
