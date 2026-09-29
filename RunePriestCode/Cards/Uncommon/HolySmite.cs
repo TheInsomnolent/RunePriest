@@ -9,17 +9,18 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
-/// <summary>Imbue, then hit harder for each rune that was Imbued.</summary>
+/// <summary>Imbue, then hit harder for each rune Imbued into this card.</summary>
 public sealed class HolySmite() : RunePriestCard(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new DamageVar(11m, ValueProp.Move), new IntVar("Imbue", 2m), new DamageVar("Bonus", 5m, ValueProp.Move)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Imbue];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => ImbueHoverTips;
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        var imbued = await Imbue(choiceContext, DynamicVars["Imbue"].IntValue);
+        await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
+        var imbued = ImbuedGlyphs.Count;
         await DealDamage(choiceContext, cardPlay, DynamicVars.Damage.BaseValue + imbued * DynamicVars["Bonus"].BaseValue);
     }
 

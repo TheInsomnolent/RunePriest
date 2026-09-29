@@ -21,8 +21,8 @@ public abstract class PayloadRune(int value) : Rune(value)
 {
     public override RuneKind Kind => RuneKind.Payload;
 
-    /// <summary>Whether Amplify/Twin/Imbue affect this rune. Non-scalable runes still repeat in loops.</summary>
-    public virtual bool Scalable => true;
+    /// <summary>Payloads are amplifiable unless they opt out. Non-amplifiable runes still repeat in loops.</summary>
+    public override bool Amplifiable => true;
 
     public abstract RuneTargeting Targeting { get; }
 
@@ -96,13 +96,13 @@ public sealed class StrengthRune(int value) : PayloadRune(value)
         PowerCmd.Apply<StrengthPower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
 }
 
-/// <summary>Removes every debuff from the target(s). Has no value; never merges.</summary>
+/// <summary>Removes every debuff from you (the caster, regardless of target mode). Has no value; never merges.</summary>
 public sealed class CleanseRune() : PayloadRune(1)
 {
     public override string Key => "CLEANSE";
     public override bool ShowsValue => false;
-    public override bool Scalable => false;
-    public override RuneTargeting Targeting => RuneTargeting.Ally;
+    public override bool Amplifiable => false;
+    public override RuneTargeting Targeting => RuneTargeting.Self;
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
     {
@@ -126,7 +126,7 @@ public sealed class KindleRune(int value) : PayloadRune(value)
 {
     public override string Key => "KINDLE";
     public override Rune WithValue(int value) => new KindleRune(value);
-    public override bool Scalable => false;
+    public override bool Amplifiable => false;
     public override RuneTargeting Targeting => RuneTargeting.Self;
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
@@ -142,7 +142,7 @@ public sealed class SwiftRune(int value) : PayloadRune(value)
 {
     public override string Key => "SWIFT";
     public override Rune WithValue(int value) => new SwiftRune(value);
-    public override bool Scalable => false;
+    public override bool Amplifiable => false;
     public override RuneTargeting Targeting => RuneTargeting.Self;
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)

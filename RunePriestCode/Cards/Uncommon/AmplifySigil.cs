@@ -11,7 +11,7 @@ public sealed class AmplifySigil() : RunePriestCard(2, CardType.Power, CardRarit
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new PowerVar<AmplifySigilPower>(1m)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [HoverTipFactory.FromPower<AmplifySigilPower>()];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [HoverTipFactory.FromPower<AmplifySigilPower>(), ..new AmplifyRune(1).HoverTips];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

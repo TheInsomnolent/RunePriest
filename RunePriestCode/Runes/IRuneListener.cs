@@ -27,7 +27,7 @@ public interface IRuneListener
 
     Task AfterInscribed(PlayerChoiceContext choiceContext, Player player, IReadOnlyList<Glyph> glyphs) => Task.CompletedTask;
 
-    /// <summary>A glyph in the Incantation was Imbued (see <see cref="RuneCmd.Imbue"/>).</summary>
+    /// <summary>A glyph was taken out of the Incantation and bound to a card by Imbue (see <see cref="RuneCmd.TakeForImbue"/>).</summary>
     Task AfterImbued(PlayerChoiceContext choiceContext, Player player, Glyph glyph) => Task.CompletedTask;
 
     /// <summary>A glyph left the Incantation without being Spoken (see <see cref="RuneCmd.Remove"/>).</summary>
@@ -35,6 +35,7 @@ public interface IRuneListener
 
     Task AfterPayload(RuneContext ctx, PayloadRune rune, int value, IReadOnlyList<Creature> targets) => Task.CompletedTask;
 
+    /// <summary>A glyph fizzled while Speaking, or was fizzled mid-turn (see <see cref="RuneCmd.Fizzle"/>).</summary>
     Task AfterFizzle(RuneContext ctx, Glyph glyph) => Task.CompletedTask;
 
     Task AfterSpeak(RuneContext ctx) => Task.CompletedTask;

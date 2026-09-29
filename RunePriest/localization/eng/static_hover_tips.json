@@ -4,7 +4,9 @@
   "RUNEPRIEST-SPEAK.title": "Speak",
   "RUNEPRIEST-SPEAK.description": "Resolve your Incantation from left to right, then clear it. Runes that make no sense fizzle harmlessly.",
   "RUNEPRIEST-IMBUE.title": "Imbue",
-  "RUNEPRIEST-IMBUE.description": "Empower runes already in your Incantation: each gains +2 to every value that can be amplified. Imbue X empowers the X most recently inscribed runes that can be.",
+  "RUNEPRIEST-IMBUE.description": "Remove the X most recently inscribed runes from your Incantation and bind them to this card, filling its Imbue slot. Once Imbued, playing the card [gold]Inscribes[/gold] its runes instead. An Imbued card can't be Imbued again.",
+  "RUNEPRIEST-IMBUED.title": "Imbued",
+  "RUNEPRIEST-IMBUED.description": "This card holds:\n{Runes}",
   "RUNEPRIEST-INCANTATION_SCRIPT.title": "Current Incantation",
   "RUNEPRIEST-INCANTATION_SCRIPT.capacity": "({Count}/{Capacity} runes)",
   "RUNEPRIEST-OVERFLOW.title": "Overflow",
@@ -25,7 +27,7 @@
   "RUNEPRIEST-RUNE_HEX.title": "Hex",
   "RUNEPRIEST-RUNE_HEX.description": "Apply {Value} [gold]Weak[/gold] and {Value} [gold]Vulnerable[/gold] to the target.",
   "RUNEPRIEST-RUNE_CLEANSE.title": "Cleanse",
-  "RUNEPRIEST-RUNE_CLEANSE.description": "Remove all debuffs from the target ally (you, by default). Has no value and cannot be amplified.",
+  "RUNEPRIEST-RUNE_CLEANSE.description": "Remove all debuffs from you. Has no value and cannot be amplified.",
   "RUNEPRIEST-RUNE_BLOOD.title": "Blood",
   "RUNEPRIEST-RUNE_BLOOD.description": "Lose {Value} HP.",
   "RUNEPRIEST-RUNE_KINDLE.title": "Kindle",
@@ -42,6 +44,9 @@
   "RUNEPRIEST-RUNE_ECHO.title": "Echo",
   "RUNEPRIEST-RUNE_ECHO.description": "Resolve the next rune {Value} extra time(s). Before a [blue]Loop[/blue], multiplies its repetitions.",
 
+  "RUNEPRIEST-RUNE_VOID.title": "Void",
+  "RUNEPRIEST-RUNE_VOID.description": "The next rune fizzles instead of resolving. Before a [blue]Loop[/blue], voids the whole loop.",
+
   "RUNEPRIEST-RUNE_ANCHOR.title": "Anchor",
   "RUNEPRIEST-RUNE_ANCHOR.description": "Later runes affect the creature chosen when their card was played. This is the default.",
   "RUNEPRIEST-RUNE_SCATTER.title": "Scatter",
@@ -54,7 +59,7 @@
   "RUNEPRIEST-RUNE_MIRROR.description": "Later offensive runes hit YOU, and supportive runes aid an enemy. Any other targeting rune ends the Mirror.",
 
   "RUNEPRIEST-RUNE_LOOP.title": "Loop",
-  "RUNEPRIEST-RUNE_LOOP.description": "Repeat the runes up to the next [blue]End Loop[/blue] {Value} times. An unclosed Loop runs to the end.",
+  "RUNEPRIEST-RUNE_LOOP.description": "Repeat the runes up to the next [blue]End Loop[/blue] {Value} more time(s). An unclosed Loop runs to the end.",
   "RUNEPRIEST-RUNE_END_LOOP.title": "End Loop",
   "RUNEPRIEST-RUNE_END_LOOP.description": "Closes the nearest open [blue]Loop[/blue].",
   "RUNEPRIEST-RUNE_SEAL.title": "Seal",

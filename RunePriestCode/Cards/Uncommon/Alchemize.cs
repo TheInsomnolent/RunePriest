@@ -14,12 +14,12 @@ public sealed class Alchemize() : RunePriestCard(0, CardType.Skill, CardRarity.U
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(2), new IntVar("Imbue", 1m)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, RuneTips.Imbue];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, ..ImbueHoverTips];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await RuneCmd.Remove(choiceContext, Owner);
         await Draw(choiceContext, DynamicVars.Cards.BaseValue);
-        if (IsUpgraded) await Imbue(choiceContext, DynamicVars["Imbue"].IntValue);
+        if (IsUpgraded) await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
     }
 }

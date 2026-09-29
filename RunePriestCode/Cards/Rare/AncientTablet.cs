@@ -12,9 +12,10 @@ using RunePriest.RunePriestCode.Runes;
 namespace RunePriest.RunePriestCode.Cards.Rare;
 public sealed class AncientTablet() : RunePriestCard(2, CardType.Skill, CardRarity.Rare, TargetType.Self)
 {
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Imbue];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => ImbueHoverTips;
 
-    protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) => RuneCmd.ImbueAll(choiceContext, Owner);
+    protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
+        Imbue(choiceContext, cardPlay, int.MaxValue);
 
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

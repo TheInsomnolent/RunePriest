@@ -25,6 +25,12 @@ public abstract class Rune(int value = 0)
 
     public virtual bool ShowsValue => true;
 
+    /// <summary>
+    /// Whether additive/multiplicative effects (Amplify, Twin, Amplify Sigil, Empower) change this rune's value.
+    /// Runes that aren't amplifiable keep their value even if they have one (Loop, Kindle, Swift…).
+    /// </summary>
+    public virtual bool Amplifiable => false;
+
     public virtual string ValueLabel => Value.ToString();
 
     public string LocKey => $"{RuneTips.Prefix}RUNE_{Key}";

@@ -13,10 +13,10 @@ public sealed class Spellbook() : RunePriestCard(1, CardType.Skill, CardRarity.U
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Imbue", 3m)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Imbue];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => ImbueHoverTips;
 
     protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
-        Imbue(choiceContext, DynamicVars["Imbue"].IntValue);
+        Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
 
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

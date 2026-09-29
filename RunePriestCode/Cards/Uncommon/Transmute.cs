@@ -13,13 +13,13 @@ public sealed class Transmute() : RuneCard(1, CardType.Skill, CardRarity.Uncommo
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Imbue", 1m), new CardsVar("Swift", 3)];
 
-    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [RuneTips.Imbue];
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips => ImbueHoverTips;
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new SwiftRune(Var("Swift")))];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await Imbue(choiceContext, DynamicVars["Imbue"].IntValue);
+        await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
         await base.OnPlay(choiceContext, cardPlay);
     }
 

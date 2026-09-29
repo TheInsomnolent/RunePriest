@@ -7,7 +7,10 @@ using RunePriest.RunePriestCode.Runes;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using MegaCrit.Sts2.Core.Saves.Runs;
 
 namespace RunePriest.RunePriestCode.Cards;
 
@@ -38,8 +41,44 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
 
     protected int IncantationSize => Incantation?.Glyphs.Count ?? 0;
 
-    /// <returns>How many runes were Imbued.</returns>
-    protected Task<int> Imbue(PlayerChoiceContext choiceContext, int count) => RuneCmd.Imbue(choiceContext, Owner, count);
+    /// <summary>
+    /// Runes bound to this card by Imbue, as <see cref="GlyphCodec"/> text ("" = the Imbue slot is free).
+    /// Saved with the run, so an Imbued deck card keeps its runes in later combats.
+    /// </summary>
+    [SavedProperty]
+    public string ImbuedRunes { get; set; } = "";
+
+    public bool IsImbued => !string.IsNullOrEmpty(ImbuedRunes);
+
+    public IReadOnlyList<Glyph> ImbuedGlyphs => GlyphCodec.Decode(ImbuedRunes);
+
+    /// <summary>Imbue hover tip, plus the runes bound to this card once it is Imbued.</summary>
+    protected IEnumerable<IHoverTip> ImbueHoverTips =>
+        IsImbued ? [RuneTips.Imbue, RuneTips.Imbued(ImbuedGlyphs)] : [RuneTips.Imbue];
+
+    /// <summary>
+    /// Imbue: if this card's Imbue slot is free, bind up to <paramref name="count"/> of the most recent runes
+    /// (matching <paramref name="filter"/>) to it, removing them from the Incantation. If the slot is already filled
+    /// it can't be overwritten; instead the bound runes are Inscribed, anchored to the card's target.
+    /// </summary>
+    /// <returns>How many runes were bound by this play.</returns>
+    protected async Task<int> Imbue(PlayerChoiceContext choiceContext, CardPlay cardPlay, int count, Func<Glyph, bool>? filter = null)
+    {
+        if (IsImbued)
+        {
+            await RuneCmd.Inscribe(choiceContext, Owner, ImbuedGlyphs.Select(g => g.AnchoredTo(cardPlay.Target)), this);
+            return 0;
+        }
+
+        var taken = await RuneCmd.TakeForImbue(choiceContext, Owner, count, filter);
+        if (taken.Count == 0) return 0;
+
+        ImbuedRunes = GlyphCodec.Encode(taken);
+        // Combat cards are copies; write through to the deck card so the runes stay for the rest of the run.
+        if (DeckVersion is RunePriestCard deckCard && !ReferenceEquals(deckCard, this))
+            deckCard.ImbuedRunes = ImbuedRunes;
+        return taken.Count;
+    }
 
     protected Task Draw(PlayerChoiceContext choiceContext, decimal count) => CardPileCmd.Draw(choiceContext, count, Owner);
 
@@ -56,6 +95,16 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
         {
             var card = CombatState!.CreateCard<T>(Owner);
             CardCmd.PreviewCardPileAdd(await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Draw, Owner, CardPilePosition.Random));
+        }
+    }
+
+    protected async Task AddToHand<T>(int count, bool upgraded = false) where T : CardModel
+    {
+        for (var i = 0; i < count; i++)
+        {
+            var card = CombatState!.CreateCard<T>(Owner);
+            if (upgraded) CardCmd.Upgrade(card, CardPreviewStyle.None);
+            CardCmd.PreviewCardPileAdd(await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Hand, Owner));
         }
     }
 }
