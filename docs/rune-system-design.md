@@ -1,6 +1,6 @@
 # Rune System Design — "The Incantation"
 
-Status: **v0.6 — design sync 9/29/2026** (rune core, 61 cards incl. 4 special cursed weapons, 8 relics, 3 potions, card-slot Imbue, overhead UI, capacity, forecast).
+Status: **v0.6 — design sync 9/29/2026** (rune core, 61 cards incl. 4 special cursed weapons, 7 relics, 3 potions, card-slot Imbue, overhead UI, capacity, forecast).
 Untested in-game; all numbers are first-pass. Update this doc when decisions change.
 
 ## 1. Pitch
@@ -196,7 +196,7 @@ RunePriestCode/
   Cards/
     RuneCard.cs           abstract Glyphs(Creature? anchor); OnPlay → RuneCmd.Inscribe; auto hover tips for Inscribe + runes; Var(name)
     Basic/ Common/ Uncommon/ Rare/
-  Relics/ChalkStylus.cs   starter (first Inscribe each turn → 4 Block)
+  Relics/BlessedToolbox.cs starter (random Common rune card on pickup; first rune card each combat → draw 1)
   Nodes/
     NRuneBuffer.cs        row above a player's head; polls RuneCmd.GetBuffer, diffs glyphs by reference, lays out (ReadRightToLeft const)
     NGlyph.cs             one slot; compound runes stacked vertically; appear / pulse (activated) / shake+grey (fizzle) / dissolve
@@ -207,7 +207,7 @@ RunePriestCode/
 ```
 Key decisions:
 - **Buffer lives on a Power** (`IncantationPower`) on the player creature: auto-receives hooks with a correctly owned `PlayerChoiceContext` (co-op safe), auto-cleans at combat end, and its icon + hover tip is the v1 UI. Applied lazily on first Inscribe; stays for the rest of combat (Amount fixed at 1).
-- Evaluate in `BeforeSideTurnEnd`. Relics that inscribe at end of turn must use `BeforeSideTurnEndEarly` (see `ChalkStylus`).
+- Evaluate in `BeforeSideTurnEnd`. Relics that inscribe at end of turn must use `BeforeSideTurnEndEarly`.
 - Strike runes are real attacks via `DamageCmd.Attack(...).FromCard(glyph.Source, null)`; glyphs without a source card (relic/power-inscribed) fall back to `CreatureCmd.Damage` with `ValueProp.Move`.
 - Deterministic RNG only (`RunState.Rng.CombatTargets`).
 - Rune text lives in `static_hover_tips.json` (`RUNEPRIEST-RUNE_<KEY>.title/.description`). **Not checked by the analyzer** — add entries by hand for every new rune/target mode.
@@ -292,7 +292,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Frenzied Incant | Uncommon | Skill | 2 | Inscribe [Loop 1]. Put [Scatter] at the start of the Incantation. | cost 1 |
 | Folly's Mirror | Uncommon | Skill | 0 | Inscribe [Echo][Echo]. | Imbue 1 first |
 | Energy Overflow | Uncommon | Power | 1 | Whenever a rune fizzles, deal 5 damage to ALL enemies. | cost 0 |
-| Dark Magick | Rare | Skill | 1 | Inscribe [Void]. Add 2 upgraded Loop Runes to your hand. | [Kindle 1] instead of [Void] |
+| Dark Magick | Rare | Skill | 1 | Inscribe [Void]. Add 2 upgraded Loop Runes to your hand. | also Inscribe [Kindle 1] |
 | Unforgiveable Curse | Rare | Power | 1 | Whenever a rune fizzles, add a random cursed weapon to your hand (end-of-turn fizzles deliver next turn). | also Inscribe [Echo] ×3 |
 
 Special (Token rarity, `TokenCardPool`; only created by Unforgiveable Curse / Cursed Spirits):
@@ -313,8 +313,7 @@ without being Spoken, which includes fizzles; Holy Water Sigil uses the heal amo
 
 | Relic | Rarity | Effect |
 |---|---|---|
-| Chalk Stylus | Starter | The first time you Inscribe each turn, gain 4 Block. (CSV "starter relic ideas" column) |
-| Blessed Toolbox | Starter | On pickup, add a random Common rune card (`RuneCard`) to your deck. The first time you play a rune card each combat, draw 1. Given alongside Chalk Stylus. |
+| Blessed Toolbox | Starter | On pickup, add a random Common rune card (`RuneCard`) to your deck. The first time you play a rune card each combat, draw 1. Replaced Chalk Stylus (removed in the 9/29 sync). |
 | Holy Sparkler | Common | Whenever a rune fizzles, gain 4 Block. |
 | Imbued Teacup | Uncommon | The first rune inscribed each turn has its values doubled (`Glyph.Scaled(2)`, so Loop 1 → Loop 2). |
 | Baptised Idol | Uncommon | On pickup, upgrade 2 random cards that Inscribe (`RuneCard`s) — used instead of a "Rune" name match. |

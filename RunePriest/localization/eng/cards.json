@@ -108,7 +108,7 @@
   "RUNEPRIEST-FRENZIED_INCANT.title": "Frenzied Incant",
   "RUNEPRIEST-FRENZIED_INCANT.description": "[gold]Inscribe[/gold] [blue]Loop[/blue] {Loop}.\nPut [blue]Scatter[/blue] at the start of your Incantation.",
   "RUNEPRIEST-DARK_MAGICK.title": "Dark Magick",
-  "RUNEPRIEST-DARK_MAGICK.description": "[gold]Inscribe[/gold] {IfUpgraded:show:[blue]Kindle[/blue] {Kindle}|[blue]Void[/blue]}.\nAdd {Cards} upgraded [gold]Loop Runes[/gold] to your hand.",
+  "RUNEPRIEST-DARK_MAGICK.description": "[gold]Inscribe[/gold] [blue]Void[/blue].{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]Kindle[/blue] {Kindle}.|}\nAdd {Cards} upgraded [gold]Loop Runes[/gold] to your hand.",
   "RUNEPRIEST-FOLLYS_MIRROR.title": "Folly's Mirror",
   "RUNEPRIEST-FOLLYS_MIRROR.description": "{IfUpgraded:show:[gold]Imbue[/gold] {Imbue}.\n|}[gold]Inscribe[/gold] [blue]Echo[/blue] +{Echo}.\n[gold]Inscribe[/gold] [blue]Echo[/blue] +{Echo}.",
   "RUNEPRIEST-UNFORGIVEABLE_CURSE.title": "Unforgiveable Curse",
