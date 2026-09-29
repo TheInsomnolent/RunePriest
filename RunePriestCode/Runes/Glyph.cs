@@ -9,12 +9,11 @@ namespace RunePriest.RunePriestCode.Runes;
 /// </summary>
 public sealed class Glyph
 {
-    private Glyph(IReadOnlyList<Rune> runes, Creature? anchor, CardModel? source, int imbued = 0)
+    private Glyph(IReadOnlyList<Rune> runes, Creature? anchor, CardModel? source)
     {
         Runes = runes;
         Anchor = anchor;
         Source = source;
-        Imbued = imbued;
     }
 
     public IReadOnlyList<Rune> Runes { get; }
@@ -23,9 +22,6 @@ public sealed class Glyph
     public Creature? Anchor { get; }
 
     public CardModel? Source { get; }
-
-    /// <summary>How many times this glyph has been Imbued (its values already include the bonus).</summary>
-    public int Imbued { get; }
 
     public RuneKind? Kind
     {
@@ -37,38 +33,33 @@ public sealed class Glyph
         }
     }
 
-    /// <summary>Imbue only empowers payload glyphs that carry a scalable value.</summary>
-    public bool CanImbue => Kind == RuneKind.Payload && Runes.Any(r => r is PayloadRune { Scalable: true });
+    /// <summary>Empower only affects payload glyphs that carry an amplifiable value.</summary>
+    public bool CanEmpower => Kind == RuneKind.Payload && Runes.Any(r => r is PayloadRune { Amplifiable: true });
 
     public string Label => string.Join(", ", Runes.Select(r => r.Label));
 
     public static Glyph Of(params Rune[] runes) => new(runes, null, null);
 
-    public Glyph AnchoredTo(Creature? anchor) => new(Runes, anchor, Source, Imbued);
+    public Glyph AnchoredTo(Creature? anchor) => new(Runes, anchor, Source);
 
-    public Glyph WithSource(CardModel? source) => new(Runes, Anchor, source, Imbued);
+    public Glyph WithSource(CardModel? source) => new(Runes, Anchor, source);
 
     /// <summary>A new, distinct glyph with the same runes, anchor and source.</summary>
-    public Glyph Copy() => new(Runes, Anchor, Source, Imbued);
+    public Glyph Copy() => new(Runes, Anchor, Source);
 
-    /// <summary>Adds <paramref name="bonus"/> to every scalable payload rune and marks the glyph as Imbued.</summary>
-    public Glyph Imbue(int bonus) => new(Empowered(bonus), Anchor, Source, Imbued + 1);
-
-    /// <summary>Adds <paramref name="bonus"/> to every scalable payload rune without counting as an Imbue.</summary>
-    public Glyph Empower(int bonus) => new(Empowered(bonus), Anchor, Source, Imbued);
-
-    private List<Rune> Empowered(int bonus) =>
-        Runes.Select(r => r is PayloadRune { Scalable: true } ? r.WithValue(r.Value + bonus) ?? r : r).ToList();
+    /// <summary>Adds <paramref name="bonus"/> to every amplifiable payload rune.</summary>
+    public Glyph Empower(int bonus) =>
+        new(Runes.Select(r => r is PayloadRune { Amplifiable: true } ? r.WithValue(r.Value + bonus) ?? r : r).ToList(), Anchor, Source);
 
     /// <summary>Multiplies every mergeable rune's value (Strike, Loop, Echo, Amplify…). Valueless runes are unchanged.</summary>
     public Glyph Scaled(int factor) =>
-        new(Runes.Select(r => r.WithValue(r.Value * factor) ?? r).ToList(), Anchor, Source, Imbued);
+        new(Runes.Select(r => r.WithValue(r.Value * factor) ?? r).ToList(), Anchor, Source);
 
-    /// <summary>Replaces every payload rune with a single Mend worth their combined value.</summary>
-    public Glyph AsMend()
+    /// <summary>Replaces every Defend rune with a Mend of the same value. Returns this glyph if it has no Defend.</summary>
+    public Glyph DefendAsMend()
     {
-        if (Kind != RuneKind.Payload) return this;
-        return new Glyph([new MendRune(Runes.Sum(r => r.Value))], Anchor, Source, Imbued);
+        if (!Runes.Any(r => r is DefendRune)) return this;
+        return new Glyph(Runes.Select(r => r is DefendRune ? new MendRune(r.Value) : r).ToList(), Anchor, Source);
     }
 
     /// <summary>
@@ -87,7 +78,7 @@ public sealed class Glyph
             if (rune == null) return null;
             merged[i] = rune;
         }
-        return new Glyph(merged, Anchor, Source, Imbued + next.Imbued);
+        return new Glyph(merged, Anchor, Source);
     }
 
     public override string ToString() => $"[{string.Join(" + ", Runes)}]";

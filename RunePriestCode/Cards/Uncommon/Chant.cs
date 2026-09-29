@@ -4,18 +4,18 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
-using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
 using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
-namespace RunePriest.RunePriestCode.Cards.Rare;
-public sealed class AncientTablet() : RunePriestCard(2, CardType.Skill, CardRarity.Rare, TargetType.Self)
+namespace RunePriest.RunePriestCode.Cards.Uncommon;
+/// <summary>Speak the Incantation right now.</summary>
+public sealed class Chant() : RunePriestCard(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
 {
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => ImbueHoverTips;
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Speak];
 
     protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
-        Imbue(choiceContext, cardPlay, int.MaxValue);
+        RuneCmd.Speak(choiceContext, Owner, SpeakTiming.Invoked);
 
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

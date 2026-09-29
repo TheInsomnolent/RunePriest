@@ -70,8 +70,9 @@ public static class RuneInterpreter
                     var end = program.MatchOf(pc);
                     var modGlyphs = TakeAll(pending);
                     var mods = AsModifiers(modGlyphs);
+                    // Loop N runs the body once plus N extra times. Modifiers never change N (Loop isn't amplifiable).
                     var count = ctx.Listeners.Aggregate(loop.Value, (c, l) => l.ModifyLoopCount(ctx, loop, c));
-                    var iterations = count * (1 + mods.Sum(m => m.ExtraExecutions));
+                    var iterations = (count + 1) * (1 + mods.Sum(m => m.ExtraExecutions));
                     if (iterations <= 0)
                     {
                         await FizzlePending(ctx, modGlyphs, "loop never ran");
@@ -114,6 +115,11 @@ public static class RuneInterpreter
                         {
                             await Overload(ctx, glyphs, pc, "too many payloads");
                             return [];
+                        }
+                        if (mods.Any(m => m.Voids))
+                        {
+                            await Fizzle(ctx, pc, glyph, "voided");
+                            continue;
                         }
                         await Activate(ctx, glyph);
                         if (!await ExecutePayloadGlyph(ctx, glyph, mods))
@@ -158,8 +164,7 @@ public static class RuneInterpreter
         foreach (var rune in glyph.Runes.Cast<PayloadRune>())
         {
             var value = ctx.Listeners.Aggregate(rune.Value, (v, l) => l.ModifyRuneValue(ctx, rune, v));
-            if (rune.Scalable)
-                value = mods.Aggregate(value, (v, m) => m.Apply(rune, v));
+            value = mods.Aggregate(value, (v, m) => m.ApplyTo(rune, v));
             if (value <= 0) continue;
 
             if (ctx.Preview != null)

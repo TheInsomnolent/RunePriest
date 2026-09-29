@@ -15,10 +15,10 @@ public sealed class BlankRuneCard() : RunePriestCard(0, CardType.Skill, CardRari
 
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Imbue", 1m)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Imbue];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => ImbueHoverTips;
 
     protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
-        Imbue(choiceContext, DynamicVars["Imbue"].IntValue);
+        Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
 
     protected override void OnUpgrade() => RemoveKeyword(CardKeyword.Exhaust);
 }

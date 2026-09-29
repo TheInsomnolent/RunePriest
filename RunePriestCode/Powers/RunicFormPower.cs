@@ -8,7 +8,7 @@ namespace RunePriest.RunePriestCode.Powers;
 /// <summary>The first two runes Inscribed each turn are wrapped in a closed Loop.</summary>
 public sealed class RunicFormPower : RunePriestPower, IRuneListener
 {
-    public const int LoopCount = 2;
+    public const int LoopCount = 1;
 
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Single;

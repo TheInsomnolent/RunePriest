@@ -21,7 +21,7 @@ public sealed class ThrummingElixir : RunePriestPotion
     protected override Task OnUse(PlayerChoiceContext choiceContext, Creature? target)
     {
         var bonus = DynamicVars["Amplify"].IntValue;
-        RuneCmd.Transform(target?.Player ?? Owner, g => g.CanImbue ? g.Empower(bonus) : g);
+        RuneCmd.Transform(target?.Player ?? Owner, g => g.CanEmpower ? g.Empower(bonus) : g);
         return Task.CompletedTask;
     }
 }

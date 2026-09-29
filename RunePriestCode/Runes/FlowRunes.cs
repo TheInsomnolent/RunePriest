@@ -5,6 +5,10 @@ public abstract class FlowRune(int value = 0) : Rune(value)
     public override RuneKind Kind => RuneKind.Flow;
 }
 
+/// <summary>
+/// Runs its body once, then <see cref="Rune.Value"/> extra times (Loop 1 = twice). Not amplifiable: Amplify/Twin
+/// before a Loop empower the body, never the repeat count.
+/// </summary>
 public sealed class LoopRune(int count) : FlowRune(count)
 {
     public override string Key => "LOOP";

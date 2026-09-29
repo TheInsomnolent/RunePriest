@@ -41,6 +41,7 @@ public static class RuneVisuals
         ["TWIN"] = new(RuneFamily.Modifier, "⊗"),
         ["ECHO"] = new(RuneFamily.Modifier, "〃"),
         ["SANCTIFY"] = new(RuneFamily.Modifier, "⊘"),
+        ["VOID"] = new(RuneFamily.Modifier, "⊖"),
 
         ["ANCHOR"] = new(RuneFamily.Target, "◎"),
         ["SCATTER"] = new(RuneFamily.Target, "∴"),

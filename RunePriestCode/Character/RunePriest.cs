@@ -34,7 +34,7 @@ public class RunePriest : PlaceholderCharacterModel
 
     public override IReadOnlyList<RelicModel> StartingRelics =>
     [
-        ModelDb.Relic<ChalkStylus>()
+        ModelDb.Relic<BlessedToolbox>()
     ];
     
     public override CardPoolModel CardPool => ModelDb.CardPool<RunePriestCardPool>();

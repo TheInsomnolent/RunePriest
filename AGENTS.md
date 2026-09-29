@@ -33,7 +33,7 @@ must **fizzle gracefully**, never crash.
 - Model IDs are `<MODID>-<SLUGIFIED_CLASS_NAME>` in upper snake case, e.g. class `RunePriest` → `RUNEPRIEST-RUNE_PRIEST`. Localization keys use that ID: `RUNEPRIEST-STRIKE_RUNE_CARD.title`.
 - Player-facing text says **rune**, never "glyph" (`Glyph` is code-only). Card text rules: [.github/instructions/localization.instructions.md](.github/instructions/localization.instructions.md).
 - Card descriptions use SmartFormat vars: `"Deal {Damage:diff()} damage."` (not `[[Damage]]`).
-- Cards extend `RunePriestCard` (auto-registered to `RunePriestCardPool` via `[Pool]`). Rune-casting cards extend `RuneCard` and implement `Glyphs(Creature? anchor)`. Folders by rarity: `Cards/Basic|Common|Uncommon|Rare`.
+- Cards extend `RunePriestCard` (auto-registered to `RunePriestCardPool` via `[Pool]`). Rune-casting cards extend `RuneCard` and implement `Glyphs(Creature? anchor)`. Folders by rarity: `Cards/Basic|Common|Uncommon|Rare`; generated-only cards go in `Cards/Special` with `CardRarity.Token` and `[Pool(typeof(TokenCardPool))]`.
 - New runes need hand-written `RUNEPRIEST-RUNE_<KEY>.title/.description` in `static_hover_tips.json` (the analyzer doesn't check these).
 - Art: **use placeholder assets only**; an artist will supply art later. Missing images fall back to `card.png`/`power.png`/`relic.png` via `Extensions/StringExtensions.cs`.
 - Randomness in combat must use `Owner.RunState.Rng.CombatTargets` (or another `RunRngSet` stream) — never `System.Random` (breaks co-op determinism / replays).

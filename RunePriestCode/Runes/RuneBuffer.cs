@@ -34,6 +34,13 @@ public sealed class RuneBuffer
         Changed?.Invoke();
     }
 
+    /// <summary>Inserts glyphs at <paramref name="index"/> (0 = the start of the Incantation).</summary>
+    public void Insert(int index, IEnumerable<Glyph> glyphs)
+    {
+        _glyphs.InsertRange(Math.Clamp(index, 0, _glyphs.Count), glyphs);
+        Changed?.Invoke();
+    }
+
     public IReadOnlyList<Glyph> TakeAll()
     {
         var taken = _glyphs.ToList();

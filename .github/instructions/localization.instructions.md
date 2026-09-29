@@ -6,10 +6,11 @@ description: "Card/power/relic text conventions for RunePriest localization file
 
 ## Terminology
 - Say **rune**, never "glyph", in player-facing text (the `Glyph` class is an internal detail).
-- The rune buffer is the **Incantation**. Adding runes is **Inscribe** (`[gold]Inscribe[/gold]`); resolving it is **Speak** (`[gold]Speak[/gold]`, past tense `[gold]Spoken[/gold]`); empowering runes already inscribed is **Imbue** (`[gold]Imbue[/gold]`, hover tip `RuneTips.Imbue`).
+- The rune buffer is the **Incantation**. Adding runes is **Inscribe** (`[gold]Inscribe[/gold]`); resolving it is **Speak** (`[gold]Speak[/gold]`, past tense `[gold]Spoken[/gold]`); binding the most recent runes to a card's Imbue slot is **Imbue** (`[gold]Imbue[/gold]`; use `ImbueHoverTips` on the card so the bound runes are listed once it is Imbued).
 - Rune names are blue: `[blue]Strike[/blue]`, `[blue]Defend[/blue]`, `[blue]Loop[/blue]`. Game keywords/powers are gold: `[gold]Block[/gold]`, `[gold]Weak[/gold]`.
   - The block rune is **Defend** (`[blue]Defend[/blue]`); `[gold]Block[/gold]` always means actually gaining block now.
-- Current rune names: Strike, Defend, Mend, Strength, Hex, Cleanse, Kindle, Swift, Blood · Amplify, Twin, Echo, Sanctify · Anchor, Scatter, Nova, Execution, Mirror · Loop, End Loop, Seal. (Blood, Sanctify, Seal, Mirror are engine-only: no card inscribes them.)
+- Current rune names: Strike, Defend, Mend, Strength, Hex, Cleanse, Kindle, Swift, Blood · Amplify, Twin, Echo, Sanctify, Void · Anchor, Scatter, Nova, Execution, Mirror · Loop, End Loop, Seal. (Sanctify, Seal, Mirror are engine-only: no card inscribes them.)
+- A rune that is Spoken but does nothing **fizzles** (lowercase, no colour): "Whenever a rune fizzles, ...".
 - **Concentration** is a custom keyword (`card_keywords.json`, currently unused). Cards get it via `CanonicalKeywords` (auto-prefixed, don't write it in the card text); Concentration powers start their description with `[gold]Concentration[/gold].\n`.
 
 ## Inscribe lines

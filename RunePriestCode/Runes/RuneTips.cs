@@ -13,6 +13,14 @@ public static class RuneTips
     public static IHoverTip Imbue => Tip("IMBUE");
     public static IHoverTip Overflow => Tip("OVERFLOW");
 
+    /// <summary>Lists the runes bound to an Imbued card.</summary>
+    public static IHoverTip Imbued(IEnumerable<Glyph> glyphs)
+    {
+        var description = new LocString(Table, Prefix + "IMBUED.description");
+        description.Add("Runes", string.Join("\n", glyphs.Select(g => g.Label)));
+        return new HoverTip(new LocString(Table, Prefix + "IMBUED.title"), description);
+    }
+
     public static LocString IncantationScriptTitle => new(Table, Prefix + "INCANTATION_SCRIPT.title");
 
     public static LocString ForecastTitle => new(Table, Prefix + "FORECAST.title");
