@@ -201,6 +201,7 @@ RunePriestCode/
     NRuneBuffer.cs        row above a player's head; polls RuneCmd.GetBuffer, diffs glyphs by reference, lays out (ReadRightToLeft const)
     NGlyph.cs             one slot; compound runes stacked vertically; appear / pulse (activated) / shake+grey (fizzle) / dissolve
     NRuneSymbol.cs        script character + value label, random bobbing, additive CpuParticles2D scaled by value
+    NVoidVortex.cs        Void rune: dark hollow ring + screen-edge motes spiralling in (black hole)
     RuneVisuals.cs        style table: family → colour, effect → script, value → character
     RuneFont.cs           composite FontVariation from the game's bundled jpn/kor/tha/rus fonts; HasChar fallback
   Patches/NCreatureRuneBufferPatch.cs  Harmony postfix on NCreature._Ready → attach NRuneBuffer for players
@@ -372,6 +373,9 @@ flip with `NRuneBuffer.ReadRightToLeft`). Compound glyphs stack vertically = "th
 | Anchor / Scatter / Nova / Execution / Mirror | symbols | ◎ ∴ ☆ ▽ ◇ |
 | Loop / End Loop / Seal | CJK brackets / seal mark | 〔 〕 〆 |
 
+- **Void** is the exception: no character, just a dark hollow ring (`NVoidVortex`) evoking a black hole. Sparse white motes
+  spawn on the screen border, fade in, and spiral inward while accelerating until the ring swallows them. They start near
+  transparent at the edge and brighten to normal particle opacity as they approach, so the full-screen effect stays subtle.
 - Small numeric value label on valued runes (hover the Incantation power for full text).
 - Motion: per-symbol random sine bob (cosmetic `GD.Randf`, not run RNG). Particles: additive `CpuParticles2D`, count/speed/size scale with value.
 - Speak feedback: interpreter raises `RuneBuffer.GlyphActivated` / `GlyphFizzled` / `SpeakEnded`, with a short
