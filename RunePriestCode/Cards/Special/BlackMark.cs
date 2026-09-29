@@ -11,7 +11,7 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Special;
-/// <summary>Mark an enemy for the Cursed Spirits. Upgraded: draw a card.</summary>
+/// <summary>Mark an enemy so the Cursed Spirits can attack it. Upgraded: draw a card.</summary>
 [Pool(typeof(TokenCardPool))]
 public sealed class BlackMark() : RunePriestCard(0, CardType.Skill, CardRarity.Token, TargetType.AnyEnemy)
 {

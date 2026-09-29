@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Saves.Runs;
@@ -55,6 +56,19 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
     /// <summary>Imbue hover tip, plus the runes bound to this card once it is Imbued.</summary>
     protected IEnumerable<IHoverTip> ImbueHoverTips =>
         IsImbued ? [RuneTips.Imbue, RuneTips.Imbued(ImbuedGlyphs)] : [RuneTips.Imbue];
+
+    /// <summary>
+    /// Lets card text show what an Imbued card now does: <c>{ImbuedCount}</c> is the number of bound runes (0 = free
+    /// slot) and <c>{ImbuedRunes}</c> their Inscribe lines, e.g.
+    /// <c>{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue}.|{ImbuedRunes}}</c>.
+    /// </summary>
+    protected override void AddExtraArgsToDescription(LocString description)
+    {
+        base.AddExtraArgsToDescription(description);
+        var glyphs = ImbuedGlyphs;
+        description.Add("ImbuedCount", (decimal)glyphs.Count);
+        description.Add("ImbuedRunes", RuneTips.InscribeText(glyphs));
+    }
 
     /// <summary>
     /// Imbue: if this card's Imbue slot is free, bind up to <paramref name="count"/> of the most recent runes

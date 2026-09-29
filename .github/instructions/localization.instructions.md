@@ -24,7 +24,7 @@ description: "Card/power/relic text conventions for RunePriest localization file
   ```
 - Identical consecutive runes may be collapsed: `[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()} twice.` / `{Hits} times.`
 - Don't use "then" or "+" to join runes.
-- Non-Inscribe effects go on their own line before or after the Inscribe lines, matching the order they happen in `OnPlay`. Imbue lines: `[gold]Imbue[/gold] {Imbue}.`
+- Non-Inscribe effects go on their own line before or after the Inscribe lines, matching the order they happen in `OnPlay`. Imbue lines: `{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue}.|{ImbuedRunes}}` — once the card is Imbued, the line is replaced by its bound runes (`ImbuedCount` / `ImbuedRunes` come from `RunePriestCard.AddExtraArgsToDescription`).
 - Text that only applies when upgraded uses the game's formatter: `{IfUpgraded:show:upgraded text|normal text}` (either side may be empty, nested vars like `{Cards}` work inside). Used for upgrades that add an effect (Loop Rune "Draw 1", Quick Scribe's Loop).
 
 ## Values and formatting

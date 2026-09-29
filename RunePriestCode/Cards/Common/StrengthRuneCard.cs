@@ -12,5 +12,5 @@ public sealed class StrengthRuneCard() : RuneCard(1, CardType.Skill, CardRarity.
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new StrengthRune(Var("Strength"))).AnchoredTo(anchor)];
 
-    protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
+    protected override void OnUpgrade() => DynamicVars["Strength"].UpgradeValueBy(1m);
 }

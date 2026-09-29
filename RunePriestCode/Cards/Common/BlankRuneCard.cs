@@ -9,16 +9,16 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Common;
+/// <summary>Imbue a rune. Upgraded: also draw a card.</summary>
 public sealed class BlankRuneCard() : RunePriestCard(0, CardType.Skill, CardRarity.Common, TargetType.Self)
 {
-    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
-
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Imbue", 1m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Imbue", 1m), new CardsVar(1)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => ImbueHoverTips;
 
-    protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
-        Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
-
-    protected override void OnUpgrade() => RemoveKeyword(CardKeyword.Exhaust);
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
+        if (IsUpgraded) await Draw(choiceContext, DynamicVars.Cards.BaseValue);
+    }
 }

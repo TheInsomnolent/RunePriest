@@ -13,12 +13,13 @@ using RunePriest.RunePriestCode.Runes;
 namespace RunePriest.RunePriestCode.Powers;
 
 /// <summary>
-/// Amount = spirits. At the end of your turn each spirit deals <see cref="SpiritDamage"/> damage to a random enemy
-/// with Black Mark (any enemy if none are marked). Gain a spirit at the start of each of your turns.
+/// Amount = spirits. Like damage orbs: at the end of your turn each spirit deals <see cref="SpiritDamage"/> damage
+/// (unpowered, so Strength doesn't apply) to a random enemy with Black Mark. Without a marked enemy, spirits wait.
+/// Gain a spirit at the start of each of your turns.
 /// </summary>
 public sealed class CursedSpiritsPower : RunePriestPower
 {
-    public const int SpiritDamage = 2;
+    public const int SpiritDamage = 5;
 
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
@@ -36,10 +37,9 @@ public sealed class CursedSpiritsPower : RunePriestPower
         if (side != CombatSide.Player || Owner.Player == null || !participants.Contains(Owner)) return;
         for (var i = 0; i < Amount; i++)
         {
-            var enemies = Owner.CombatState?.HittableEnemies.ToList();
-            if (enemies == null || enemies.Count == 0) return;
-            var marked = enemies.Where(e => e.Powers.OfType<BlackMarkPower>().Any()).ToList();
-            var target = Owner.Player.RunState.Rng.CombatTargets.NextItem(marked.Count > 0 ? marked : enemies);
+            var marked = Owner.CombatState?.HittableEnemies.Where(e => e.Powers.OfType<BlackMarkPower>().Any()).ToList();
+            if (marked == null || marked.Count == 0) return;
+            var target = Owner.Player.RunState.Rng.CombatTargets.NextItem(marked);
             if (target == null) return;
             if (i == 0) Flash();
             await CreatureCmd.Damage(choiceContext, target, SpiritDamage, ValueProp.Unpowered, Owner);

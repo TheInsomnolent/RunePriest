@@ -21,6 +21,19 @@ public static class RuneTips
         return new HoverTip(new LocString(Table, Prefix + "IMBUED.title"), description);
     }
 
+    /// <summary>
+    /// Card text for Inscribing <paramref name="glyphs"/>: one Inscribe line per glyph, runes of a compound glyph
+    /// separated by commas (e.g. "Inscribe Strike 10, Blood 3."). Used to show what an Imbued card now does.
+    /// </summary>
+    public static string InscribeText(IEnumerable<Glyph> glyphs) =>
+        string.Join("\n", glyphs.Where(g => g.Runes.Count > 0).Select(g =>
+        {
+            var line = new LocString(Table, Prefix + "IMBUED.inscribe");
+            line.Add("Runes", string.Join(", ", g.Runes.Select(r =>
+                $"[blue]{r.TitleLoc.GetFormattedText()}[/blue]" + (r.ShowsValue ? $" {r.ValueLabel}" : ""))));
+            return line.GetFormattedText();
+        }));
+
     public static LocString IncantationScriptTitle => new(Table, Prefix + "INCANTATION_SCRIPT.title");
 
     public static LocString ForecastTitle => new(Table, Prefix + "FORECAST.title");

@@ -9,7 +9,7 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
-public sealed class EchoingWard() : RuneCard(2, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
+public sealed class EchoingWard() : RuneCard(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar("Defend", 8m, ValueProp.Move)];
 

@@ -1,3 +1,4 @@
+using BaseLib.Extensions;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Relics;
@@ -13,8 +14,8 @@ using RunePriest.RunePriestCode.Runes;
 namespace RunePriest.RunePriestCode.Relics;
 
 /// <summary>
-/// Starter: when obtained, add a random Common rune card to your deck. The first time you play a rune card each
-/// combat, draw a card.
+/// Starter: when obtained, add a random Common card with "Rune" in its name to your deck. The first time you play a
+/// rune card each combat, draw a card.
 /// </summary>
 public sealed class BlessedToolbox : RunePriestRelic
 {
@@ -36,7 +37,7 @@ public sealed class BlessedToolbox : RunePriestRelic
     {
         if (CardGranted) return;
         var options = ModelDb.CardPool<RunePriestCardPool>().AllCards
-            .Where(c => c is RuneCard && c.Rarity == CardRarity.Common).ToList();
+            .Where(c => c.Rarity == CardRarity.Common && HasRuneInName(c)).ToList();
         var canonical = Owner.RunState.Rng.Niche.NextItem(options);
         if (canonical == null) return;
 
@@ -44,6 +45,12 @@ public sealed class BlessedToolbox : RunePriestRelic
         var card = Owner.RunState.CreateCard(canonical, Owner);
         CardCmd.PreviewCardPileAdd(await CardPileCmd.Add(card, PileType.Deck));
     }
+
+    /// <summary>
+    /// Whether the card is named "… Rune" (class <c>XRuneCard</c>, ID <c>…_RUNE_CARD</c>). Uses the model ID rather
+    /// than the localized title so every player in co-op gets the same options.
+    /// </summary>
+    private static bool HasRuneInName(CardModel card) => card.Id.Entry.RemovePrefix().Split('_').Contains("RUNE");
 
     public override Task BeforeCombatStart()
     {

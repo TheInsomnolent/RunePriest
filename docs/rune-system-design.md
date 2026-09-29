@@ -1,6 +1,6 @@
 # Rune System Design — "The Incantation"
 
-Status: **v0.6 — design sync 9/29/2026** (rune core, 61 cards incl. 4 special cursed weapons, 7 relics, 3 potions, card-slot Imbue, overhead UI, capacity, forecast).
+Status: **v0.6 — design sync 9/29/2026** (rune core, 64 cards incl. 4 special cursed weapons, 7 relics, 3 potions, card-slot Imbue, overhead UI, capacity, forecast).
 Untested in-game; all numbers are first-pass. Update this doc when decisions change.
 
 ## 1. Pitch
@@ -47,7 +47,7 @@ Merging does not use a capacity slot.
 | **Strike X** | Deal X damage to the current target(s). | ✔ | Powered attack (`ValueProp.Move`) so Vulnerable/Weak/Strength apply per hit, like multi-hit attacks (see §7). |
 | **Defend X** | Gain X Block. | ✔ | Powered (`ValueProp.Move`) so Dexterity/Frail apply. Block at end of turn still protects during enemy turn. |
 | **Mend X** | Heal X HP. | ✔ | Strong in StS — keep rare, low values, often Exhaust. |
-| **Strength X** | Grant X Strength to the target ally (you by default). | ✔ | Ally-targeted so Nova shares it in co-op. |
+| **Strength X** | Grant X temporary Strength to the target ally (you by default); lost when that side's turn ends (`StrengthRunePower`, a BaseLib `CustomTemporaryPowerModelWrapper`). | ✔ | Ally-targeted so Nova shares it in co-op. Spoken at end of turn, it only empowers runes Spoken after it. |
 | **Hex X** | Apply X Weak **and** X Vulnerable to target(s). | ✔ | Order matters: Hex before Strike amplifies later hits. |
 | **Cleanse** | Remove all debuffs from you. | ✘ | Self-targeted (ignores target mode). Valueless (internally 1); never merges. |
 | **Kindle X** | Gain X Energy. | ✘ | End-of-turn → `EnergyNextTurnPower`. Invoked → immediate. |
@@ -64,7 +64,9 @@ through to the deck card so it lasts the run). **Imbue X** on a card with a free
 inscribed glyphs (any kind, newest first; `RuneCmd.TakeForImbue`) and binds them to the card. Once filled, the slot
 can't be overwritten: playing the card Inscribes the bound glyphs instead (anchored to the card's target), before the
 card's other effects. A card may pass a filter to choose which runes it takes. Listeners get `AfterImbued` per glyph
-(Paladin Sigil). Cards: Blank Rune, Spellbook, Transmute, Ancient Tablet (every rune), Holy Smite (bonus per bound
+(Paladin Sigil). Once filled, the card's own text shows the bound runes (`ImbuedCount` / `ImbuedRunes` description
+vars added in `RunePriestCard.AddExtraArgsToDescription`; loc uses `{ImbuedCount:choose(0):<imbue text>|{ImbuedRunes}}`).
+Cards: Blank Rune, Spellbook, Transmute, Ancient Tablet (every rune), Holy Smite (bonus per bound
 rune), Alchemize+, Folly's Mirror+.
 
 ### Modifiers (apply to the **next glyph**)
@@ -248,17 +250,18 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Blind Rage | Common | Attack | 1 | Inscribe [Scatter][Strike 15]. | Strike 20 |
 | Quick Jab | Common | Attack | 0 | Deal 3. Inscribe [Strike 3]. | 4 / 4 |
 | Mending Rune | Common | Skill | 1 | Inscribe [Mend 2]. Exhaust. | Mend 4 |
-| Strength Rune | Common | Skill | 1 | Inscribe [Strength 2]. | cost 0 |
+| Strength Rune | Common | Skill | 1 | Inscribe [Strength 2] (temporary). | Strength 3 |
 | Runic Barrage | Common | Attack | 1 | Deal 3 damage per rune in the Incantation (one hit each). | 4 |
 | Quick Scribe | Common | Attack | 1 | Inscribe [Strike 3 + Defend 3]. | wrapped in [Loop 1]…[End Loop] |
 | Amplification Rune | Common | Skill | 1 | Inscribe [Amplify +4]. | +6 |
-| Blank Rune | Common | Skill | 0 | Imbue 1. Exhaust. | no Exhaust |
+| Blank Rune | Common | Skill | 0 | Imbue 1. | also draw 1 |
 | Hasty Scrawl | Common | Attack | 0 | Inscribe [Strike 3][Swift 1]. | Swift 2 |
 | Meditate | Common | Skill | 2 | Inscribe [Mend 5][Defend 5]. Exhaust. | cost 1 |
 | Amplified Strike | Common | Attack | 1 | Inscribe [Strike 5][Amplify +1]. | 6 / +2 |
+| Flint & Steel (`FlintAndSteel`) | Common | Skill | 1 | Inscribe [Blood 5][Kindle 1]. | cost 0 |
 | Star Sigil | Uncommon | Power | 1 | Start of turn: Inscribe [Nova]. | also draw 1 on play |
 | Nova Slice | Uncommon | Attack | 1 | Inscribe [Nova][Strike 6][Nova]. | Strike 9 |
-| Echoing Ward | Uncommon | Skill | 2 (CSV blank) | Inscribe [Defend 8][Echo]. | Defend 11 |
+| Echoing Ward | Uncommon | Skill | 1 | Inscribe [Defend 8][Echo]. | Defend 11 |
 | Loop Rune | Uncommon | Skill | 1 | Inscribe [Loop 1]. | draw 1 |
 | Twin Rune | Uncommon | Skill | 1 | Inscribe [Twin ×2]. | draw 1 |
 | Kindle Rune | Uncommon | Skill | 1 | Inscribe [Kindle 1]. | cost 0 |
@@ -286,10 +289,12 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Trick of the Light | Rare | Skill | 0 | Inscribe [Swift 3]. Exhaust. | Swift 4 |
 | Ancient Tablet | Rare | Skill | 2 | Imbue every rune. | cost 1 |
 | Holy Dagger | Rare | Attack | 2 | Deal 1. Gain Dexterity = unblocked damage dealt. | 2 |
-| Ritual | Common | Skill | 0 | Inscribe [Blood 3]. Speak. | Blood 2 |
+| Ritual | Common | Skill | 0 | Inscribe [Blood 5]. Speak; the runes remain (`keep: true`). | Blood 3 |
 | Spark Strike | Common | Attack | 1 | Fizzle the last rune; if one fizzled, deal 8. | 11 |
-| Chant | Uncommon | Skill | 1 | Speak. | cost 0 |
-| Blood Sacrifice | Uncommon | Attack | X | Inscribe [Blood 1] X times, [Strike X] X times. | [Strike X+1] X+1 times |
+| Chant | Uncommon | Skill | 2 | Speak; the runes remain (`keep: true`). | cost 1 |
+| Blood Sacrifice | Uncommon | Attack | X | Inscribe [Blood 1] X times, [Strike X] X times. | also [Echo] after the Blood runes; [Strike X+1] X+1 times |
+| Darkness Falls | Uncommon | Attack | 0 | Inscribe [Void][Strike 30]. | Strike 40 |
+| Flagellation | Uncommon | Power | 2 | Whenever you lose HP during your turn, Inscribe [Defend 4]. | cost 1 |
 | Frenzied Incant | Uncommon | Skill | 2 | Inscribe [Loop 1]. Put [Scatter] at the start of the Incantation. | cost 1 |
 | Folly's Mirror | Uncommon | Skill | 0 | Inscribe [Echo][Echo]. | Imbue 1 first |
 | Energy Overflow | Uncommon | Power | 1 | Whenever a rune fizzles, deal 5 damage to ALL enemies. | cost 0 |
@@ -302,19 +307,19 @@ Special (Token rarity, `TokenCardPool`; only created by Unforgiveable Curse / Cu
 |---|---|---|---|---|
 | Cursed Sword | Attack | 1 | Inscribe [Blood 10][Strike 20]. Deal 30. | Blood 5 |
 | Cursed Armour | Skill | 1 | Can't gain Block until next turn; then Inscribe [Mend] = HP lost meanwhile. | also reflect HP damage from enemies until next turn |
-| Cursed Spirits | Power | 1 | Summon 3 spirits (+1 each turn start); at end of turn each deals 2 to a random Black-Marked enemy (else any). Add a Black Mark to hand. | 5 spirits |
-| Black Mark | Skill | 0 | Apply Black Mark (spirits prefer marked enemies). | draw 1 |
+| Cursed Spirits | Power | 1 | Summon 3 spirits (+1 each turn start); at end of turn each deals 5 (Unpowered, so Strength doesn't apply) to a random Black-Marked enemy; no marked enemy → no attack. Add a Black Mark to hand. | 5 spirits |
+| Black Mark | Skill | 0 | Apply Black Mark (only marked enemies are attacked by spirits). | draw 1 |
 
-Totals: 3 Basic, 17 Common, 27 Uncommon, 10 Rare = 57, plus 4 special.
+Totals: 3 Basic, 18 Common, 29 Uncommon, 10 Rare = 60, plus 4 special.
 
 Assumptions made where the CSV was silent (revisit on review): bare "Inscribe Loop/Twin/Kindle/Hex" = Loop 1 (was Loop 2 before Loop N meant N extra runs) / Twin ×2 /
-Kindle 1 / Hex 1; bare "Inscribe Swift" = Swift 2; Echoing Ward costs 2; "Draw 1" upgrades draw on play; Imbue takes the newest
+Kindle 1 / Hex 1; bare "Inscribe Swift" = Swift 2; "Draw 1" upgrades draw on play; Imbue takes the newest
 runes first; Odd Sigil / Runic Form / Imbued Teacup count per turn; "removed" (Swift Sigil) = left the Incantation
 without being Spoken, which includes fizzles; Holy Water Sigil uses the heal amount requested (even at full HP).
 
 | Relic | Rarity | Effect |
 |---|---|---|
-| Blessed Toolbox | Starter | On pickup, add a random Common rune card (`RuneCard`) to your deck. The first time you play a rune card each combat, draw 1. Replaced Chalk Stylus (removed in the 9/29 sync). |
+| Blessed Toolbox | Starter | On pickup, add a random Common card with "Rune" in its name (matched on the model ID, so it is language-independent) to your deck. The first time you play a rune card each combat, draw 1. Replaced Chalk Stylus (removed in the 9/29 sync). |
 | Holy Sparkler | Common | Whenever a rune fizzles, gain 4 Block. |
 | Imbued Teacup | Uncommon | The first rune inscribed each turn has its values doubled (`Glyph.Scaled(2)`, so Loop 1 → Loop 2). |
 | Baptised Idol | Uncommon | On pickup, upgrade 2 random cards that Inscribe (`RuneCard`s) — used instead of a "Rune" name match. |
@@ -349,6 +354,7 @@ Odd Sigil + Blessing, Eternal Sigil + loops (bounded by the 60-payload Overload)
 - Playtest pass 2: player-facing text says "rune" only (no "glyph"); card text uses one Inscribe line per sequential rune and commas for compound runes; Etch → Strike Rune, Warding Rune → Defend Rune, Mending Glyph → Mending Rune, Glyph Guard → Rune Guard, Smudged/Stray Glyph → Smudged/Stray Rune, Glyph Draught → Rune Draught.
 - **Concentration** keyword (`RunePriestKeywords.Concentration`, card keyword shown before the text): the granted power overrides `RunePriestPower.Concentration => true` and is removed the moment its owner loses HP (`AfterCurrentHpChanged`, delta < 0 — Blood runes count). First user was Eternal Script; no current card uses it (Eternal Sigil is Ethereal instead), the keyword stays available.
 - Design pass 3 (CSV card set): renamed back Add→**Amplify**, Multiply→**Twin**, Soul→**Swift**, Chaos→**Scatter**, Block→**Defend** (rune; avoids `[blue]Block[/blue]` vs `[gold]Block[/gold]`), Weakening→**Hex** (now Weak + Vulnerable). Removed Expose/Venom (folded into Hex). Added **Strength**, **Cleanse**, and **Imbue** (instant +2 to inscribed runes). All prototype cards/relics/potions and the Smudged/Stray Rune status/curse were deleted; Blood/Sanctify/Seal/Mirror remain engine-only. Chalk Stylus became "first Inscribe each turn → 4 Block".
+- Design sync 9/29/2026 (issue #9): Strength rune grants **temporary** Strength; Cursed Spirits deal 5 (Unpowered) and only attack Black-Marked enemies; Imbued cards show their bound runes in their own text; Blessed Toolbox only offers Commons with "Rune" in the name; Ritual/Chant keep their runes after Speaking; new cards Flint & Steel, Darkness Falls, Flagellation. Assumptions: Blood Sacrifice+ puts its Echo after the Blood runes (before the Strikes); Flint & Steel's bare Kindle = Kindle 1; Flagellation triggers on unblocked damage taken while it is the player side's turn.
 
 ## 12. Overhead visuals (Phase 3)
 From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;
