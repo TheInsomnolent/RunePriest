@@ -16,5 +16,12 @@
   "RUNEPRIEST-MIDAS_HAND.flavor": "It writes in a very expensive ink.",
   "RUNEPRIEST-RUNIC_SPHERE.title": "Runic Sphere",
   "RUNEPRIEST-RUNIC_SPHERE.description": "Cards that [gold]Inscribe[/gold] runes have [gold]Retain[/gold].",
-  "RUNEPRIEST-RUNIC_SPHERE.flavor": "The symbols inside never settle."
+  "RUNEPRIEST-RUNIC_SPHERE.flavor": "The symbols inside never settle.",
+
+  "RUNEPRIEST-HOLY_SPARKLER.title": "Holy Sparkler",
+  "RUNEPRIEST-HOLY_SPARKLER.description": "Whenever a rune fizzles, gain {Block} [gold]Block[/gold].",
+  "RUNEPRIEST-HOLY_SPARKLER.flavor": "Every misfire still makes a pretty light.",
+  "RUNEPRIEST-BLESSED_TOOLBOX.title": "Blessed Toolbox",
+  "RUNEPRIEST-BLESSED_TOOLBOX.description": "Upon pickup, add a random Common rune card to your deck. The first time you play a rune card each combat, draw {Cards} {Cards:plural:card|cards}.",
+  "RUNEPRIEST-BLESSED_TOOLBOX.flavor": "Every chisel inside has been blessed. Twice, to be safe."
 }
