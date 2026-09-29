@@ -17,3 +17,4 @@ jobs:
           method: 'POST'
           customHeaders: '{"Content-Type": "application/json"}'
           data: ${{ toJson(github.event) }}
+          timeout: 30000
