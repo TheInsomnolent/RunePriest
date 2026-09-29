@@ -1,0 +1,19 @@
+name: Clear Sheet on Sync Close
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  clear-google-sheet:
+    # Only run if the issue is one of our sync tickets
+    if: startsWith(github.event.issue.title, 'Automatic Sync')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Webhook to Google Sheets
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://script.google.com/macros/s/AKfycbx6BcRlxSkKz-B58br_ryOGdbEcKrVKt5dSD4dnm-IAcPxu01H6nMxzB00oxdEcHE0yfw/exec' # <-- PASTE YOUR URL FROM STEP 4 HERE
+          method: 'POST'
+          customHeaders: '{"Content-Type": "application/json"}'
+          data: ${{ toJson(github.event) }}
