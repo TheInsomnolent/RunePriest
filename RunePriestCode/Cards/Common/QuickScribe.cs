@@ -11,12 +11,11 @@ public sealed class QuickScribe() : RuneCard(1, CardType.Attack, CardRarity.Comm
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new DamageVar("Strike", 3m, ValueProp.Move), new BlockVar("Defend", 3m, ValueProp.Move), new IntVar("Loop", 2m)];
 
-    // Upgraded: the pair is wrapped in a closed Loop.
+    // Strike and Defend are inscribed simultaneously; upgraded, the rune is wrapped in a closed Loop.
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor)
     {
         if (IsUpgraded) yield return Glyph.Of(new LoopRune(Var("Loop")));
-        yield return Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor);
-        yield return Glyph.Of(new DefendRune(Var("Defend")));
+        yield return Glyph.Of(new StrikeRune(Var("Strike")), new DefendRune(Var("Defend"))).AnchoredTo(anchor);
         if (IsUpgraded) yield return Glyph.Of(new EndLoopRune());
     }
 }
