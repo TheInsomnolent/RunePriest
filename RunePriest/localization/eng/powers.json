@@ -65,5 +65,18 @@
   "RUNEPRIEST-CHORAL_EVOCATION_POWER.smartDescription": "This turn, [blue]Defend[/blue] runes you [gold]Inscribe[/gold] are also [gold]Inscribed[/gold] for all other players.",
   "RUNEPRIEST-CHORAL_EVOCATION_PLUS_POWER.title": "Choral Evocation+",
   "RUNEPRIEST-CHORAL_EVOCATION_PLUS_POWER.description": "This turn, every rune you [gold]Inscribe[/gold] is also [gold]Inscribed[/gold] for all other players.",
-  "RUNEPRIEST-CHORAL_EVOCATION_PLUS_POWER.smartDescription": "This turn, every rune you [gold]Inscribe[/gold] is also [gold]Inscribed[/gold] for all other players."
+  "RUNEPRIEST-CHORAL_EVOCATION_PLUS_POWER.smartDescription": "This turn, every rune you [gold]Inscribe[/gold] is also [gold]Inscribed[/gold] for all other players.",
+
+  "RUNEPRIEST-CONJURE_PORTAL_POWER.title": "Conjure Portal",
+  "RUNEPRIEST-CONJURE_PORTAL_POWER.description": "Whenever you [gold]Imbue[/gold] a rune, [gold]Inscribe[/gold] it for a random other player.",
+  "RUNEPRIEST-CONJURE_PORTAL_POWER.smartDescription": "Whenever you [gold]Imbue[/gold] a rune, [gold]Inscribe[/gold] it for a random other player.",
+  "RUNEPRIEST-CHAOS_FALLS_POWER.title": "Chaos Falls",
+  "RUNEPRIEST-CHAOS_FALLS_POWER.description": "At the start of your turn, [gold]Inscribe[/gold] [blue]Scatter[/blue], [blue]Twin[/blue] and [blue]Loop[/blue]. [blue]Scatter[/blue] can target anyone, players included.",
+  "RUNEPRIEST-CHAOS_FALLS_POWER.smartDescription": "At the start of your turn, [gold]Inscribe[/gold] [blue]Scatter[/blue], [blue]Twin[/blue] ×2 and [blue]Loop[/blue] 1. [blue]Scatter[/blue] can target anyone, players included.",
+  "RUNEPRIEST-NYX_POWER.title": "Nyx",
+  "RUNEPRIEST-NYX_POWER.description": "Whenever you play a card [gold]Imbued[/gold] with a [blue]Void[/blue] rune, deal damage to ALL enemies.",
+  "RUNEPRIEST-NYX_POWER.smartDescription": "Whenever you play a card [gold]Imbued[/gold] with a [blue]Void[/blue] rune, deal {Amount} damage to ALL enemies.",
+  "RUNEPRIEST-DARK_STAR_POWER.title": "Dark Star",
+  "RUNEPRIEST-DARK_STAR_POWER.description": "While a [blue]Void[/blue] is in your Incantation, draw cards at the start of each turn.",
+  "RUNEPRIEST-DARK_STAR_POWER.smartDescription": "While a [blue]Void[/blue] is in your Incantation, draw {Amount} {Amount:plural:card|cards} at the start of each turn."
 }
