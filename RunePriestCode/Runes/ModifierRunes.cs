@@ -1,3 +1,6 @@
+using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Localization;
+
 namespace RunePriest.RunePriestCode.Runes;
 
 /// <summary>Applies to the next glyph (target glyphs are transparent). Before a Loop, applies to the whole body.</summary>
@@ -56,4 +59,41 @@ public sealed class VoidRune() : ModifierRune(0)
     public override string Key => "VOID";
     public override bool ShowsValue => false;
     public override bool Voids => true;
+}
+
+/// <summary>
+/// Delays the next glyph: each Speak the Growth ticks down once and the grown glyph is kept for next turn with its
+/// values doubled instead of resolving. Fully ticked down, the Growth vanishes and the glyph finally resolves.
+/// Handled by the interpreter, not through <see cref="ModifierRune.ApplyTo"/>.
+/// </summary>
+public sealed class GrowthRune(int value) : ModifierRune(value)
+{
+    public override string Key => "GROWTH";
+    public override bool Amplifiable => true;
+    public override Rune WithValue(int value) => new GrowthRune(value);
+}
+
+/// <summary>
+/// Sends the Speak back the way it came: earlier glyphs are Spoken again in reverse order, and glyphs after this
+/// one are never Spoken. Handled by the interpreter.
+/// </summary>
+public sealed class ReflectionRune() : ModifierRune(0)
+{
+    public override string Key => "REFLECTION";
+    public override bool ShowsValue => false;
+}
+
+/// <summary>
+/// Co-op: supportive (ally) payloads after this rune affect every living player. Value 0 = only the next rune;
+/// any higher value = every following rune. Handled by the interpreter.
+/// </summary>
+public sealed class FriendshipRune(int value = 0) : ModifierRune(value)
+{
+    public override string Key => "FRIENDSHIP";
+    public override bool ShowsValue => false;
+    public override IEnumerable<IHoverTip> HoverTips => Value > 0
+        ? [new HoverTip(
+            new LocString(RuneTips.Table, LocKey + "_ALL.title"),
+            new LocString(RuneTips.Table, LocKey + "_ALL.description"))]
+        : base.HoverTips;
 }

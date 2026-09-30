@@ -31,7 +31,6 @@ public static class RuneVisuals
         ["HEX"] = new(RuneFamily.Offense, "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏ"),
         ["DEFEND"] = new(RuneFamily.Support, "αβγδεζηθικλμνξοπρστυφχψωΩ", 2),
         ["MEND"] = new(RuneFamily.Support, "가나다라마바사아자차카타파하"),
-        ["STRENGTH"] = new(RuneFamily.Support, "あいうえおかきくけこさしすせそ"),
         ["CLEANSE"] = new(RuneFamily.Support, "※"),
         ["BLOOD"] = new(RuneFamily.Cost, "БГДЖЗИЛФЦЧШЩЪЫЭЮЯ"),
         ["KINDLE"] = new(RuneFamily.Resource, "กขคงจฉชซญฎฏฐ"),
@@ -42,6 +41,10 @@ public static class RuneVisuals
         ["ECHO"] = new(RuneFamily.Modifier, "〃"),
         ["SANCTIFY"] = new(RuneFamily.Modifier, "⊘"),
         ["VOID"] = new(RuneFamily.Modifier, "⊖"),
+        // Growth grows with its remaining turns: hiragana ordered so bigger values look denser.
+        ["GROWTH"] = new(RuneFamily.Modifier, "あいうえおかきくけこさしすせそ"),
+        ["REFLECTION"] = new(RuneFamily.Modifier, "∽"),
+        ["FRIENDSHIP"] = new(RuneFamily.Modifier, "∪"),
 
         ["ANCHOR"] = new(RuneFamily.Target, "◎"),
         ["SCATTER"] = new(RuneFamily.Target, "∴"),

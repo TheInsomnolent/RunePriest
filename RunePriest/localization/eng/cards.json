@@ -22,8 +22,6 @@
   "RUNEPRIEST-QUICK_JAB.description": "Deal {Damage:diff()} damage.\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}.",
   "RUNEPRIEST-MENDING_RUNE_CARD.title": "Mending Rune",
   "RUNEPRIEST-MENDING_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Mend[/blue] {Mend:diff()}.",
-  "RUNEPRIEST-STRENGTH_RUNE_CARD.title": "Strength Rune",
-  "RUNEPRIEST-STRENGTH_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Strength[/blue] {Strength:diff()}.",
   "RUNEPRIEST-RUNIC_BARRAGE.title": "Runic Barrage",
   "RUNEPRIEST-RUNIC_BARRAGE.description": "Deal {Damage:diff()} damage for each rune in your Incantation.",
   "RUNEPRIEST-QUICK_SCRIBE.title": "Quick Scribe",
@@ -102,8 +100,6 @@
   "RUNEPRIEST-TRICK_OF_THE_LIGHT.description": "[gold]Inscribe[/gold] [blue]Swift[/blue] {Swift:diff()}.",
   "RUNEPRIEST-ANCIENT_TABLET.title": "Ancient Tablet",
   "RUNEPRIEST-ANCIENT_TABLET.description": "{ImbuedCount:choose(0):[gold]Imbue[/gold] every rune in your Incantation.|{ImbuedRunes}}",
-  "RUNEPRIEST-HOLY_DAGGER.title": "Holy Dagger",
-  "RUNEPRIEST-HOLY_DAGGER.description": "Deal {Damage:diff()} damage.\nGain [gold]Dexterity[/gold] equal to the unblocked damage dealt.",
 
   "RUNEPRIEST-CHANT.title": "Chant",
   "RUNEPRIEST-CHANT.description": "[gold]Speak[/gold] your Incantation. Its runes remain.",
