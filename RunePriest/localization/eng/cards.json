@@ -129,5 +129,22 @@
   "RUNEPRIEST-BLACK_MARK.title": "Black Mark",
   "RUNEPRIEST-BLACK_MARK.description": "Apply [gold]Black Mark[/gold].{IfUpgraded:show:\nDraw {Cards} {Cards:plural:card|cards}.|}",
   "RUNEPRIEST-CHORAL_EVOCATION.title": "Choral Evocation",
-  "RUNEPRIEST-CHORAL_EVOCATION.description": "This turn, {IfUpgraded:show:every rune|[blue]Defend[/blue] runes} you [gold]Inscribe[/gold] {IfUpgraded:show:is|are} also [gold]Inscribed[/gold] for all other players."
+  "RUNEPRIEST-CHORAL_EVOCATION.description": "This turn, {IfUpgraded:show:every rune|[blue]Defend[/blue] runes} you [gold]Inscribe[/gold] {IfUpgraded:show:is|are} also [gold]Inscribed[/gold] for all other players.",
+
+  "RUNEPRIEST-QUICK_WARD.title": "Quick Ward",
+  "RUNEPRIEST-QUICK_WARD.description": "[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}, [blue]Swift[/blue] {Swift}.{IfUpgraded:show:\nDraw {Cards} {Cards:plural:card|cards}.|}",
+  "RUNEPRIEST-HEAVY_WARD.title": "Heavy Ward",
+  "RUNEPRIEST-HEAVY_WARD.description": "[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend:diff()}.",
+  "RUNEPRIEST-HEAVY_RUNE.title": "Heavy Rune",
+  "RUNEPRIEST-HEAVY_RUNE.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}, plus {Bonus:diff()} for every rune in your Incantation.",
+  "RUNEPRIEST-PATIENT_RUNE_CARD.title": "Patient Rune",
+  "RUNEPRIEST-PATIENT_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}, plus 1 for every rune inscribed this combat.",
+  "RUNEPRIEST-CRACKED_RUNE_CARD.title": "Cracked Rune",
+  "RUNEPRIEST-CRACKED_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike} {Hits:diff()} times.",
+  "RUNEPRIEST-GROWTH_RUNE_CARD.title": "Growth Rune",
+  "RUNEPRIEST-GROWTH_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Growth[/blue] {Growth}.",
+  "RUNEPRIEST-IMBUED_SWORD.title": "Imbued Sword",
+  "RUNEPRIEST-IMBUED_SWORD.description": "{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue:diff()}.|{ImbuedRunes}}\nDeal {Damage} damage, plus the total value of this card's runes.",
+  "RUNEPRIEST-INQUIRE.title": "Inquire",
+  "RUNEPRIEST-INQUIRE.description": "Draw {Cards} {Cards:plural:card|cards}.\n[gold]Inscribe[/gold] [blue]Swift[/blue] {Swift:diff()}."
 }
