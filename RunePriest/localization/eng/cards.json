@@ -40,7 +40,7 @@
   "RUNEPRIEST-FLINT_AND_STEEL.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood}.\n[gold]Inscribe[/gold] [blue]Kindle[/blue] {Kindle}.",
 
   "RUNEPRIEST-STAR_SIGIL.title": "Star Sigil",
-  "RUNEPRIEST-STAR_SIGIL.description": "At the start of your turn, [gold]Inscribe[/gold] [blue]Nova[/blue].{IfUpgraded:show:\nDraw {Cards} {Cards:plural:card|cards}.|}",
+  "RUNEPRIEST-STAR_SIGIL.description": "At the start of your turn, [gold]Inscribe[/gold] [blue]Nova[/blue].{IfUpgraded:show:\nWhen played, draw {Cards} {Cards:plural:card|cards}.|}",
   "RUNEPRIEST-NOVA_SLICE.title": "Nova Slice",
   "RUNEPRIEST-NOVA_SLICE.description": "[gold]Inscribe[/gold] [blue]Nova[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}.\n[gold]Inscribe[/gold] [blue]Nova[/blue].",
   "RUNEPRIEST-ECHOING_WARD.title": "Echoing Ward",
@@ -108,7 +108,7 @@
   "RUNEPRIEST-BLOOD_SACRIFICE.title": "Blood Sacrifice",
   "RUNEPRIEST-BLOOD_SACRIFICE.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] 1 X times.{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]Echo[/blue].|}\n[gold]Inscribe[/gold] [blue]Strike[/blue] X{IfUpgraded:show:+1|} X{IfUpgraded:show:+1|} times.",
   "RUNEPRIEST-FRENZIED_INCANT.title": "Frenzied Incant",
-  "RUNEPRIEST-FRENZIED_INCANT.description": "[gold]Inscribe[/gold] [blue]Loop[/blue] {Loop}.\nPut [blue]Scatter[/blue] at the start of your Incantation.",
+  "RUNEPRIEST-FRENZIED_INCANT.description": "{IfUpgraded:show:{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue}.|{ImbuedRunes}}\n|}[gold]Inscribe[/gold] [blue]Loop[/blue] {Loop}.\nPut [blue]Scatter[/blue] at the start of your Incantation.",
   "RUNEPRIEST-DARK_MAGICK.title": "Dark Magick",
   "RUNEPRIEST-DARK_MAGICK.description": "[gold]Inscribe[/gold] [blue]Void[/blue].{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]Kindle[/blue] {Kindle}.|}\nAdd {Cards} upgraded [gold]Loop Runes[/gold] to your hand.",
   "RUNEPRIEST-FOLLYS_MIRROR.title": "Folly's Mirror",

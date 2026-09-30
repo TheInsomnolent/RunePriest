@@ -9,7 +9,7 @@ public sealed class MendingRuneCard() : RuneCard(1, CardType.Skill, CardRarity.C
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new HealVar("Mend", 2m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new HealVar("Mend", 3m)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new MendRune(Var("Mend"))).AnchoredTo(anchor)];
