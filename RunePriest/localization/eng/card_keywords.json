@@ -1,4 +1,6 @@
 {
   "RUNEPRIEST-CONCENTRATION.title": "Concentration",
-  "RUNEPRIEST-CONCENTRATION.description": "This power is removed when you lose HP."
+  "RUNEPRIEST-CONCENTRATION.description": "This power is removed when you lose HP.",
+  "RUNEPRIEST-PERSIST.title": "Persist",
+  "RUNEPRIEST-PERSIST.description": "Runes this card Inscribes stay in your Incantation after being Spoken."
 }

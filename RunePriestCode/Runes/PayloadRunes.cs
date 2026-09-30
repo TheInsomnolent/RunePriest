@@ -86,18 +86,6 @@ public sealed class MendRune(int value) : PayloadRune(value)
     }
 }
 
-/// <summary>Grants temporary Strength (<see cref="StrengthRunePower"/>), lost at the end of the turn.</summary>
-public sealed class StrengthRune(int value) : PayloadRune(value)
-{
-    public override string Key => "STRENGTH";
-    public override Rune WithValue(int value) => new StrengthRune(value);
-    public override RuneTargeting Targeting => RuneTargeting.Ally;
-    public override IEnumerable<IHoverTip> HoverTips => [..base.HoverTips, HoverTipFactory.FromPower<StrengthPower>()];
-
-    public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
-        PowerCmd.Apply<StrengthRunePower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
-}
-
 /// <summary>Removes every debuff from you (the caster, regardless of target mode). Has no value; never merges.</summary>
 public sealed class CleanseRune() : PayloadRune(1)
 {

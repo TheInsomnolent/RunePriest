@@ -9,6 +9,11 @@ public sealed class RuneBuffer
 
     public bool IsSpeaking { get; internal set; }
 
+    /// <summary>Total runes inscribed this combat (merged and prepended runes count; retained runes don't recount).</summary>
+    public int RunesInscribed { get; private set; }
+
+    internal void CountInscribed(IEnumerable<Glyph> glyphs) => RunesInscribed += glyphs.Sum(g => g.Runes.Count);
+
     public event Action? Changed;
 
     /// <summary>Raised each time a glyph is evaluated (repeatedly inside loops).</summary>

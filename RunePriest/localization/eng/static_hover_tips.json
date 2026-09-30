@@ -23,8 +23,6 @@
   "RUNEPRIEST-RUNE_DEFEND.description": "Gain {Value} [gold]Block[/gold]. Only affects you, never other players.",
   "RUNEPRIEST-RUNE_MEND.title": "Mend",
   "RUNEPRIEST-RUNE_MEND.description": "Heal {Value} HP. Only affects you, never other players.",
-  "RUNEPRIEST-RUNE_STRENGTH.title": "Strength",
-  "RUNEPRIEST-RUNE_STRENGTH.description": "Gain {Value} temporary [gold]Strength[/gold]. It is lost at the end of the turn. Only affects you, never other players.",
   "RUNEPRIEST-RUNE_HEX.title": "Hex",
   "RUNEPRIEST-RUNE_HEX.description": "Apply {Value} [gold]Weak[/gold] and {Value} [gold]Vulnerable[/gold] to the target.",
   "RUNEPRIEST-RUNE_CLEANSE.title": "Cleanse",
@@ -47,6 +45,14 @@
 
   "RUNEPRIEST-RUNE_VOID.title": "Void",
   "RUNEPRIEST-RUNE_VOID.description": "The next rune fizzles instead of resolving. Before a [blue]Loop[/blue], voids the whole loop.",
+  "RUNEPRIEST-RUNE_GROWTH.title": "Growth",
+  "RUNEPRIEST-RUNE_GROWTH.description": "The next rune waits {Value} turn(s) instead of resolving, doubling its values each turn it waits. Growth ticks down each time it is [gold]Spoken[/gold] and vanishes once the rune resolves.",
+  "RUNEPRIEST-RUNE_REFLECTION.title": "Reflection",
+  "RUNEPRIEST-RUNE_REFLECTION.description": "When [gold]Spoken[/gold], the Incantation turns around: earlier runes are Spoken again in reverse order. Runes after the Reflection are never Spoken.",
+  "RUNEPRIEST-RUNE_FRIENDSHIP.title": "Friendship",
+  "RUNEPRIEST-RUNE_FRIENDSHIP.description": "The next supportive rune affects ALL players instead of only you.",
+  "RUNEPRIEST-RUNE_FRIENDSHIP_ALL.title": "Friendship",
+  "RUNEPRIEST-RUNE_FRIENDSHIP_ALL.description": "ALL later supportive runes affect every player instead of only you.",
 
   "RUNEPRIEST-RUNE_ANCHOR.title": "Anchor",
   "RUNEPRIEST-RUNE_ANCHOR.description": "Later runes hit the enemy chosen when their card was played. This is the default.",

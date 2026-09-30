@@ -53,6 +53,7 @@ public static class RuneCmd
 
     private static async Task Place(PlayerChoiceContext choiceContext, Player player, RuneBuffer buffer, IReadOnlyList<Glyph> list)
     {
+        buffer.CountInscribed(list);
         for (var i = 0; i < list.Count; i++)
         {
             // Only the first glyph of a cast merges; a card's own glyph sequence (e.g. Strike, Strike) stays separate.
@@ -114,6 +115,7 @@ public static class RuneCmd
 
         var list = glyphs.Select(g => g.Source == null ? g.WithSource(source) : g).ToList();
         if (list.Count == 0) return;
+        buffer.CountInscribed(list);
         buffer.Insert(0, list);
         MainFile.Logger.Info($"[Rune] Prepended {string.Join(" ", list)}");
 

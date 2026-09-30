@@ -16,6 +16,9 @@ public interface IRuneListener
     /// <summary>Glyph limit; null = unlimited. Combine with <see cref="RuneListeners.Tighten"/>.</summary>
     int? ModifyCapacity(int? capacity) => capacity;
 
+    /// <summary>If any listener returns true, Scatter picks from every creature, players included (Chaos Falls). Must be side-effect free.</summary>
+    bool ScatterTargetsAnyone => false;
+
     /// <summary>If any listener returns true, Speaking does not clear the Incantation.</summary>
     bool KeepsIncantation => false;
 

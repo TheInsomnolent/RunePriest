@@ -20,6 +20,13 @@ public sealed class SwiftSigilPower : RunePriestPower, IRuneListener
         await CardPileCmd.Draw(choiceContext, Amount, player);
     }
 
+    public async Task AfterImbued(PlayerChoiceContext choiceContext, Player player, Glyph glyph)
+    {
+        if (player != Owner.Player) return;
+        Flash();
+        await CardPileCmd.Draw(choiceContext, Amount, player);
+    }
+
     public async Task AfterFizzle(RuneContext ctx, Glyph glyph)
     {
         Flash();
