@@ -14,8 +14,6 @@ public sealed class PatientRuneCard() : RuneCard(1, CardType.Attack, CardRarity.
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [RunePriestKeywords.Persist, CardKeyword.Exhaust];
 
-    public override int MaxUpgradeLevel => 0;
-
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 1m, ValueProp.Move)];
 
     // Glyphs(null) is only used for hover tips; the real value is read when played.
@@ -28,4 +26,6 @@ public sealed class PatientRuneCard() : RuneCard(1, CardType.Attack, CardRarity.
         await RuneCmd.Inscribe(choiceContext, Owner,
             [Glyph.Of(new StrikeRune(amount)).AnchoredTo(cardPlay.Target).Persist()], this);
     }
+
+    protected override void OnUpgrade() => DynamicVars["Strike"].UpgradeValueBy(4m);
 }

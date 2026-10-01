@@ -15,6 +15,8 @@ namespace RunePriest.RunePriestCode.Cards.Special;
 [Pool(typeof(TokenCardPool))]
 public sealed class WhiteHoleStrike() : RuneCard(1, CardType.Attack, CardRarity.Token, TargetType.AnyEnemy)
 {
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
+
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 20m, ValueProp.Move)];
 
     protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromCard<BlackHoleStrike>(false)];

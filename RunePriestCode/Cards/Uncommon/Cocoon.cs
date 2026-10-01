@@ -11,13 +11,14 @@ public sealed class Cocoon() : RuneCard(1, CardType.Skill, CardRarity.Uncommon, 
     public override IEnumerable<CardKeyword> CanonicalKeywords => [RunePriestKeywords.Persist];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new IntVar("Growth", 2m), new BlockVar("Defend", 3m, ValueProp.Move)];
+        [new IntVar("Growth", 2m), new BlockVar("Defend", 2m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
         Glyph.Of(new GrowthRune(Var("Growth"))).Persist(),
-        Glyph.Of(new DefendRune(Var("Defend"))).AnchoredTo(anchor).Persist()
+        Glyph.Of(new DefendRune(Var("Defend"))).AnchoredTo(anchor).Persist(),
+        Glyph.Of(new VoidRune()).Persist()
     ];
 
-    protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
+    protected override void OnUpgrade() => DynamicVars["Defend"].UpgradeValueBy(1m);
 }
