@@ -1,11 +1,17 @@
 using BaseLib.Abstracts;
+using BaseLib.Utils;
 using BaseLib.Utils.NodeFactories;
 using RunePriest.RunePriestCode.Cards.Basic;
 using RunePriest.RunePriestCode.Extensions;
 using RunePriest.RunePriestCode.Relics;
 using Godot;
+using MegaCrit.Sts2.Core.Animation;
+using MegaCrit.Sts2.Core.Assets;
+using MegaCrit.Sts2.Core.Bindings.MegaSpine;
 using MegaCrit.Sts2.Core.Entities.Characters;
+using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Nodes.Combat;
 
 namespace RunePriest.RunePriestCode.Character;
 
@@ -40,6 +46,30 @@ public class RunePriest : PlaceholderCharacterModel
     public override CardPoolModel CardPool => ModelDb.CardPool<RunePriestCardPool>();
     public override RelicPoolModel RelicPool => ModelDb.RelicPool<RunePriestRelicPool>();
     public override PotionPoolModel PotionPool => ModelDb.PotionPool<RunePriestPotionPool>();
+
+    // Borrowed Architect Spine rig; HSV values feed res://shaders/hsv.gdshader (1,1,1 = unchanged).
+    private static readonly string ArchitectVisualsPath = SceneHelper.GetScenePath("creature_visuals/architect");
+    private const float VisualsHue = 0.75f;
+    private const float VisualsSaturation = 1f;
+    private const float VisualsValue = 1f;
+    private const float VisualsScale = 1f;
+
+    public override NCreatureVisuals CreateCustomVisuals()
+    {
+        var visuals = PreloadManager.Cache.GetScene(ArchitectVisualsPath).Instantiate<NCreatureVisuals>();
+        visuals.DefaultScale = VisualsScale;
+        visuals.Scale = Vector2.One * VisualsScale;
+
+        // The Architect faces left (enemy side); mirror only the body so bounds/markers stay put.
+        var body = visuals.GetNode<Node2D>("%Visuals");
+        body.Scale = new Vector2(-body.Scale.X, body.Scale.Y);
+        body.Call("set_normal_material", ShaderUtils.GenerateHsv(VisualsHue, VisualsSaturation, VisualsValue));
+        return visuals;
+    }
+
+    // The Architect rig only has idle_loop/attack/hurt; anything else falls back to idle.
+    public override CreatureAnimator SetupCustomAnimationStates(MegaSprite controller) =>
+        SetupAnimationState(controller, "idle_loop", hitName: "hurt", attackName: "attack", castName: "attack");
     
     /*  PlaceholderCharacterModel will utilize placeholder basegame assets for most of your character assets until you
         override all the other methods that define those assets. 
