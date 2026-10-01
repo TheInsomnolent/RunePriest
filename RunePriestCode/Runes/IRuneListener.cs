@@ -10,6 +10,9 @@ public interface IRuneListener
     /// <summary>Adjusts a payload's base value before modifiers are applied. Must be side-effect free (used by preview).</summary>
     int ModifyRuneValue(RuneContext ctx, PayloadRune rune, int value) => value;
 
+    /// <summary>Swaps a payload for another right before it resolves (Undead Quill). Must be side-effect free (used by preview).</summary>
+    PayloadRune ReplacePayload(RuneContext ctx, PayloadRune rune) => rune;
+
     /// <summary>Adjusts how many times a Loop repeats. Must be side-effect free.</summary>
     int ModifyLoopCount(RuneContext ctx, LoopRune loop, int count) => count;
 

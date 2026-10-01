@@ -160,3 +160,20 @@ public sealed class HexRune(int value = 1) : PayloadRune(value)
         await PowerCmd.Apply<VulnerablePower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
     }
 }
+
+/// <summary>
+/// A lingering Strike: attacks like Strike, then persists into next turn with its value halved. Once the halved
+/// value would drop below <see cref="FizzleThreshold"/>, it fizzles away instead. Halving and persistence are
+/// handled by the interpreter.
+/// </summary>
+public sealed class DiminishRune(int value) : PayloadRune(value)
+{
+    public const int FizzleThreshold = 5;
+
+    public override string Key => "DIMINISH";
+    public override Rune WithValue(int value) => new DiminishRune(value);
+    public override RuneTargeting Targeting => RuneTargeting.Enemy;
+
+    public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
+        new StrikeRune(Value).Resolve(ctx, glyph, value, targets);
+}

@@ -69,7 +69,7 @@ public sealed class Glyph
     public Glyph Empower(int bonus) =>
         new(Runes.Select(r => r is PayloadRune { Amplifiable: true } ? r.WithValue(r.Value + bonus) ?? r : r).ToList(), Anchor, Source, Persistent);
 
-    /// <summary>Multiplies every mergeable rune's value (Strike, Loop, Echo, Amplify…). Valueless runes are unchanged.</summary>
+    /// <summary>Multiplies every mergeable rune's value (Strike, Echo, Amplify…). Valueless runes are unchanged.</summary>
     public Glyph Scaled(int factor) =>
         new(Runes.Select(r => r.WithValue(r.Value * factor) ?? r).ToList(), Anchor, Source, Persistent);
 

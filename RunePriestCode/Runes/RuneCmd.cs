@@ -51,6 +51,31 @@ public static class RuneCmd
         MainFile.Logger.Info($"[Rune] Shared {string.Join(" ", list)} with {player.Creature}");
     }
 
+    /// <summary>
+    /// Inscribes a copy of <paramref name="glyph"/> into another player's Incantation at <paramref name="index"/>
+    /// (null or out of range: at the end), like <see cref="Share"/>: no merging and no inscription listeners.
+    /// </summary>
+    public static async Task ShareAt(PlayerChoiceContext choiceContext, Player player, Glyph glyph, int? index, CardModel? source)
+    {
+        if (player.Creature.IsDead) return;
+
+        var creature = player.Creature;
+        var power = creature.GetPower<IncantationPower>()
+                    ?? await PowerCmd.Apply<IncantationPower>(choiceContext, creature, 1, creature, source);
+        if (power == null) return;
+
+        var buffer = power.Buffer;
+        var shared = glyph.WithSource(null);
+        buffer.CountInscribed([shared]);
+        var at = index is { } i && i >= 0 && i <= buffer.Glyphs.Count ? i : buffer.Glyphs.Count;
+        buffer.Insert(at, [shared]);
+        MainFile.Logger.Info($"[Rune] Shared {shared} with {player.Creature} at slot {at}");
+
+        var capacity = RuneListeners.Capacity(player);
+        while (capacity != null && buffer.Glyphs.Count > capacity && !buffer.IsSpeaking)
+            await SpeakAt(choiceContext, player, 0);
+    }
+
     private static async Task Place(PlayerChoiceContext choiceContext, Player player, RuneBuffer buffer, IReadOnlyList<Glyph> list)
     {
         buffer.CountInscribed(list);
