@@ -23,5 +23,21 @@
   "RUNEPRIEST-BLESSED_TOOLBOX.flavor": "Every chisel inside has been blessed. Twice, to be safe.",
   "RUNEPRIEST-AETHER_INKWELL.title": "Aether Inkwell",
   "RUNEPRIEST-AETHER_INKWELL.description": "Upon pickup, obtain an [gold]Aether Quill[/gold].",
-  "RUNEPRIEST-AETHER_INKWELL.flavor": "The ink never dries, and neither do the runes it writes."
+  "RUNEPRIEST-AETHER_INKWELL.flavor": "The ink never dries, and neither do the runes it writes.",
+
+  "RUNEPRIEST-ANCHOR_SCROLL.title": "Anchor Scroll",
+  "RUNEPRIEST-ANCHOR_SCROLL.description": "At the start of combat, [gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}.",
+  "RUNEPRIEST-ANCHOR_SCROLL.flavor": "Unrolled, it holds its ground.",
+  "RUNEPRIEST-EXECUTION_SCROLL.title": "Execution Scroll",
+  "RUNEPRIEST-EXECUTION_SCROLL.description": "At the start of combat, [gold]Inscribe[/gold] [blue]Execution[/blue] and [blue]Strike[/blue] {Strike}.",
+  "RUNEPRIEST-EXECUTION_SCROLL.flavor": "The sentence is written before the trial begins.",
+  "RUNEPRIEST-HEALERS_SCROLL.title": "Healer's Scroll",
+  "RUNEPRIEST-HEALERS_SCROLL.description": "The first time each combat you [gold]Inscribe[/gold] a [blue]Blood[/blue] rune, [gold]Inscribe[/gold] [blue]Mend[/blue] equal to the Blood amount.",
+  "RUNEPRIEST-HEALERS_SCROLL.flavor": "For every wound, a word.",
+  "RUNEPRIEST-DE_ILLUMINATOR.title": "De-illuminator",
+  "RUNEPRIEST-DE_ILLUMINATOR.description": "The first [blue]Void[/blue] you [gold]Inscribe[/gold] each combat immediately [gold]Fizzles[/gold].",
+  "RUNEPRIEST-DE_ILLUMINATOR.flavor": "It un-writes the darkness before the darkness can un-write you.",
+  "RUNEPRIEST-UNDEAD_QUILL.title": "Undead Quill",
+  "RUNEPRIEST-UNDEAD_QUILL.description": "[blue]Blood[/blue] and [blue]Mend[/blue] runes swap their effects.",
+  "RUNEPRIEST-UNDEAD_QUILL.flavor": "It drains the writer and signs for the dead."
 }
