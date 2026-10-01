@@ -14,7 +14,7 @@ public sealed class HolySparkler : RunePriestRelic, IRuneListener
 
     protected override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar("Block", 4m, ValueProp.Unpowered)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Speak];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Speak, RuneTips.Fizzle];
 
     public async Task AfterFizzle(RuneContext ctx, Glyph glyph)
     {

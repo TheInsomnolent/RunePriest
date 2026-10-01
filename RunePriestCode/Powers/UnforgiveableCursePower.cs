@@ -31,7 +31,7 @@ public sealed class UnforgiveableCursePower : RunePriestPower, IRuneListener
         HoverTipFactory.FromCard<CursedSpirits>()
     ];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [..base.ExtraHoverTips, ..WeaponTips];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [..base.ExtraHoverTips, RuneTips.Fizzle, ..WeaponTips];
 
     public async Task AfterFizzle(RuneContext ctx, Glyph glyph)
     {

@@ -14,7 +14,7 @@ public sealed class EnergyOverflow() : RunePriestCard(1, CardType.Power, CardRar
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new PowerVar<EnergyOverflowPower>(5m)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [HoverTipFactory.FromPower<EnergyOverflowPower>()];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [HoverTipFactory.FromPower<EnergyOverflowPower>(), RuneTips.Fizzle];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

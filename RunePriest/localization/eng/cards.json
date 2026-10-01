@@ -117,9 +117,9 @@
   "RUNEPRIEST-UNFORGIVEABLE_CURSE.title": "Unforgiveable Curse",
   "RUNEPRIEST-UNFORGIVEABLE_CURSE.description": "Whenever a rune [gold]Fizzles[/gold], add a random cursed weapon to your hand.{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]Nova[/blue] {Novas} times.|}",
   "RUNEPRIEST-ENERGY_OVERFLOW.title": "Energy Overflow",
-  "RUNEPRIEST-ENERGY_OVERFLOW.description": "Whenever a rune fizzles, deal {EnergyOverflowPower} damage to ALL enemies.",
+  "RUNEPRIEST-ENERGY_OVERFLOW.description": "Whenever a rune [gold]Fizzles[/gold], deal {EnergyOverflowPower} damage to ALL enemies.",
   "RUNEPRIEST-SPARK_STRIKE.title": "Spark Strike",
-  "RUNEPRIEST-SPARK_STRIKE.description": "Fizzle the last rune of your Incantation.\nIf you do, deal {Damage:diff()} damage.",
+  "RUNEPRIEST-SPARK_STRIKE.description": "[gold]Fizzle[/gold] the last rune of your Incantation.\nIf you do, deal {Damage:diff()} damage.",
 
   "RUNEPRIEST-CURSED_SWORD.title": "Cursed Sword",
   "RUNEPRIEST-CURSED_SWORD.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood:inverseDiff()}.\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}.\nDeal {Damage} damage.",
