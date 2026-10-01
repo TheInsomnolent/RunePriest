@@ -78,5 +78,8 @@
   "RUNEPRIEST-NYX_POWER.smartDescription": "Whenever you play a card [gold]Imbued[/gold] with a [blue]Void[/blue] rune, deal {Amount} damage to ALL enemies.",
   "RUNEPRIEST-DARK_STAR_POWER.title": "Dark Star",
   "RUNEPRIEST-DARK_STAR_POWER.description": "While a [blue]Void[/blue] is in your Incantation, draw cards at the start of each turn.",
-  "RUNEPRIEST-DARK_STAR_POWER.smartDescription": "While a [blue]Void[/blue] is in your Incantation, draw {Amount} {Amount:plural:card|cards} at the start of each turn."
+  "RUNEPRIEST-DARK_STAR_POWER.smartDescription": "While a [blue]Void[/blue] is in your Incantation, draw {Amount} {Amount:plural:card|cards} at the start of each turn.",
+  "RUNEPRIEST-LAST_SCROLL_POWER.title": "Last Scroll",
+  "RUNEPRIEST-LAST_SCROLL_POWER.description": "You may no longer [gold]Inscribe[/gold] this turn.",
+  "RUNEPRIEST-LAST_SCROLL_POWER.smartDescription": "You may no longer [gold]Inscribe[/gold] this turn."
 }
