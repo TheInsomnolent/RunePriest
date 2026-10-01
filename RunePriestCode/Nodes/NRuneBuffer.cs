@@ -37,7 +37,9 @@ public partial class NRuneBuffer : Node2D
     {
         if (!IsInstanceValid(_creatureNode)) return;
 
-        GlobalPosition = _creatureNode.GetTopOfHitbox() + Vector2.Up * HeightAboveHead;
+        // HeightAboveHead is tuned for a full-size model; shrink it to match downscaled visuals (e.g. the Architect rig).
+        var visualScale = Mathf.Abs(_creatureNode.Visuals.Scale.Y);
+        GlobalPosition = _creatureNode.GetTopOfHitbox() + Vector2.Up * HeightAboveHead * visualScale;
 
         var inCombat = _creatureNode.Entity.CombatState != null;
         var buffer = inCombat ? RuneCmd.GetBuffer(_creatureNode.Entity) : null;

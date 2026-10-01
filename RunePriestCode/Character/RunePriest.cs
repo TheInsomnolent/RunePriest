@@ -64,6 +64,13 @@ public class RunePriest : PlaceholderCharacterModel
         var body = visuals.GetNode<Node2D>("%Visuals");
         body.Scale = new Vector2(-body.Scale.X, body.Scale.Y);
         body.Call("set_normal_material", ShaderUtils.GenerateHsv(VisualsHue, VisualsSaturation, VisualsValue));
+
+        // Player visuals need a %FormVfx holder: death and Form cards call Add/RemoveFormVfx, which throw without it.
+        var formVfx = new Control { Name = "FormVfx", MouseFilter = Control.MouseFilterEnum.Ignore };
+        visuals.AddChild(formVfx);
+        visuals.MoveChild(formVfx, 0);
+        formVfx.Owner = visuals;
+        formVfx.UniqueNameInOwner = true;
         return visuals;
     }
 
