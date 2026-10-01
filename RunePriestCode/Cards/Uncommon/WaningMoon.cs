@@ -15,14 +15,14 @@ public sealed class WaningMoon() : RuneCard(2, CardType.Attack, CardRarity.Uncom
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new IntVar("Amplify", 2m), new IntVar("Loop", 1m),
+        new IntVar("Amplify", 2m),
         new DamageVar("Strike", 4m, ValueProp.Move), new BlockVar("Defend", 4m, ValueProp.Move)
     ];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor)
     {
         if (IsUpgraded) yield return Glyph.Of(new AmplifyRune(Var("Amplify")));
-        yield return Glyph.Of(new LoopRune(Var("Loop")));
+        yield return Glyph.Of(new LoopRune());
         yield return Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor);
         yield return Glyph.Of(new DefendRune(Var("Defend")));
         yield return Glyph.Of(new VoidRune()).Persist();

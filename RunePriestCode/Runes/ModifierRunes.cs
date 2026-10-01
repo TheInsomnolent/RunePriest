@@ -16,7 +16,7 @@ public abstract class ModifierRune(int value) : Rune(value)
 
     public virtual int ExtraExecutions => 0;
 
-    /// <summary>If true, the next glyph (or every glyph of a loop body) fizzles instead of resolving.</summary>
+    /// <summary>If true, consumes the next glyph (any kind but targets and End Loops) for the rest of the Speak. Handled by the interpreter.</summary>
     public virtual bool Voids => false;
 }
 
@@ -53,7 +53,10 @@ public sealed class EchoRune(int count = 1) : ModifierRune(count)
     public override Rune WithValue(int value) => new EchoRune(value);
 }
 
-/// <summary>Curse-like modifier: the next rune (or a whole loop body) fizzles instead of resolving.</summary>
+/// <summary>
+/// Curse-like modifier: consumes the next glyph (another Void, a Loop…) so it fizzles and is gone for the rest of the
+/// Speak. The Void itself stays, consuming again on every later loop pass or Reflection.
+/// </summary>
 public sealed class VoidRune() : ModifierRune(0)
 {
     public override string Key => "VOID";
@@ -62,9 +65,9 @@ public sealed class VoidRune() : ModifierRune(0)
 }
 
 /// <summary>
-/// Delays the next glyph: the Growth ticks down once on every trigger (so a Loop ticks it once per iteration) and
-/// the grown glyph is kept for next turn with its values doubled instead of resolving. Ticked down to 0, the
-/// Growth vanishes and the glyph resolves on its next trigger. Handled by the interpreter, not through <see cref="ModifierRune.ApplyTo"/>.
+/// Delays the next glyph: every trigger (so every loop pass) ticks the Growth down and doubles that glyph in place,
+/// keeping it for next turn instead of resolving it. Ticked down to 0, the Growth vanishes and the glyph resolves on
+/// its next trigger. Handled by the interpreter, not through <see cref="ModifierRune.ApplyTo"/>.
 /// </summary>
 public sealed class GrowthRune(int value) : ModifierRune(value)
 {
@@ -74,8 +77,8 @@ public sealed class GrowthRune(int value) : ModifierRune(value)
 }
 
 /// <summary>
-/// Sends the Speak back the way it came: earlier glyphs are Spoken again in reverse order, and glyphs after this
-/// one are never Spoken. Handled by the interpreter.
+/// Sends the Speak back the way it came: earlier glyphs (as earlier runes left them) are Spoken again in reverse order,
+/// unfinished loops stop looping, and glyphs after this one are never Spoken. Handled by the interpreter.
 /// </summary>
 public sealed class ReflectionRune() : ModifierRune(0)
 {

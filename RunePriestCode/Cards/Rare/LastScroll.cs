@@ -8,16 +8,16 @@ using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Rare;
 /// <summary>
-/// Wraps the first rune of your Incantation in a closed Loop, removes every other rune, and seals your quill:
+/// Wraps the first rune of your Incantation in nested closed Loops, removes every other rune, and seals your quill:
 /// you may no longer Inscribe this turn.
 /// </summary>
 public sealed class LastScroll() : RunePriestCard(0, CardType.Skill, CardRarity.Rare, TargetType.Self)
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Loop", 5m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Loops", 2m)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [
-        RuneTips.Inscribe, ..new LoopRune(1).HoverTips, ..new EndLoopRune().HoverTips,
+        RuneTips.Inscribe, ..new LoopRune().HoverTips, ..new EndLoopRune().HoverTips,
         HoverTipFactory.FromPower<LastScrollPower>()
     ];
 
@@ -25,14 +25,13 @@ public sealed class LastScroll() : RunePriestCard(0, CardType.Skill, CardRarity.
     {
         if (IncantationSize > 0)
         {
+            var loops = DynamicVars["Loops"].IntValue;
             while (IncantationSize > 1) await RuneCmd.Remove(choiceContext, Owner, 1);
-            await RuneCmd.Inscribe(choiceContext, Owner, [Glyph.Of(new EndLoopRune())], this);
-            await RuneCmd.Prepend(choiceContext, Owner, [Glyph.Of(new LoopRune(Var("Loop")))], this);
+            await RuneCmd.Inscribe(choiceContext, Owner, Enumerable.Range(0, loops).Select(_ => Glyph.Of(new EndLoopRune())).ToList(), this);
+            await RuneCmd.Prepend(choiceContext, Owner, Enumerable.Range(0, loops).Select(_ => Glyph.Of(new LoopRune())).ToList(), this);
         }
         await PowerCmd.Apply<LastScrollPower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
     }
 
-    private int Var(string name) => DynamicVars[name].IntValue;
-
-    protected override void OnUpgrade() => DynamicVars["Loop"].UpgradeValueBy(3m);
+    protected override void OnUpgrade() => DynamicVars["Loops"].UpgradeValueBy(1m);
 }

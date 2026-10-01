@@ -67,7 +67,7 @@ combine, and the order you play your cards matters. If a spell doesn't make sens
 - **Modifiers** affect the *next* rune, or a whole loop: Amplify +X, Twin ×2, Echo, Void (it fizzles). Amplify and Twin only change runes that can be amplified (not Loop, Kindle, Swift or Cleanse).
 - **Targeting runes** pick which enemies your offensive runes hit and last until the next targeting rune: Anchor (default), Scatter, Nova, Execution.
 - **Co-op:** your runes only ever affect you and the enemies; supportive runes (Defend, Mend, Strength…) never reach other players. Choral Evocation shares your runes with every player for a turn.
-- **Flow runes:** Loop N … End Loop (runs the runes inside once, then N more times), and Seal (stop here; the rest waits until next turn).
+- **Flow runes:** Loop … End Loop (speaks the runes inside twice; nest Loops for more), and Seal (stop here; the rest waits until next turn).
 - Hover the runes over your head, or the Incantation buff, to see each rune's text and a **Forecast** of what will happen.
 
 The full design is in [docs/rune-system-design.md](docs/rune-system-design.md).

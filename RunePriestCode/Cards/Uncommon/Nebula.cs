@@ -12,13 +12,13 @@ namespace RunePriest.RunePriestCode.Cards.Uncommon;
 public sealed class Nebula() : RuneCard(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new IntVar("Twin", 2m), new IntVar("Loop", 1m), new DamageVar("Strike", 5m, ValueProp.Move)];
+        [new IntVar("Twin", 2m), new DamageVar("Strike", 5m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor)
     {
         yield return Glyph.Of(new TargetRune(TargetMode.Nova));
         yield return Glyph.Of(new TwinRune(Var("Twin")));
-        yield return Glyph.Of(new LoopRune(Var("Loop")));
+        yield return Glyph.Of(new LoopRune());
         yield return Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor);
         if (!IsUpgraded) yield return Glyph.Of(new EndLoopRune());
         yield return Glyph.Of(new VoidRune());

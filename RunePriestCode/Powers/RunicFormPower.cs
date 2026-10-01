@@ -8,8 +8,6 @@ namespace RunePriest.RunePriestCode.Powers;
 /// <summary>The first two runes Inscribed each turn are wrapped in a closed Loop.</summary>
 public sealed class RunicFormPower : RunePriestPower, IRuneListener
 {
-    public const int LoopCount = 1;
-
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Single;
 
@@ -28,7 +26,7 @@ public sealed class RunicFormPower : RunePriestPower, IRuneListener
         var result = new List<Glyph>();
         foreach (var glyph in glyphs)
         {
-            if (InscribedThisTurn == 0) result.Add(Glyph.Of(new LoopRune(LoopCount)));
+            if (InscribedThisTurn == 0) result.Add(Glyph.Of(new LoopRune()));
             result.Add(glyph);
             if (++InscribedThisTurn == 2)
             {

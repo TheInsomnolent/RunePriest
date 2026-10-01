@@ -12,10 +12,8 @@ using RunePriest.RunePriestCode.Runes;
 namespace RunePriest.RunePriestCode.Cards.Rare;
 public sealed class RunicForm() : RunePriestCard(3, CardType.Power, CardRarity.Rare, TargetType.Self)
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Loop", RunicFormPower.LoopCount)];
-
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
-        [RuneTips.Inscribe, ..new LoopRune(0).HoverTips, ..new EndLoopRune().HoverTips, HoverTipFactory.FromPower<RunicFormPower>()];
+        [RuneTips.Inscribe, ..new LoopRune().HoverTips, ..new EndLoopRune().HoverTips, HoverTipFactory.FromPower<RunicFormPower>()];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

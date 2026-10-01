@@ -6,13 +6,13 @@ public abstract class FlowRune(int value = 0) : Rune(value)
 }
 
 /// <summary>
-/// Runs its body once, then <see cref="Rune.Value"/> extra times (Loop 1 = twice). The repeat count is fixed when
-/// inscribed: Loops never merge and no value effect (Amplify, Twin, Growth, Empower, Scaled) changes it — modifiers
-/// before a Loop empower the body, never the repeat count (Echo still multiplies the repetitions).
+/// Runs its body twice. Valueless: Loops never merge and no value effect changes them — modifiers before a Loop
+/// empower the body (Echo multiplies the repetitions). Nest Loops for more repeats.
 /// </summary>
-public sealed class LoopRune(int count) : FlowRune(count)
+public sealed class LoopRune() : FlowRune(0)
 {
     public override string Key => "LOOP";
+    public override bool ShowsValue => false;
 }
 
 public sealed class EndLoopRune() : FlowRune(0)

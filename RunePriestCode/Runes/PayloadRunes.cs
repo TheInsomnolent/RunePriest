@@ -186,9 +186,9 @@ public sealed class HexRune(int value = 1) : PayloadRune(value)
 }
 
 /// <summary>
-/// A lingering Strike: attacks like Strike, then persists into next turn with its value halved. Once the halved
-/// value would drop below <see cref="FizzleThreshold"/>, it fizzles away instead. Halving and persistence are
-/// handled by the interpreter.
+/// A lingering Strike: attacks like Strike, then halves in place after every execution (so Echo, later loop passes
+/// and a Reflection hit for less) and persists into next turn. Once the halved value would drop below
+/// <see cref="FizzleThreshold"/>, it fizzles away instead. Halving and persistence are handled by the interpreter.
 /// </summary>
 public sealed class DiminishRune(int value) : PayloadRune(value)
 {

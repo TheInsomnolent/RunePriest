@@ -11,11 +11,11 @@ public sealed class OrobasStrike() : RuneCard(2, CardType.Attack, CardRarity.Rar
     public override IEnumerable<CardKeyword> CanonicalKeywords => [RunePriestKeywords.Persist];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new IntVar("Loop", 1m), new IntVar("Growth", 6m), new DamageVar("Strike", 3m, ValueProp.Move)];
+        [new IntVar("Growth", 6m), new DamageVar("Strike", 3m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
-        Glyph.Of(new LoopRune(Var("Loop"))).Persist(),
+        Glyph.Of(new LoopRune()).Persist(),
         Glyph.Of(new GrowthRune(Var("Growth"))),
         Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor),
         Glyph.Of(new EndLoopRune()).Persist()

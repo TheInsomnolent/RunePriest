@@ -15,12 +15,12 @@ public sealed class ChaosFalls() : RunePriestCard(2, CardType.Power, CardRarity.
 {
     public override CardMultiplayerConstraint MultiplayerConstraint => CardMultiplayerConstraint.MultiplayerOnly;
 
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Twin", 2m), new IntVar("Loop", 1m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Twin", 2m)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [
         HoverTipFactory.FromPower<ChaosFallsPower>(), RuneTips.Inscribe,
-        ..new TargetRune(TargetMode.Scatter).HoverTips, ..new TwinRune().HoverTips, ..new LoopRune(1).HoverTips
+        ..new TargetRune(TargetMode.Scatter).HoverTips, ..new TwinRune().HoverTips, ..new LoopRune().HoverTips
     ];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)

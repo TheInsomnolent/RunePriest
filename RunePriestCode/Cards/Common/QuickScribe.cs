@@ -9,12 +9,12 @@ namespace RunePriest.RunePriestCode.Cards.Common;
 public sealed class QuickScribe() : RuneCard(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new DamageVar("Strike", 3m, ValueProp.Move), new BlockVar("Defend", 3m, ValueProp.Move), new IntVar("Loop", 1m)];
+        [new DamageVar("Strike", 3m, ValueProp.Move), new BlockVar("Defend", 3m, ValueProp.Move)];
 
     // Strike and Defend are inscribed simultaneously; upgraded, the rune is wrapped in a closed Loop.
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor)
     {
-        if (IsUpgraded) yield return Glyph.Of(new LoopRune(Var("Loop")));
+        if (IsUpgraded) yield return Glyph.Of(new LoopRune());
         yield return Glyph.Of(new StrikeRune(Var("Strike")), new DefendRune(Var("Defend"))).AnchoredTo(anchor);
         if (IsUpgraded) yield return Glyph.Of(new EndLoopRune());
     }

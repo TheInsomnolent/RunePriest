@@ -15,12 +15,12 @@ public sealed class BlackHoleStrike() : RuneCard(1, CardType.Attack, CardRarity.
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new IntVar("Loop", 1m), new DamageVar("Strike", 10m, ValueProp.Move)];
+        [new DamageVar("Strike", 10m, ValueProp.Move)];
 
     protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromCard<WhiteHoleStrike>(false)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new LoopRune(Var("Loop"))), Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor)];
+        [Glyph.Of(new LoopRune()), Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor)];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

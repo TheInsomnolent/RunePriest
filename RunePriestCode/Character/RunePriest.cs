@@ -52,7 +52,7 @@ public class RunePriest : PlaceholderCharacterModel
     private const float VisualsHue = 0.75f;
     private const float VisualsSaturation = 1f;
     private const float VisualsValue = 1f;
-    private const float VisualsScale = 1f;
+    private const float VisualsScale = 0.75f;
 
     public override NCreatureVisuals CreateCustomVisuals()
     {

@@ -14,10 +14,10 @@ public sealed class Blessing() : RuneCard(1, CardType.Skill, CardRarity.Rare, Ta
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Loop", 1m), new IntVar("Twin", 2m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Twin", 2m)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new LoopRune(Var("Loop"))), Glyph.Of(new TwinRune(Var("Twin")))];
+        [Glyph.Of(new LoopRune()), Glyph.Of(new TwinRune(Var("Twin")))];
 
     protected override void OnUpgrade() => RemoveKeyword(CardKeyword.Exhaust);
 }

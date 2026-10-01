@@ -21,6 +21,6 @@ public sealed class ChaosFallsPower : RunePriestPower, IRuneListener
         if (player != Owner.Player) return;
         Flash();
         await RuneCmd.Inscribe(choiceContext, player,
-            [Glyph.Of(new TargetRune(TargetMode.Scatter)), Glyph.Of(new TwinRune()), Glyph.Of(new LoopRune(1))], null);
+            [Glyph.Of(new TargetRune(TargetMode.Scatter)), Glyph.Of(new TwinRune()), Glyph.Of(new LoopRune())], null);
     }
 }

@@ -46,7 +46,7 @@ public static class GlyphCodec
         "REFLECTION" => new ReflectionRune(),
         "CLONE" => new CloneRune(),
         "FRIENDSHIP" => new FriendshipRune(value),
-        "LOOP" => new LoopRune(value),
+        "LOOP" => new LoopRune(),
         "END_LOOP" => new EndLoopRune(),
         "SEAL" => new SealRune(),
         _ when Enum.TryParse<TargetMode>(key, true, out var mode) && !int.TryParse(key, out _) => new TargetRune(mode),
