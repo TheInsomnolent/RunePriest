@@ -8,6 +8,8 @@ namespace RunePriest.RunePriestCode.Cards.Basic;
 
 public sealed class StrikeRuneCard() : RuneCard(1, CardType.Attack, CardRarity.Basic, TargetType.AnyEnemy)
 {
+    protected override HashSet<CardTag> CanonicalTags => [CardTag.Strike];
+
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 5m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>

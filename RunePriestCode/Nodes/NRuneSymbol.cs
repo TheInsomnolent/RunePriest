@@ -1,4 +1,5 @@
 using Godot;
+using MegaCrit.Sts2.Core.Helpers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Nodes;
@@ -13,10 +14,13 @@ public partial class NRuneSymbol : Node2D
     private const float HeptagonRadius = 23f;
     private const float PentagonSpin = 0.45f;
     private const float HeptagonSpin = -0.7f;
+    private const float MandalaAlpha = 0.55f;
+    private const float MandalaFadeSpeed = 4f;
 
     private readonly Vector2[] _pentagon = new Vector2[6];
     private readonly Vector2[] _heptagon = new Vector2[8];
-    private Color? _persistColor;
+    private Color _mandalaColor;
+    private float _mandala;
 
     private Vector2 _home;
     private Vector2 _amplitude;
@@ -25,15 +29,18 @@ public partial class NRuneSymbol : Node2D
     private double _time;
     private CpuParticles2D? _particles;
     private NVoidVortex? _vortex;
+    private Rune? _rune;
+    private Label? _value;
 
-    /// <param name="persistent">Frame the rune in a spinning pentagon/heptagon mandala (it stays between turns).</param>
-    public static NRuneSymbol Create(Rune rune, bool persistent = false)
+    public static NRuneSymbol Create(Rune rune)
     {
         var node = new NRuneSymbol();
-        if (persistent) node._persistColor = new Color(RuneVisuals.ColorOf(rune), 0.8f);
         node.Build(rune);
         return node;
     }
+
+    /// <summary>Frames the rune in a spinning pentagon/heptagon mandala: it stays past the end of this turn.</summary>
+    public bool Persisting { get; set; }
 
     public Vector2 Home
     {
@@ -64,13 +71,16 @@ public partial class NRuneSymbol : Node2D
         Position = _home + new Vector2(
             Mathf.Sin(t * _frequency.X + _phase.X) * _amplitude.X,
             Mathf.Sin(t * _frequency.Y + _phase.Y) * _amplitude.Y);
-        if (_persistColor != null) QueueRedraw();
+        var mandala = Mathf.MoveToward(_mandala, Persisting ? 1f : 0f, (float)delta * MandalaFadeSpeed);
+        if (mandala > 0f || _mandala > 0f) QueueRedraw();
+        _mandala = mandala;
     }
 
     public override void _Draw()
     {
-        if (_persistColor is not { } color) return;
+        if (_mandala <= 0f) return;
         var t = (float)_time;
+        var color = new Color(_mandalaColor, MandalaAlpha * _mandala);
         DrawPolyline(Polygon(_pentagon, PentagonRadius, _phase.X + t * PentagonSpin), color, 2f, antialiased: true);
         DrawPolyline(Polygon(_heptagon, HeptagonRadius, _phase.Y + t * HeptagonSpin), color, 2f, antialiased: true);
     }
@@ -88,6 +98,7 @@ public partial class NRuneSymbol : Node2D
     private void Build(Rune rune)
     {
         var color = RuneVisuals.ColorOf(rune);
+        _mandalaColor = color;
         var intensity = RuneVisuals.IntensityOf(rune);
 
         // Purely cosmetic randomness, so GD.Randf (not the seeded run RNG) is fine here.
@@ -128,7 +139,8 @@ public partial class NRuneSymbol : Node2D
         AddChild(label);
 
         if (!rune.ShowsValue) return;
-        var value = new Label
+        _rune = rune;
+        _value = new Label
         {
             Text = rune.ValueLabel,
             MouseFilter = Control.MouseFilterEnum.Ignore,
@@ -142,7 +154,17 @@ public partial class NRuneSymbol : Node2D
                 OutlineColor = new Color(0f, 0f, 0f, 0.9f)
             }
         };
-        AddChild(value);
+        AddChild(_value);
+    }
+
+    /// <summary>Shows the value after game effects (Strength, Weak, Frail…): green if raised, red if lowered.</summary>
+    public void ShowModifiedValue(int? modified)
+    {
+        if (_value == null || _rune == null) return;
+        var shown = modified ?? _rune.Value;
+        _value.Text = shown == _rune.Value ? _rune.ValueLabel : shown.ToString();
+        _value.LabelSettings.FontColor = shown > _rune.Value ? StsColors.green
+            : shown < _rune.Value ? StsColors.red : Colors.White;
     }
 
     private static CpuParticles2D CreateParticles(Color color, float intensity)

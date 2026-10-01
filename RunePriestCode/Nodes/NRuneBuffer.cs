@@ -1,4 +1,5 @@
 using Godot;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using RunePriest.RunePriestCode.Runes;
@@ -28,6 +29,7 @@ public partial class NRuneBuffer : Node2D
     private NCreature _creatureNode = null!;
     private RuneBuffer? _buffer;
     private int? _capacity;
+    private bool _keepsIncantation;
 
     public static NRuneBuffer Create(NCreature creatureNode) => new() { _creatureNode = creatureNode };
 
@@ -47,6 +49,13 @@ public partial class NRuneBuffer : Node2D
         {
             _capacity = capacity;
             Relayout();
+        }
+
+        var keeps = inCombat && player != null && RuneListeners.Of(player).Any(l => l.KeepsIncantation);
+        if (keeps != _keepsIncantation)
+        {
+            _keepsIncantation = keeps;
+            UpdateForecast();
         }
 
         var alpha = IsInFocus() ? 1f : UnfocusedAlpha;
@@ -69,13 +78,21 @@ public partial class NRuneBuffer : Node2D
             DrawArc(SlotPosition(i, slots), 18f, 0f, Mathf.Tau, 24, new Color(1f, 1f, 1f, 0.25f), 2f);
     }
 
-    public override void _EnterTree() => Instances.Add(this);
+    public override void _EnterTree()
+    {
+        Instances.Add(this);
+        CombatManager.Instance.StateTracker.CombatStateChanged += OnCombatStateChanged;
+    }
 
     public override void _ExitTree()
     {
         Instances.Remove(this);
+        CombatManager.Instance.StateTracker.CombatStateChanged -= OnCombatStateChanged;
         Unsubscribe();
     }
+
+    // Powers changed (Weak, Frail, Strength…): rune values and outcomes may have too.
+    private void OnCombatStateChanged(CombatState _) => UpdateForecast();
 
     private void Bind(RuneBuffer? buffer)
     {
@@ -131,9 +148,24 @@ public partial class NRuneBuffer : Node2D
         {
             _glyphs.Sort((a, b) => IndexIn(current, a.Glyph).CompareTo(IndexIn(current, b.Glyph)));
             foreach (var node in _glyphs) node.ResetSpent();
+            UpdateForecast();
         }
 
         Relayout();
+    }
+
+    /// <summary>Dry-runs the Incantation to frame glyphs that outlast the Speak and show rune values after game effects.</summary>
+    private void UpdateForecast()
+    {
+        if (_buffer is not { IsSpeaking: false } || !IsInstanceValid(_creatureNode) ||
+            _creatureNode.Entity.Player is not { } player) return;
+        var forecast = _glyphs.Count > 0 ? RuneCmd.Forecast(player) : null;
+        var keepsAll = RuneListeners.Of(player).Any(l => l.KeepsIncantation);
+        foreach (var node in _glyphs)
+        {
+            node.Persisting = keepsAll || forecast?.Persisting.Contains(node.Glyph) == true;
+            node.ShowModifiedValues(forecast);
+        }
     }
 
     private void Relayout()

@@ -51,8 +51,8 @@ public static class RuneTips
     {
         var lines = preview.Lines
             .Select(l => l.Hits > 1
-                ? $"{l.Rune.TitleLoc.GetFormattedText()} ×{l.Hits}: {l.Total}"
-                : $"{l.Rune.TitleLoc.GetFormattedText()}: {l.Total}")
+                ? $"{l.Rune.TitleLoc.GetFormattedText()} ×{l.Hits}: {Highlight(l.Total, l.Base)}"
+                : $"{l.Rune.TitleLoc.GetFormattedText()}: {Highlight(l.Total, l.Base)}")
             .ToList();
 
         if (preview.Fizzles > 0)
@@ -67,6 +67,10 @@ public static class RuneTips
         lines.Add(new LocString(Table, Prefix + "FORECAST.note").GetFormattedText());
         return string.Join("\n", lines);
     }
+
+    /// <summary>Green when game effects raise a value, red when they lower it (like card text).</summary>
+    private static string Highlight(int value, int baseValue) =>
+        value > baseValue ? $"[green]{value}[/green]" : value < baseValue ? $"[red]{value}[/red]" : value.ToString();
 
     private static HoverTip Tip(string key) =>
         new(new LocString(Table, Prefix + key + ".title"), new LocString(Table, Prefix + key + ".description"));

@@ -8,6 +8,8 @@ namespace RunePriest.RunePriestCode.Cards.Basic;
 
 public sealed class DefendRuneCard() : RuneCard(1, CardType.Skill, CardRarity.Basic, TargetType.Self)
 {
+    protected override HashSet<CardTag> CanonicalTags => [CardTag.Defend];
+
     protected override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar("Defend", 5m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>

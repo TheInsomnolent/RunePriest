@@ -63,8 +63,8 @@ public sealed class VoidRune() : ModifierRune(0)
 
 /// <summary>
 /// Delays the next glyph: the Growth ticks down once on every trigger (so a Loop ticks it once per iteration) and
-/// the grown glyph is kept for next turn with its values doubled instead of resolving. Fully ticked down, the
-/// Growth vanishes and the glyph finally resolves. Handled by the interpreter, not through <see cref="ModifierRune.ApplyTo"/>.
+/// the grown glyph is kept for next turn with its values doubled instead of resolving. Ticked down to 0, the
+/// Growth vanishes and the glyph resolves on its next trigger. Handled by the interpreter, not through <see cref="ModifierRune.ApplyTo"/>.
 /// </summary>
 public sealed class GrowthRune(int value) : ModifierRune(value)
 {

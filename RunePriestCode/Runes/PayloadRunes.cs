@@ -1,6 +1,9 @@
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Powers;
+using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
@@ -28,6 +31,19 @@ public abstract class PayloadRune(int value) : Rune(value)
     public abstract RuneTargeting Targeting { get; }
 
     public abstract Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets);
+
+    /// <summary>
+    /// <paramref name="value"/> after game effects (Strength, Weak, Vulnerable, Frail…) as it would resolve against
+    /// <paramref name="target"/> (null: not a single known creature). Must stay side-effect free.
+    /// </summary>
+    public virtual int Modified(Player owner, Glyph glyph, Creature? target, int value) => value;
+
+    /// <summary>Mirrors the damage a Strike deals when it resolves.</summary>
+    protected static int ModifiedAttack(Player owner, Glyph glyph, Creature? target, int value) =>
+        owner.Creature.CombatState is { } combat
+            ? (int)Hook.ModifyDamage(owner.RunState, combat, target, owner.Creature, value, ValueProp.Move, glyph.Source,
+                null, ModifyDamageHookType.All, CardPreviewMode.None, out _)
+            : value;
 }
 
 public sealed class StrikeRune(int value) : PayloadRune(value)
@@ -35,6 +51,9 @@ public sealed class StrikeRune(int value) : PayloadRune(value)
     public override string Key => "STRIKE";
     public override Rune WithValue(int value) => new StrikeRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
+
+    public override int Modified(Player owner, Glyph glyph, Creature? target, int value) =>
+        ModifiedAttack(owner, glyph, target, value);
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
     {
@@ -65,6 +84,11 @@ public sealed class DefendRune(int value) : PayloadRune(value)
     public override string Key => "DEFEND";
     public override Rune WithValue(int value) => new DefendRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Ally;
+
+    public override int Modified(Player owner, Glyph glyph, Creature? target, int value) =>
+        owner.Creature.CombatState is { } combat
+            ? (int)Hook.ModifyBlock(combat, target ?? owner.Creature, value, ValueProp.Move, null, null, out _)
+            : value;
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
     {
@@ -173,6 +197,9 @@ public sealed class DiminishRune(int value) : PayloadRune(value)
     public override string Key => "DIMINISH";
     public override Rune WithValue(int value) => new DiminishRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
+
+    public override int Modified(Player owner, Glyph glyph, Creature? target, int value) =>
+        ModifiedAttack(owner, glyph, target, value);
 
     public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
         new StrikeRune(Value).Resolve(ctx, glyph, value, targets);

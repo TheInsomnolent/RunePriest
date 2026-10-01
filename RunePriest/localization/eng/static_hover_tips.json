@@ -17,7 +17,7 @@
   "RUNEPRIEST-FORECAST.title": "Forecast",
   "RUNEPRIEST-FORECAST.fizzles": "Fizzles: {Count}",
   "RUNEPRIEST-FORECAST.overload": "[red]Overload![/red] The rest fizzles.",
-  "RUNEPRIEST-FORECAST.note": "[color=#a0a0a0]Base values; Strength, Vulnerable, etc. not included.[/color]",
+  "RUNEPRIEST-FORECAST.note": "[color=#a0a0a0]Includes Strength, Weak, Vulnerable, Frail, etc. Effects on random or multiple targets (like their Vulnerable) aren't included.[/color]",
 
   "RUNEPRIEST-RUNE_STRIKE.title": "Strike",
   "RUNEPRIEST-RUNE_STRIKE.description": "Attack the target for {Value} damage.",
@@ -50,7 +50,7 @@
   "RUNEPRIEST-RUNE_VOID.title": "Void",
   "RUNEPRIEST-RUNE_VOID.description": "The next rune fizzles instead of resolving. Before a [blue]Loop[/blue], voids the whole loop.",
   "RUNEPRIEST-RUNE_GROWTH.title": "Growth",
-  "RUNEPRIEST-RUNE_GROWTH.description": "The next rune waits instead of resolving, doubling its values each turn it waits. Growth ticks down {Value} time(s), once on every trigger (a [blue]Loop[/blue] ticks it each iteration), then vanishes and the rune resolves.",
+  "RUNEPRIEST-RUNE_GROWTH.description": "The next rune waits instead of resolving, doubling its values each turn it waits. Growth ticks down {Value} time(s), once on every trigger (a [blue]Loop[/blue] ticks it each iteration), then vanishes; the rune resolves the next time it is [gold]Spoken[/gold].",
   "RUNEPRIEST-RUNE_REFLECTION.title": "Reflection",
   "RUNEPRIEST-RUNE_REFLECTION.description": "When [gold]Spoken[/gold], the Incantation turns around: earlier runes are Spoken again in reverse order. Runes after the Reflection are never Spoken.",
   "RUNEPRIEST-RUNE_CLONE.title": "Clone",

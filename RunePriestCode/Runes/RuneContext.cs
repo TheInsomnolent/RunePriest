@@ -78,6 +78,23 @@ public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner,
         };
     }
 
+    /// <summary>The single creature a payload would hit, without rolling random targets; null if unknown or several.</summary>
+    public Creature? PreviewTarget(PayloadRune rune, Glyph glyph)
+    {
+        if (rune.Targeting == RuneTargeting.Self || (rune.Targeting == RuneTargeting.Enemy) == Mirrored) return Creature;
+        if (Creature.CombatState is not { } combat) return null;
+
+        var pool = combat.HittableEnemies.ToList();
+        return TargetMode switch
+        {
+            TargetMode.Nova => pool.Count == 1 ? pool[0] : null,
+            TargetMode.Execution => pool.MinBy(c => c.CurrentHp),
+            TargetMode.Scatter => pool.Count == 1 && !Listeners.Any(l => l.ScatterTargetsAnyone) ? pool[0] : null,
+            _ when glyph.Anchor != null && pool.Contains(glyph.Anchor) => glyph.Anchor,
+            _ => pool.Count == 1 ? pool[0] : null
+        };
+    }
+
     /// <summary>Mirror flips sides; any later targeting rune replaces it, which is how players counter a curse Mirror.</summary>
     public void ApplyTarget(TargetMode mode)
     {

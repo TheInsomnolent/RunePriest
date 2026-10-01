@@ -31,6 +31,15 @@ public static class RuneInterpreter
     /// <returns>Glyphs to keep for next turn (Persist glyphs, Growth carry-overs and everything after a Seal).</returns>
     public static async Task<IReadOnlyList<Glyph>> Run(RuneContext ctx, IReadOnlyList<Glyph> glyphs)
     {
+        // Carry-over glyph -> the inscribed glyph it came from (unmapped kept glyphs are the inscribed ones).
+        var origins = new Dictionary<Glyph, Glyph>();
+        var kept = await Run(ctx, glyphs, origins);
+        ctx.Preview?.Persisting.UnionWith(kept.Select(k => origins.GetValueOrDefault(k, k)));
+        return kept;
+    }
+
+    private static async Task<IReadOnlyList<Glyph>> Run(RuneContext ctx, IReadOnlyList<Glyph> glyphs, Dictionary<Glyph, Glyph> origins)
+    {
         var program = new RuneProgram(glyphs);
         var pending = new List<Glyph>();
         var loops = new List<LoopFrame>();
@@ -79,8 +88,8 @@ public static class RuneInterpreter
                     break;
 
                 // Growth delays the following glyph: it ticks down once on every trigger (so a Loop ticks it once
-                // per iteration) and keeps the glyph for next turn, doubled, instead of resolving it. Fully ticked
-                // down, the Growth vanishes and it resolves.
+                // per iteration) and keeps the glyph for next turn, doubled, instead of resolving it. Once ticked
+                // down to 0 the Growth vanishes, and the glyph resolves on its next trigger.
                 case RuneKind.Modifier when glyph.Runes[0] is GrowthRune growth:
                 {
                     if (pc + 1 >= glyphs.Count)
@@ -98,30 +107,31 @@ public static class RuneInterpreter
                         break;
                     }
                     await Activate(ctx, glyph, kept);
-                    state.Remaining--;
                     if (state.Remaining <= 0)
                     {
+                        // Ticked down earlier this Speak (a Loop): it resolves now instead of waiting for next turn.
                         state.Resolved = true;
-                        if (state.KeptGrowth != null)
-                        {
-                            kept.Remove(state.KeptGrowth);
-                            kept.Remove(state.KeptGrown!);
-                            state.KeptGrowth = state.KeptGrown = null;
-                        }
+                        if (state.KeptGrowth != null) kept.Remove(state.KeptGrowth);
+                        if (state.KeptGrown != null) kept.Remove(state.KeptGrown);
+                        state.KeptGrowth = state.KeptGrown = null;
                         Log(ctx, $"  {glyph} is fully grown; {glyphs[pc + 1]} resolves");
                         pc++;
                         break;
                     }
-                    var ticked = glyph.WithRunes(new GrowthRune(state.Remaining));
-                    if (state.KeptGrowth == null)
+                    state.Remaining--;
+                    var ticked = state.Remaining > 0 ? glyph.WithRunes(new GrowthRune(state.Remaining)) : null;
+                    if (ticked != null) origins[ticked] = glyph;
+                    if (state.KeptGrown == null)
                     {
                         state.KeptGrown = glyphs[pc + 1].Scaled(2);
-                        kept.Add(ticked);
+                        origins[state.KeptGrown] = glyphs[pc + 1];
+                        if (ticked != null) kept.Add(ticked);
                         kept.Add(state.KeptGrown);
                     }
-                    else
+                    else if (state.KeptGrowth != null)
                     {
-                        kept[kept.IndexOf(state.KeptGrowth)] = ticked;
+                        if (ticked != null) kept[kept.IndexOf(state.KeptGrowth)] = ticked;
+                        else kept.Remove(state.KeptGrowth);
                     }
                     state.KeptGrowth = ticked;
                     Log(ctx, $"  {glyph} ticks down to {state.Remaining}; keeping {state.KeptGrown} for next turn");
@@ -161,6 +171,7 @@ public static class RuneInterpreter
                     }
                     await Activate(ctx, glyph, kept);
                     var clone = glyphs[pc + 1].Copy().Persist();
+                    origins[clone] = glyphs[pc + 1];
                     kept.Add(clone);
                     Log(ctx, $"  {glyph} clones {glyphs[pc + 1]}; the copy persists into next turn");
                     pc++;
@@ -258,6 +269,7 @@ public static class RuneInterpreter
                         }
                         else
                         {
+                            origins[halved] = glyph;
                             if (carried != null) kept[kept.IndexOf(carried)] = halved;
                             else kept.Add(halved);
                             diminished[glyph] = halved;
@@ -306,20 +318,24 @@ public static class RuneInterpreter
     private static async Task<bool> ExecutePayloadGlyph(RuneContext ctx, Glyph glyph, List<ModifierRune> mods)
     {
         var resolved = false;
-        foreach (var inscribed in glyph.Runes.Cast<PayloadRune>())
+        for (var i = 0; i < glyph.Runes.Count; i++)
         {
+            var inscribed = (PayloadRune)glyph.Runes[i];
             var rune = ctx.Listeners.Aggregate(inscribed, (r, l) => l.ReplacePayload(ctx, r));
             var value = ctx.Listeners.Aggregate(rune.Value, (v, l) => l.ModifyRuneValue(ctx, rune, v));
             value = mods.Aggregate(value, (v, m) => m.ApplyTo(rune, v));
-            if (value <= 0) continue;
 
             if (ctx.Preview != null)
             {
                 // Preview never resolves targets: that would advance the shared combat RNG.
-                ctx.Preview.Record(rune, value);
+                var target = ctx.PreviewTarget(rune, glyph);
+                ctx.Preview.Show(glyph, i, inscribed.Modified(ctx.Owner, glyph, target, inscribed.Value));
+                if (value <= 0) continue;
+                ctx.Preview.Record(rune, value, rune.Modified(ctx.Owner, glyph, target, value));
                 resolved = true;
                 continue;
             }
+            if (value <= 0) continue;
 
             var targets = ctx.ResolveTargets(rune, glyph);
             if (targets.Count == 0)

@@ -83,7 +83,7 @@ runes and empties the slot), Alchemize+, Folly's Mirror+, Frenzied Incant+. Conj
 | **Echo** | Execute the next glyph one extra time. |
 | **Sanctify** | Blood runes in the next glyph (or whole loop body) resolve as 0. Engine-only. |
 | **Void** | The next glyph (or whole loop body) fizzles instead of resolving (each execution counts as a fizzle). Dark Magick, Darkness Falls, Nebula, Dark Star. |
-| **Growth X** | Delays the next glyph: the Growth ticks down once **per trigger** (so a Growth inside a `[Loop 1]` ticks twice per Speak) and the glyph is kept for next turn with its values doubled instead of resolving. Fully ticked down, the Growth vanishes and the glyph finally resolves. Handled by the interpreter (not `ApplyTo`). |
+| **Growth X** | Delays the next glyph: the Growth ticks down once **per trigger** (so a Growth inside a `[Loop 1]` ticks twice per Speak) and the glyph is kept for next turn with its values doubled instead of resolving. Ticked down to 0, the Growth vanishes and the glyph resolves on its next trigger (so `[Growth 1][Strike]` waits exactly one turn). Handled by the interpreter (not `ApplyTo`). |
 | **Reflection** | The Speak turns around: earlier glyphs are Spoken again in reverse order; glyphs after the Reflection are never Spoken. Handled by the interpreter. |
 | **Friendship** | Co-op: the next supportive (ally) payload — value > 0: every later one — affects **all living players** instead of only the caster. Handled by the interpreter. |
 | **Clone** | Persists; each trigger duplicates the following glyph into next turn's Incantation as a Persistent copy. Nothing after it → fizzles (unless the Clone itself Persists). Handled by the interpreter. |
@@ -467,8 +467,10 @@ flip with `NRuneBuffer.ReadRightToLeft`). Compound glyphs stack vertically = "th
   `Cmd.CustomScaledWait` per glyph. Activated glyphs pulse + burst then stay dimmed ("spent"); fizzles shake, grey out,
   pop a grey dust puff and linger faded before dissolving;
   at the end spent glyphs dissolve upward in sequence while Seal-retained glyphs stay.
-- Persistent glyphs (and Diminish, which carries itself over) are framed by a mandala in the rune's colour: a heptagon inside a pentagon, counter-rotating, so multi-turn runes read at a glance.
+- Glyphs that will outlast the next Speak are framed by a mandala in the rune's colour (a heptagon inside a pentagon, counter-rotating). It comes from a dry run of the Incantation (`RuneCmd.Forecast` → `RunePreview.Persisting`), so it covers Persist, Diminish (unless it would fizzle away), Growth and the glyph it grows, the glyph a Clone copies, everything after a Seal, and the whole Incantation under Eternal Sigil / Lingering Aroma.
 - Co-op: other players' runes are faded; hovering another player brings theirs forward and fades yours.
+- Rune values overhead show game effects (Strength, Weak, Vulnerable, Frail, Dexterity…) via `PayloadRune.Modified`
+  (green = raised, red = lowered, like card text). The same dry run supplies them; refreshed on `CombatStateChanged`.
 - Fonts: only the game's bundled locale fonts are used; missing glyphs log a warning and render `◆`.
   To use scripts not covered (e.g. Elder Futhark runes ᚠᚢᚦ), ship an OFL font such as Noto Sans Runic in `RunePriest/`.
 - Known gaps: no mouse hover on the floating runes yet (use the Incantation power tooltip); placeholder particles are untextured squares.
@@ -481,7 +483,8 @@ Decisions made autonomously (user unavailable; revisit on review):
 - **Curse runes** (Mirror, Blood) are engine-only since Phase 5; the Smudged/Stray Rune status/curse cards were removed with
   the prototype set. Re-add via `[Pool(typeof(StatusCardPool))]` + `AfterCardDrawn` if wanted.
 - **Forecast**: the Incantation power tooltip shows a dry run (`RuneCmd.Forecast` → interpreter with `RunePreview`): totals
-  per payload, fizzles, overload. Base values only; preview never resolves targets so it can't advance the combat RNG.
+  per payload, fizzles, overload. Totals include game effects (`PayloadRune.Modified`, green/red vs base); a target's
+  effects (Vulnerable) only count when the target is known without rolling, so preview never advances the combat RNG.
 - New listener hooks: `ModifyLoopCount`, `ModifyCapacity`, `KeepsIncantation`, `AfterInscribed`, `AfterPayload`,
   `AfterFizzle`, `AfterSpeak` (with `RuneContext.GlyphsSpoken` / `Fizzles`). Value/loop/capacity hooks must be pure.
 - New rune: **Sanctify** (modifier, ⊘). (Venom was added here and removed again in Phase 5.)

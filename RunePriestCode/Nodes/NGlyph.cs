@@ -29,6 +29,26 @@ public partial class NGlyph : Node2D
 
     public Vector2 TargetPosition { get; set; }
 
+    private bool _persisting;
+
+    /// <summary>Shows the persistence mandala: this glyph (or its carry-over) outlasts the next Speak.</summary>
+    public bool Persisting
+    {
+        get => _persisting;
+        set
+        {
+            _persisting = value;
+            foreach (var symbol in _symbols) symbol.Persisting = value;
+        }
+    }
+
+    /// <summary>Rune values after game effects, from a dry run of the Incantation (null: show inscribed values).</summary>
+    public void ShowModifiedValues(RunePreview? forecast)
+    {
+        for (var i = 0; i < _symbols.Count; i++)
+            _symbols[i].ShowModifiedValue(forecast?.ShownValue(Glyph, i));
+    }
+
     public static NGlyph Create(Glyph glyph, Vector2 startPosition)
     {
         var node = new NGlyph { Position = startPosition, TargetPosition = startPosition };
@@ -51,11 +71,10 @@ public partial class NGlyph : Node2D
     private void BuildSymbols(Glyph glyph)
     {
         Glyph = glyph;
-        // Diminish carries itself over each turn, so it reads as persistent from the moment it's inscribed.
-        var persistent = glyph.Persistent || glyph.Runes.Any(r => r is DiminishRune);
         for (var i = 0; i < glyph.Runes.Count; i++)
         {
-            var symbol = NRuneSymbol.Create(glyph.Runes[i], persistent);
+            var symbol = NRuneSymbol.Create(glyph.Runes[i]);
+            symbol.Persisting = _persisting;
             symbol.Home = new Vector2(0f, -i * StackSpacing);
             _symbols.Add(symbol);
             AddChild(symbol);
