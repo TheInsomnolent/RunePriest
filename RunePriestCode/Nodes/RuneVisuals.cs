@@ -6,6 +6,7 @@ namespace RunePriest.RunePriestCode.Nodes;
 public enum RuneFamily
 {
     Offense,
+    Debuff,
     Support,
     Resource,
     Cost,
@@ -28,7 +29,9 @@ public static class RuneVisuals
     {
         // Kanji ordered by stroke count, so bigger hits look denser.
         ["STRIKE"] = new(RuneFamily.Offense, "刀刃斤矛伐戒刺剣殺斬裂戦撃闘轟", 3),
-        ["HEX"] = new(RuneFamily.Offense, "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏ"),
+        // Diminish shrinks turn by turn: kanji ordered by stroke count so the fading hits look lighter.
+        ["DIMINISH"] = new(RuneFamily.Offense, "乙久斥朽衰減耗滅", 4),
+        ["HEX"] = new(RuneFamily.Debuff, "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏ"),
         ["DEFEND"] = new(RuneFamily.Support, "αβγδεζηθικλμνξοπρστυφχψωΩ", 2),
         ["MEND"] = new(RuneFamily.Support, "가나다라마바사아자차카타파하"),
         ["CLEANSE"] = new(RuneFamily.Support, "※"),
@@ -44,6 +47,7 @@ public static class RuneVisuals
         // Growth grows with its remaining turns: hiragana ordered so bigger values look denser.
         ["GROWTH"] = new(RuneFamily.Modifier, "あいうえおかきくけこさしすせそ"),
         ["REFLECTION"] = new(RuneFamily.Modifier, "∽"),
+        ["CLONE"] = new(RuneFamily.Modifier, "々"),
         ["FRIENDSHIP"] = new(RuneFamily.Modifier, "∪"),
 
         ["ANCHOR"] = new(RuneFamily.Target, "◎"),
@@ -71,6 +75,7 @@ public static class RuneVisuals
     public static Color ColorOf(Rune rune) => StyleOf(rune).Family switch
     {
         RuneFamily.Offense => new Color("ff5a4f"),
+        RuneFamily.Debuff => new Color("7b3fb3"),
         RuneFamily.Support => new Color("5fe38a"),
         RuneFamily.Resource => new Color("ffd447"),
         RuneFamily.Cost => new Color("d81b60"),

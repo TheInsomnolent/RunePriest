@@ -9,8 +9,8 @@ description: "Card/power/relic text conventions for RunePriest localization file
 - The rune buffer is the **Incantation**. Adding runes is **Inscribe** (`[gold]Inscribe[/gold]`); resolving it is **Speak** (`[gold]Speak[/gold]`, past tense `[gold]Spoken[/gold]`); binding the most recent runes to a card's Imbue slot is **Imbue** (`[gold]Imbue[/gold]`; use `ImbueHoverTips` on the card so the bound runes are listed once it is Imbued).
 - Rune names are blue: `[blue]Strike[/blue]`, `[blue]Defend[/blue]`, `[blue]Loop[/blue]`. Game keywords/powers are gold: `[gold]Block[/gold]`, `[gold]Weak[/gold]`.
   - The block rune is **Defend** (`[blue]Defend[/blue]`); `[gold]Block[/gold]` always means actually gaining block now.
-- Current rune names: Strike, Defend, Mend, Hex, Cleanse, Kindle, Swift, Blood · Amplify, Twin, Echo, Sanctify, Void, Growth, Reflection, Friendship · Anchor, Scatter, Nova, Execution, Mirror · Loop, End Loop, Seal. (Sanctify, Seal, Mirror are engine-only: no card inscribes them.)
-- A rune that is Spoken but does nothing **fizzles** (lowercase, no colour): "Whenever a rune fizzles, ...".
+- Current rune names: Strike, Defend, Mend, Hex, Cleanse, Kindle, Swift, Blood, Diminish · Amplify, Twin, Echo, Sanctify, Void, Growth, Reflection, Friendship, Clone · Anchor, Scatter, Nova, Execution, Mirror · Loop, End Loop, Seal. (Sanctify, Seal, Mirror are engine-only: no card inscribes them.)
+- A rune that is Spoken but does nothing **Fizzles** — a gold keyword with a hover tip (`RuneTips.Fizzle`): "Whenever a rune [gold]Fizzles[/gold], ...". Add `RuneTips.Fizzle` to the model's hover tips when its text mentions it.
 - **Concentration** is a custom keyword (`card_keywords.json`, currently unused). Cards get it via `CanonicalKeywords` (auto-prefixed, don't write it in the card text); Concentration powers start their description with `[gold]Concentration[/gold].\n`.
 
 ## Inscribe lines

@@ -13,6 +13,7 @@ public partial class NGlyph : Node2D
     private const float HitboxSize = 52f;
     private const float FollowSpeed = 10f;
     private const float SpentAlpha = 0.55f;
+    private const float FizzledAlpha = 0.25f;
 
     private readonly List<NRuneSymbol> _symbols = [];
     private Control? _hitbox;
@@ -20,6 +21,7 @@ public partial class NGlyph : Node2D
     private float _fizzle;
     private float _appear;
     private bool _spent;
+    private bool _fizzled;
     private bool _dissolving;
     private float _dissolveDelay;
 
@@ -57,6 +59,7 @@ public partial class NGlyph : Node2D
             AddChild(symbol);
         }
         BuildHitbox(glyph.Runes.Count);
+        QueueRedraw();
     }
 
     private void BuildHitbox(int runeCount)
@@ -88,6 +91,15 @@ public partial class NGlyph : Node2D
 
     public override void _ExitTree() => HideTips();
 
+    /// <summary>Persist glyphs are framed in a white square so it's clear they stay between turns.</summary>
+    public override void _Draw()
+    {
+        if (Glyph is not { Persistent: true }) return;
+        var height = HitboxSize + (Glyph.Runes.Count - 1) * StackSpacing;
+        var frame = new Rect2(-HitboxSize / 2f, HitboxSize / 2f - height, HitboxSize, height);
+        DrawRect(frame, new Color(1f, 1f, 1f, 0.65f), filled: false, width: 2f);
+    }
+
     public void Activate()
     {
         _pulse = 1f;
@@ -95,14 +107,43 @@ public partial class NGlyph : Node2D
         foreach (var symbol in _symbols) symbol.Burst();
     }
 
+    /// <summary>The glyph fizzles out: a grey puff, then it lingers faded until the Speak ends.</summary>
     public void Fizzle()
     {
         _fizzle = 1f;
         _spent = true;
+        _fizzled = true;
+        EmitFizzlePuff();
+    }
+
+    private void EmitFizzlePuff()
+    {
+        var puff = new CpuParticles2D
+        {
+            OneShot = true,
+            Emitting = true,
+            Amount = 14,
+            Lifetime = 0.6f,
+            Explosiveness = 0.9f,
+            Direction = Vector2.Up,
+            Spread = 70f,
+            InitialVelocityMin = 30f,
+            InitialVelocityMax = 90f,
+            Gravity = new Vector2(0f, -40f),
+            ScaleAmountMin = 2f,
+            ScaleAmountMax = 5f,
+            Color = new Color(0.6f, 0.6f, 0.6f, 0.8f)
+        };
+        puff.Finished += puff.QueueFree;
+        AddChild(puff);
     }
 
     /// <summary>Glyph survived a Speak (Seal / Eternal Script); show it as fresh again.</summary>
-    public void ResetSpent() => _spent = false;
+    public void ResetSpent()
+    {
+        _spent = false;
+        _fizzled = false;
+    }
 
     public void Dissolve(float delay = 0f)
     {
@@ -136,8 +177,10 @@ public partial class NGlyph : Node2D
         Position = Position.Lerp(TargetPosition, 1f - Mathf.Exp(-FollowSpeed * dt));
         if (_fizzle > 0f) Position += new Vector2((GD.Randf() - 0.5f) * 6f * _fizzle, 0f);
 
-        var alpha = _spent ? Mathf.Lerp(SpentAlpha, 1f, _pulse) : 1f;
-        var tint = Colors.White.Lerp(new Color(0.5f, 0.5f, 0.5f), _fizzle);
+        var alpha = _fizzled ? Mathf.Lerp(FizzledAlpha, 1f, _fizzle)
+            : _spent ? Mathf.Lerp(SpentAlpha, 1f, _pulse) : 1f;
+        var grey = _fizzled ? Mathf.Max(_fizzle, 0.7f) : _fizzle;
+        var tint = Colors.White.Lerp(new Color(0.5f, 0.5f, 0.5f), grey);
         var glow = 1f + _pulse * 0.8f;
 
         var appear = Mathf.Clamp(_appear, 0f, 1f);

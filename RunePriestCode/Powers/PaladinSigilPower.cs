@@ -7,7 +7,7 @@ using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Powers;
 
-/// <summary>Whenever you Imbue a rune, gain Amount Strength.</summary>
+/// <summary>Whenever you Imbue a rune, gain Amount Energy.</summary>
 public sealed class PaladinSigilPower : RunePriestPower, IRuneListener
 {
     public override PowerType Type => PowerType.Buff;
@@ -17,6 +17,6 @@ public sealed class PaladinSigilPower : RunePriestPower, IRuneListener
     {
         if (player != Owner.Player) return;
         Flash();
-        await PowerCmd.Apply<StrengthPower>(choiceContext, Owner, Amount, Owner, null);
+        await PlayerCmd.GainEnergy(Amount, player);
     }
 }

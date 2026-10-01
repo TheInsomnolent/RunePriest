@@ -14,7 +14,7 @@ public sealed class SparkStrike() : RunePriestCard(1, CardType.Attack, CardRarit
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(8m, ValueProp.Move)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, RuneTips.Fizzle];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

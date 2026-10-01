@@ -10,7 +10,7 @@ public sealed class Meditate() : RuneCard(2, CardType.Skill, CardRarity.Common, 
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new HealVar("Mend", 5m), new BlockVar("Defend", 5m, ValueProp.Move)];
+        [new HealVar("Mend", 4m), new BlockVar("Defend", 4m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new MendRune(Var("Mend"))).AnchoredTo(anchor), Glyph.Of(new DefendRune(Var("Defend"))).AnchoredTo(anchor)];

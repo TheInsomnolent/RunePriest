@@ -52,7 +52,7 @@ public abstract class Rune(int value = 0)
 
     public virtual IEnumerable<IHoverTip> HoverTips => [new HoverTip(TitleLoc, DescriptionLoc)];
 
-    /// <summary>Same rune with a new value, or null if this rune never merges (targets, End Loop, Seal, Sanctify).</summary>
+    /// <summary>Same rune with a new value, or null if this rune never merges (targets, Loop, End Loop, Seal, Sanctify).</summary>
     public virtual Rune? WithValue(int value) => null;
 
     public override string ToString() => ShowsValue ? $"{Key} {ValueLabel}" : Key;

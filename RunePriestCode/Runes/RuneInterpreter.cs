@@ -19,6 +19,15 @@ public static class RuneInterpreter
         public List<ModifierRune> Mods { get; } = mods;
     }
 
+    private sealed class GrowthState(int remaining)
+    {
+        public int Remaining { get; set; } = remaining;
+        /// <summary>Fully ticked down this Speak: the delayed glyph now resolves normally.</summary>
+        public bool Resolved { get; set; }
+        public Glyph? KeptGrowth { get; set; }
+        public Glyph? KeptGrown { get; set; }
+    }
+
     /// <returns>Glyphs to keep for next turn (Persist glyphs, Growth carry-overs and everything after a Seal).</returns>
     public static async Task<IReadOnlyList<Glyph>> Run(RuneContext ctx, IReadOnlyList<Glyph> glyphs)
     {
@@ -27,8 +36,12 @@ public static class RuneInterpreter
         var loops = new List<LoopFrame>();
         // Persist glyphs and Growth carry-overs, in encounter order; returned so the buffer retains them.
         var kept = new List<Glyph>();
-        // How many glyphs later loop iterations skip per Growth glyph already handled this Speak.
-        var growthSkip = new Dictionary<Glyph, int>();
+        // Per-Speak tick state of every Growth glyph (Growth ticks down on every trigger, so loops tick it repeatedly).
+        var growthStates = new Dictionary<Glyph, GrowthState>();
+        // Current halved carry-over per Diminish glyph; null once it has diminished away.
+        var diminished = new Dictionary<Glyph, Glyph?>();
+        // The last target glyph, until a payload uses it: a target immediately replaced (or never used) fizzles.
+        Glyph? unusedTarget = null;
         int pc = 0, steps = 0, payloads = 0;
 
         Log(ctx, $"Speaking {glyphs.Count} glyph(s): {string.Join(" ", glyphs)}");
@@ -57,40 +70,61 @@ public static class RuneInterpreter
                     break;
 
                 case RuneKind.Target:
+                    if (unusedTarget != null && unusedTarget != glyph && !unusedTarget.Persistent)
+                        await Fizzle(ctx, pc, unusedTarget, "target never used");
+                    unusedTarget = glyph;
                     await Activate(ctx, glyph, kept);
                     ctx.ApplyTarget(((TargetRune)glyph.Runes[0]).Mode);
                     pc++;
                     break;
 
-                // Growth delays the following glyph: each Speak it ticks down once and keeps the glyph for next
-                // turn, doubled, instead of resolving it. Fully ticked down, the Growth vanishes and it resolves.
+                // Growth delays the following glyph: it ticks down once on every trigger (so a Loop ticks it once
+                // per iteration) and keeps the glyph for next turn, doubled, instead of resolving it. Fully ticked
+                // down, the Growth vanishes and it resolves.
                 case RuneKind.Modifier when glyph.Runes[0] is GrowthRune growth:
                 {
-                    if (growthSkip.TryGetValue(glyph, out var skip))
-                    {
-                        // Later loop iterations: this Growth was already handled this Speak.
-                        pc += skip;
-                        break;
-                    }
                     if (pc + 1 >= glyphs.Count)
                     {
                         await Fizzle(ctx, pc, glyph, "nothing to grow");
                         pc++;
                         break;
                     }
-                    await Activate(ctx, glyph, kept);
-                    if (growth.Value <= 1)
+                    if (!growthStates.TryGetValue(glyph, out var state))
+                        growthStates[glyph] = state = new GrowthState(growth.Value);
+                    if (state.Resolved)
                     {
-                        Log(ctx, $"  {glyph} is fully grown; {glyphs[pc + 1]} resolves");
-                        growthSkip[glyph] = 1;
+                        // Fully grown earlier this Speak: the delayed glyph resolves on this trigger too.
                         pc++;
                         break;
                     }
-                    var grown = glyphs[pc + 1].Scaled(2);
-                    kept.Add(glyph.WithRunes(new GrowthRune(growth.Value - 1)));
-                    kept.Add(grown);
-                    Log(ctx, $"  {glyph} ticks down; keeping {grown} for next turn");
-                    growthSkip[glyph] = 2;
+                    await Activate(ctx, glyph, kept);
+                    state.Remaining--;
+                    if (state.Remaining <= 0)
+                    {
+                        state.Resolved = true;
+                        if (state.KeptGrowth != null)
+                        {
+                            kept.Remove(state.KeptGrowth);
+                            kept.Remove(state.KeptGrown!);
+                            state.KeptGrowth = state.KeptGrown = null;
+                        }
+                        Log(ctx, $"  {glyph} is fully grown; {glyphs[pc + 1]} resolves");
+                        pc++;
+                        break;
+                    }
+                    var ticked = glyph.WithRunes(new GrowthRune(state.Remaining));
+                    if (state.KeptGrowth == null)
+                    {
+                        state.KeptGrown = glyphs[pc + 1].Scaled(2);
+                        kept.Add(ticked);
+                        kept.Add(state.KeptGrown);
+                    }
+                    else
+                    {
+                        kept[kept.IndexOf(state.KeptGrowth)] = ticked;
+                    }
+                    state.KeptGrowth = ticked;
+                    Log(ctx, $"  {glyph} ticks down to {state.Remaining}; keeping {state.KeptGrown} for next turn");
                     pc += 2;
                     break;
                 }
@@ -113,6 +147,22 @@ public static class RuneInterpreter
                 case RuneKind.Modifier when glyph.Runes[0] is FriendshipRune friendship:
                     await Activate(ctx, glyph, kept);
                     ctx.ApplyFriendship(friendship.Value > 0 ? FriendshipScope.Rest : FriendshipScope.NextGlyph);
+                    pc++;
+                    break;
+
+                // Clone: every trigger keeps a persistent copy of the following glyph for next turn.
+                case RuneKind.Modifier when glyph.Runes[0] is CloneRune:
+                    if (pc + 1 >= glyphs.Count)
+                    {
+                        if (!glyph.Persistent) await Fizzle(ctx, pc, glyph, "nothing to clone");
+                        else await Activate(ctx, glyph, kept);
+                        pc++;
+                        break;
+                    }
+                    await Activate(ctx, glyph, kept);
+                    var clone = glyphs[pc + 1].Copy().Persist();
+                    kept.Add(clone);
+                    Log(ctx, $"  {glyph} clones {glyphs[pc + 1]}; the copy persists into next turn");
                     pc++;
                     break;
 
@@ -159,14 +209,24 @@ public static class RuneInterpreter
                 case RuneKind.Flow when glyph.Runes[0] is SealRune:
                     await Activate(ctx, glyph, kept);
                     await FizzlePending(ctx, pending, "sealed before it could apply");
+                    if (unusedTarget is { Persistent: false })
+                        await Fizzle(ctx, -1, unusedTarget, "target never used");
                     var retained = glyphs.Skip(pc + 1).ToList();
                     Log(ctx, $"Sealed; retaining {retained.Count} glyph(s)");
                     return [..kept, ..retained];
 
                 case RuneKind.Payload:
                 {
+                    // A Diminish glyph that already diminished away this Speak (looped) fizzles instead of resolving.
+                    if (diminished.TryGetValue(glyph, out var carried) && carried == null)
+                    {
+                        await Fizzle(ctx, pc, glyph, "diminished away");
+                        pc++;
+                        break;
+                    }
                     var mods = loops.SelectMany(f => f.Mods).Concat(AsModifiers(TakeAll(pending))).ToList();
                     var executions = 1 + mods.Sum(m => m.ExtraExecutions);
+                    var voided = mods.Any(m => m.Voids);
                     for (var i = 0; i < executions && !ctx.ShouldStop; i++)
                     {
                         if (++payloads > MaxPayloadExecutions)
@@ -174,7 +234,7 @@ public static class RuneInterpreter
                             await Overload(ctx, glyphs, pc, "too many payloads");
                             return kept;
                         }
-                        if (mods.Any(m => m.Voids))
+                        if (voided)
                         {
                             await Fizzle(ctx, pc, glyph, "voided");
                             continue;
@@ -182,6 +242,27 @@ public static class RuneInterpreter
                         await Activate(ctx, glyph, kept);
                         if (!await ExecutePayloadGlyph(ctx, glyph, mods))
                             await Fizzle(ctx, pc, glyph, "nothing resolved");
+                    }
+                    unusedTarget = null;
+                    // Diminish persists with its value halved; below the threshold it fizzles away instead.
+                    if (!voided && glyph.Runes.Any(r => r is DiminishRune))
+                    {
+                        var basis = carried ?? glyph;
+                        var halved = basis.WithRunes(basis.Runes
+                            .Select(r => r is DiminishRune ? new DiminishRune(r.Value / 2) : r).ToArray()).Persist();
+                        if (halved.Runes.OfType<DiminishRune>().All(r => r.Value < DiminishRune.FizzleThreshold))
+                        {
+                            if (carried != null) kept.Remove(carried);
+                            diminished[glyph] = null;
+                            await Fizzle(ctx, pc, glyph, "diminished away");
+                        }
+                        else
+                        {
+                            if (carried != null) kept[kept.IndexOf(carried)] = halved;
+                            else kept.Add(halved);
+                            diminished[glyph] = halved;
+                            Log(ctx, $"  {glyph} diminishes; keeping {halved} for next turn");
+                        }
                     }
                     ctx.ConsumeFriendship();
                     pc++;
@@ -196,6 +277,8 @@ public static class RuneInterpreter
         }
 
         await FizzlePending(ctx, pending, "nothing left to empower");
+        if (unusedTarget is { Persistent: false })
+            await Fizzle(ctx, -1, unusedTarget, "target never used");
         return kept;
     }
 
@@ -209,8 +292,9 @@ public static class RuneInterpreter
 
     private static async Task Activate(RuneContext ctx, Glyph glyph, List<Glyph> kept)
     {
-        // Persist glyphs stay in the Incantation after being Spoken (Growth glyphs manage their own carry-over).
-        if (glyph.Persistent && glyph.Runes[0] is not GrowthRune && !kept.Contains(glyph)) kept.Add(glyph);
+        // Persist glyphs stay in the Incantation after being Spoken (Growth and Diminish manage their own carry-over).
+        if (glyph.Persistent && glyph.Runes[0] is not GrowthRune && !glyph.Runes.Any(r => r is DiminishRune) &&
+            !kept.Contains(glyph)) kept.Add(glyph);
         if (ctx.IsPreview) return;
         ctx.MarkSpoken(glyph);
         ctx.Buffer.NotifyActivated(glyph);
@@ -222,8 +306,9 @@ public static class RuneInterpreter
     private static async Task<bool> ExecutePayloadGlyph(RuneContext ctx, Glyph glyph, List<ModifierRune> mods)
     {
         var resolved = false;
-        foreach (var rune in glyph.Runes.Cast<PayloadRune>())
+        foreach (var inscribed in glyph.Runes.Cast<PayloadRune>())
         {
+            var rune = ctx.Listeners.Aggregate(inscribed, (r, l) => l.ReplacePayload(ctx, r));
             var value = ctx.Listeners.Aggregate(rune.Value, (v, l) => l.ModifyRuneValue(ctx, rune, v));
             value = mods.Aggregate(value, (v, m) => m.ApplyTo(rune, v));
             if (value <= 0) continue;

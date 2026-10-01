@@ -9,8 +9,11 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
-/// <summary>Remove the most recently inscribed rune and draw cards. Upgraded: also Imbue a rune.</summary>
-public sealed class Alchemize() : RunePriestCard(0, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
+/// <summary>
+/// Remove the most recently inscribed rune; only if one was removed, draw cards. Upgraded: also Imbue a rune
+/// (an already-Imbued Alloy Inscribes its bound runes first, so there is always one to remove).
+/// </summary>
+public sealed class Alloy() : RunePriestCard(0, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(2), new IntVar("Imbue", 1m)];
 
@@ -18,8 +21,9 @@ public sealed class Alchemize() : RunePriestCard(0, CardType.Skill, CardRarity.U
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await RuneCmd.Remove(choiceContext, Owner);
-        await Draw(choiceContext, DynamicVars.Cards.BaseValue);
-        if (IsUpgraded) await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
+        if (IsUpgraded && IsImbued) await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
+        var removed = await RuneCmd.Remove(choiceContext, Owner);
+        if (removed != null) await Draw(choiceContext, DynamicVars.Cards.BaseValue);
+        if (IsUpgraded && !IsImbued) await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
     }
 }

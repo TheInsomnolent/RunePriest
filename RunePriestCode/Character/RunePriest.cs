@@ -29,7 +29,7 @@ public class RunePriest : PlaceholderCharacterModel
         ModelDb.Card<DefendRuneCard>(),
         ModelDb.Card<DefendRuneCard>(),
         ModelDb.Card<DefendRuneCard>(),
-        ModelDb.Card<EchoRuneCard>()
+        ModelDb.Card<DefendRuneCard>()
     ];
 
     public override IReadOnlyList<RelicModel> StartingRelics =>
