@@ -11,7 +11,7 @@ namespace RunePriest.RunePriestCode.Cards.Rare;
 /// Multiplayer only. This turn, Defend runes you Inscribe are also Inscribed for all other players; upgraded, every
 /// rune is.
 /// </summary>
-public sealed class ChoralEvocation() : RunePriestCard(0, CardType.Skill, CardRarity.Rare, TargetType.Self)
+public sealed class ChoralEvocation() : RunePriestCard(1, CardType.Skill, CardRarity.Rare, TargetType.Self)
 {
     public override CardMultiplayerConstraint MultiplayerConstraint => CardMultiplayerConstraint.MultiplayerOnly;
 

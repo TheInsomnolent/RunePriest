@@ -19,8 +19,8 @@ public sealed class DarkMagick() : RuneCard(1, CardType.Skill, CardRarity.Rare, 
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor)
     {
-        yield return Glyph.Of(new VoidRune());
         if (IsUpgraded) yield return Glyph.Of(new KindleRune(Var("Kindle")));
+        yield return Glyph.Of(new VoidRune());
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
