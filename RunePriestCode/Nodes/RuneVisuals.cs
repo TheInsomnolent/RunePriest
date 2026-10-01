@@ -17,7 +17,8 @@ public enum RuneFamily
 
 /// <param name="Symbols">Candidate glyphs; higher values pick later (more complex) characters.</param>
 /// <param name="ValueStep">How many points of value advance one character.</param>
-public sealed record RuneStyle(RuneFamily Family, string Symbols, int ValueStep = 1);
+/// <param name="Tint">Overrides the family colour.</param>
+public sealed record RuneStyle(RuneFamily Family, string Symbols, int ValueStep = 1, Color? Tint = null);
 
 /// <summary>
 /// Colour comes from the rune's family; the script/character comes from its specific effect and value.
@@ -30,7 +31,7 @@ public static class RuneVisuals
         // Kanji ordered by stroke count, so bigger hits look denser.
         ["STRIKE"] = new(RuneFamily.Offense, "刀刃斤矛伐戒刺剣殺斬裂戦撃闘轟", 3),
         // Diminish shrinks turn by turn: kanji ordered by stroke count so the fading hits look lighter.
-        ["DIMINISH"] = new(RuneFamily.Offense, "乙久斥朽衰減耗滅", 4),
+        ["DIMINISH"] = new(RuneFamily.Offense, "乙久斥朽衰減耗滅", 4, new Color("a3001b")),
         ["HEX"] = new(RuneFamily.Debuff, "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏ"),
         ["DEFEND"] = new(RuneFamily.Support, "αβγδεζηθικλμνξοπρστυφχψωΩ", 2),
         ["MEND"] = new(RuneFamily.Support, "가나다라마바사아자차카타파하"),
@@ -72,7 +73,7 @@ public static class RuneVisuals
         return RuneFont.Resolve(style.Symbols[Math.Min(index, style.Symbols.Length - 1)].ToString());
     }
 
-    public static Color ColorOf(Rune rune) => StyleOf(rune).Family switch
+    public static Color ColorOf(Rune rune) => StyleOf(rune) is { Tint: { } tint } ? tint : StyleOf(rune).Family switch
     {
         RuneFamily.Offense => new Color("ff5a4f"),
         RuneFamily.Debuff => new Color("7b3fb3"),

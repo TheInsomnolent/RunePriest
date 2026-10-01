@@ -51,15 +51,16 @@ public partial class NGlyph : Node2D
     private void BuildSymbols(Glyph glyph)
     {
         Glyph = glyph;
+        // Diminish carries itself over each turn, so it reads as persistent from the moment it's inscribed.
+        var persistent = glyph.Persistent || glyph.Runes.Any(r => r is DiminishRune);
         for (var i = 0; i < glyph.Runes.Count; i++)
         {
-            var symbol = NRuneSymbol.Create(glyph.Runes[i]);
+            var symbol = NRuneSymbol.Create(glyph.Runes[i], persistent);
             symbol.Home = new Vector2(0f, -i * StackSpacing);
             _symbols.Add(symbol);
             AddChild(symbol);
         }
         BuildHitbox(glyph.Runes.Count);
-        QueueRedraw();
     }
 
     private void BuildHitbox(int runeCount)
@@ -90,15 +91,6 @@ public partial class NGlyph : Node2D
     }
 
     public override void _ExitTree() => HideTips();
-
-    /// <summary>Persist glyphs are framed in a white square so it's clear they stay between turns.</summary>
-    public override void _Draw()
-    {
-        if (Glyph is not { Persistent: true }) return;
-        var height = HitboxSize + (Glyph.Runes.Count - 1) * StackSpacing;
-        var frame = new Rect2(-HitboxSize / 2f, HitboxSize / 2f - height, HitboxSize, height);
-        DrawRect(frame, new Color(1f, 1f, 1f, 0.65f), filled: false, width: 2f);
-    }
 
     public void Activate()
     {

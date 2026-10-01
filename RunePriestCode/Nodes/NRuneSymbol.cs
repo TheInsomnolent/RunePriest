@@ -8,6 +8,15 @@ public partial class NRuneSymbol : Node2D
 {
     private const float BaseFontSize = 38f;
     private const float LabelBox = 96f;
+    private const float PentagonRadius = 30f;
+    // Stays within the pentagon's inradius (30 * cos 36° ≈ 24.3) at every rotation.
+    private const float HeptagonRadius = 23f;
+    private const float PentagonSpin = 0.45f;
+    private const float HeptagonSpin = -0.7f;
+
+    private readonly Vector2[] _pentagon = new Vector2[6];
+    private readonly Vector2[] _heptagon = new Vector2[8];
+    private Color? _persistColor;
 
     private Vector2 _home;
     private Vector2 _amplitude;
@@ -17,9 +26,11 @@ public partial class NRuneSymbol : Node2D
     private CpuParticles2D? _particles;
     private NVoidVortex? _vortex;
 
-    public static NRuneSymbol Create(Rune rune)
+    /// <param name="persistent">Frame the rune in a spinning pentagon/heptagon mandala (it stays between turns).</param>
+    public static NRuneSymbol Create(Rune rune, bool persistent = false)
     {
         var node = new NRuneSymbol();
+        if (persistent) node._persistColor = new Color(RuneVisuals.ColorOf(rune), 0.8f);
         node.Build(rune);
         return node;
     }
@@ -53,6 +64,25 @@ public partial class NRuneSymbol : Node2D
         Position = _home + new Vector2(
             Mathf.Sin(t * _frequency.X + _phase.X) * _amplitude.X,
             Mathf.Sin(t * _frequency.Y + _phase.Y) * _amplitude.Y);
+        if (_persistColor != null) QueueRedraw();
+    }
+
+    public override void _Draw()
+    {
+        if (_persistColor is not { } color) return;
+        var t = (float)_time;
+        DrawPolyline(Polygon(_pentagon, PentagonRadius, _phase.X + t * PentagonSpin), color, 2f, antialiased: true);
+        DrawPolyline(Polygon(_heptagon, HeptagonRadius, _phase.Y + t * HeptagonSpin), color, 2f, antialiased: true);
+    }
+
+    /// <summary>Fills <paramref name="points"/> with a closed regular polygon (last point repeats the first).</summary>
+    private static Vector2[] Polygon(Vector2[] points, float radius, float rotation)
+    {
+        var sides = points.Length - 1;
+        for (var i = 0; i < sides; i++)
+            points[i] = Vector2.FromAngle(rotation + i * Mathf.Tau / sides) * radius;
+        points[sides] = points[0];
+        return points;
     }
 
     private void Build(Rune rune)

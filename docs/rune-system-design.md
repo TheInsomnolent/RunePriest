@@ -467,7 +467,8 @@ flip with `NRuneBuffer.ReadRightToLeft`). Compound glyphs stack vertically = "th
   `Cmd.CustomScaledWait` per glyph. Activated glyphs pulse + burst then stay dimmed ("spent"); fizzles shake, grey out,
   pop a grey dust puff and linger faded before dissolving;
   at the end spent glyphs dissolve upward in sequence while Seal-retained glyphs stay.
-- Persistent glyphs are framed with a white outline square so multi-turn runes read at a glance.
+- Persistent glyphs (and Diminish, which carries itself over) are framed by a mandala in the rune's colour: a heptagon inside a pentagon, counter-rotating, so multi-turn runes read at a glance.
+- Co-op: other players' runes are faded; hovering another player brings theirs forward and fades yours.
 - Fonts: only the game's bundled locale fonts are used; missing glyphs log a warning and render `◆`.
   To use scripts not covered (e.g. Elder Futhark runes ᚠᚢᚦ), ship an OFL font such as Noto Sans Runic in `RunePriest/`.
 - Known gaps: no mouse hover on the floating runes yet (use the Incantation power tooltip); placeholder particles are untextured squares.

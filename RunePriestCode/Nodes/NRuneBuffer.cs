@@ -1,4 +1,5 @@
 using Godot;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using RunePriest.RunePriestCode.Runes;
 
@@ -17,6 +18,11 @@ public partial class NRuneBuffer : Node2D
     private const float GlyphSpacing = 58f;
     private const float MinGlyphSpacing = 34f;
     private const int GlyphsBeforeCompressing = 9;
+    // Co-op: runes of whichever player isn't in focus fade back so long rows don't clutter each other.
+    private const float UnfocusedAlpha = 0.3f;
+    private const float FadeSpeed = 8f;
+
+    private static readonly List<NRuneBuffer> Instances = [];
 
     private readonly List<NGlyph> _glyphs = [];
     private NCreature _creatureNode = null!;
@@ -42,6 +48,17 @@ public partial class NRuneBuffer : Node2D
             _capacity = capacity;
             Relayout();
         }
+
+        var alpha = IsInFocus() ? 1f : UnfocusedAlpha;
+        Modulate = new Color(Modulate, Mathf.MoveToward(Modulate.A, alpha, (float)delta * FadeSpeed));
+    }
+
+    /// <summary>Mine, unless a remote player is hovered; a remote player's only while they're hovered.</summary>
+    private bool IsInFocus()
+    {
+        if (!LocalContext.IsMe(_creatureNode.Entity)) return _creatureNode.IsFocused;
+        return !Instances.Any(b => b != this && IsInstanceValid(b._creatureNode) && b._creatureNode.IsFocused &&
+                                   !LocalContext.IsMe(b._creatureNode.Entity));
     }
 
     public override void _Draw()
@@ -52,7 +69,13 @@ public partial class NRuneBuffer : Node2D
             DrawArc(SlotPosition(i, slots), 18f, 0f, Mathf.Tau, 24, new Color(1f, 1f, 1f, 0.25f), 2f);
     }
 
-    public override void _ExitTree() => Unsubscribe();
+    public override void _EnterTree() => Instances.Add(this);
+
+    public override void _ExitTree()
+    {
+        Instances.Remove(this);
+        Unsubscribe();
+    }
 
     private void Bind(RuneBuffer? buffer)
     {
