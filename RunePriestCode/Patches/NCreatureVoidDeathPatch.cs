@@ -13,11 +13,22 @@ public static class NCreatureVoidDeathPatch
 {
     private static bool IsRunePriest(NCreature creature) => creature.Entity.Player?.Character is Character.RunePriest;
 
+    private static bool _loggedAnimations;
+
     [HarmonyPatch(nameof(NCreature._Ready))]
     [HarmonyPostfix]
-    public static void HideIfAlreadyDead(NCreature __instance)
+    public static void OnReady(NCreature __instance)
     {
-        if (IsRunePriest(__instance) && __instance.Entity.IsDead) __instance.Visuals.Body.Visible = false;
+        if (!IsRunePriest(__instance)) return;
+
+        // Diagnostic: the borrowed rig may hold animations the game never uses (e.g. a death animation).
+        if (!_loggedAnimations && __instance.Visuals.SpineBody?.GetSkeleton() is { } skeleton)
+        {
+            _loggedAnimations = true;
+            MainFile.Logger.Info($"[Rune] Rune Priest skeleton animations: {string.Join(", ", skeleton.GetData().GetAnimationNames())}");
+        }
+
+        if (__instance.Entity.IsDead) __instance.Visuals.Body.Visible = false;
     }
 
     // StartDeathAnim bails out early if a death animation is already running.
@@ -40,7 +51,7 @@ public static class NCreatureVoidDeathPatch
     public static void Restore(NCreature __instance)
     {
         if (!IsRunePriest(__instance)) return;
-        foreach (var vfx in __instance.Visuals.GetChildren().OfType<NVoidSwallow>()) vfx.QueueFree();
+        foreach (var vfx in __instance.Visuals.GetChildren().OfType<NVoidSwallow>()) vfx.Abort();
         __instance.Visuals.Body.Visible = true;
     }
 }
