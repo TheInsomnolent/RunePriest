@@ -225,6 +225,7 @@ RunePriestCode/
     RuneTips.cs           static hover tips (Inscribe, Speak, Imbue, Imbued, Overflow, Incantation script title)
     IRuneListener.cs      ModifyRuneValue / ReplacePayload / ModifyCapacity / KeepsIncantation / ModifyInscription / AfterInscribed / AfterImbued / AfterRemoved / AfterPayload / AfterFizzle / AfterSpeak (+ RuneListeners helper)
     RunePreview.cs        dry-run totals, shown values and per-glyph targets; PreviewEffects = powers earlier runes will have applied
+    IncantationDraft.cs   side-effect-free copy of an Incantation a held card plays out (Inscribe/Prepend/Remove/TakeForImbue + merge + Overflow)
   Powers/
     IncantationPower.cs   hosts RuneBuffer (InitInternalData → fresh per clone); Speaks in BeforeSideTurnEnd; DisplayAmount = glyph count; hover tip lists glyphs
     AmplifySigilPower.cs  IRuneListener: every rune Spoken as if preceded by Amplify +Amount (amplifiable runes only)
@@ -234,16 +235,20 @@ RunePriestCode/
     TurnCounter.cs        mutable per-turn counter for power InitInternalData
   Cards/
     RuneCard.cs           abstract Glyphs(Creature? anchor); OnPlay → RuneCmd.Inscribe; auto hover tips for Inscribe + runes; Var(name)
+    RunePriestCard.cs     PreviewIncantation(draft, anchor): mirrors OnPlay's RuneCmd calls on an IncantationDraft (drag preview); PreviewImbue / PreviewXValue helpers
     Basic/ Common/ Uncommon/ Rare/
   Relics/BlessedToolbox.cs starter (random Common rune card on pickup; first rune card each combat → draw 1)
   Nodes/
     NRuneBuffer.cs        row above a player's head; polls RuneCmd.GetBuffer, diffs glyphs by reference, lays out (ReadRightToLeft const)
-    NGlyph.cs             one slot; compound runes stacked vertically; appear / pulse (activated) / shake+grey (fizzle) / dissolve
+    NGlyph.cs             one slot; compound runes stacked vertically; appear / pulse (activated) / shake+grey (fizzle) / dissolve; ghost + GlyphPreview states
+    NRuneArc.cs           hover arc of rune-coloured motes from a glyph to a target
+    RuneDragPreview.cs    tracks the held card (NCardPlay) and its aimed-at creature → IncantationDraft for NRuneBuffer
     NRuneSymbol.cs        script character + value label, random bobbing, additive CpuParticles2D scaled by value
     NVoidVortex.cs        Void rune: dark hollow ring + screen-edge motes spiralling in (black hole)
     RuneVisuals.cs        style table: family → colour, effect → script, value → character
     RuneFont.cs           composite FontVariation from the game's bundled jpn/kor/tha/rus fonts; HasChar fallback
   Patches/NCreatureRuneBufferPatch.cs  Harmony postfix on NCreature._Ready → attach NRuneBuffer for players
+  Patches/RuneDragPreviewPatches.cs    postfixes on NMouseCardPlay/NControllerCardPlay.Start and NCard.SetPreviewTarget → RuneDragPreview
   Patches/NeowAetherQuillPatch.cs      Harmony postfix on Neow.GenerateInitialOptions → sometimes offers the Aether Inkwell
   Patches/AncientOptionPatches.cs      postfixes on Darv/Vakuu/Tezcatara → Dark Tablet / Corrupted Sigil / Eternal Candle (§15)
 ```
@@ -508,6 +513,14 @@ flip with `NRuneBuffer.ReadRightToLeft`). Compound glyphs stack vertically = "th
 - **Hovering a glyph** shows its tips, puts the game's targeting reticle on every creature it would affect and streams an
   arc of rune-coloured motes to each (`NRuneArc`; fainter and sparser for rolled targets). Target runes highlight what
   their mode would pick (Execution → lowest HP).
+- **Drag preview**: while you hold a playable card (mouse drag or controller), the Incantation shows what playing it would
+  do. New glyphs appear as desaturated, translucent, gently breathing ghosts in their slots; a glyph that would **stack**
+  (merge into the last one) is swapped for a ghost of the merged result with the summed value; glyphs that would leave
+  (Remove, Imbue, Last Scroll, Overflow) grey out. Values, mandalas and targets are forecast against the previewed
+  Incantation. Aiming at an enemy updates it, since glyphs only merge with glyphs anchored to the same creature (with a
+  single enemy, single-target cards preview against it). Each card mirrors its `OnPlay` in `RunePriestCard.PreviewIncantation`
+  on an `IncantationDraft` (`RuneCard` does it automatically); `IRuneListener.ModifyInscription` gets `preview: true`, so
+  listeners must not change state or Flash.
 - Fonts: only the game's bundled locale fonts are used; missing glyphs log a warning and render `◆`.
   To use scripts not covered (e.g. Elder Futhark runes ᚠᚢᚦ), ship an OFL font such as Noto Sans Runic in `RunePriest/`.
 - Known gaps: placeholder particles are untextured squares; runes inscribed at end of turn (Mirrororrim) aren't previewed.

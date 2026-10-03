@@ -25,11 +25,14 @@ public sealed class UnforgiveableCurse() : RunePriestCard(1, CardType.Power, Car
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await PowerCmd.Apply<UnforgiveableCursePower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
-        if (IsUpgraded)
-        {
-            var novas = Enumerable.Range(0, DynamicVars["Novas"].IntValue)
-                .Select(_ => Glyph.Of(new TargetRune(TargetMode.Nova)));
-            await RuneCmd.Inscribe(choiceContext, Owner, novas, this);
-        }
+        if (IsUpgraded) await RuneCmd.Inscribe(choiceContext, Owner, Novas, this);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+        if (IsUpgraded) draft.Inscribe(Novas, this);
+    }
+
+    private IEnumerable<Glyph> Novas =>
+        Enumerable.Range(0, DynamicVars["Novas"].IntValue).Select(_ => Glyph.Of(new TargetRune(TargetMode.Nova)));
 }

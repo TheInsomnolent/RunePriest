@@ -8,6 +8,16 @@ using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Nodes;
 
+/// <summary>How the card being dragged would change an inscribed glyph.</summary>
+public enum GlyphPreview
+{
+    None,
+    /// <summary>Replaced in its slot by a ghost of the merged glyph.</summary>
+    Superseded,
+    /// <summary>Removed, Imbued or Overflowed.</summary>
+    Leaving
+}
+
 /// <summary>One slot of the Incantation. Compound glyphs stack their runes vertically (they resolve together).</summary>
 public partial class NGlyph : Node2D
 {
@@ -17,6 +27,9 @@ public partial class NGlyph : Node2D
     private const float FollowSpeed = 10f;
     private const float SpentAlpha = 0.55f;
     private const float FizzledAlpha = 0.25f;
+    private const float GhostAlpha = 0.6f;
+    private const float LeavingAlpha = 0.3f;
+    private const float PreviewFadeSpeed = 6f;
 
     private readonly List<NRuneSymbol> _symbols = [];
     private readonly List<NRuneArc> _arcs = [];
@@ -31,8 +44,14 @@ public partial class NGlyph : Node2D
     private bool _fizzled;
     private bool _dissolving;
     private float _dissolveDelay;
+    private bool _ghost;
+    private float _previewFade = 1f;
+    private float _time;
 
     public Glyph Glyph { get; private set; } = null!;
+
+    /// <summary>How the held card would change this glyph. Ghost glyphs (<see cref="Create"/>) ignore it except for greying.</summary>
+    public GlyphPreview Preview { get; set; }
 
     public Vector2 TargetPosition { get; set; }
 
@@ -66,14 +85,19 @@ public partial class NGlyph : Node2D
         if (_hovered && !same) HighlightTargets();
     }
 
-    public static NGlyph Create(Glyph glyph, Vector2 startPosition)
+    /// <param name="ghost">A drag-preview glyph: desaturated, translucent and never hoverable.</param>
+    public static NGlyph Create(Glyph glyph, Vector2 startPosition, bool ghost = false)
     {
-        var node = new NGlyph { Position = startPosition, TargetPosition = startPosition };
+        var node = new NGlyph { Position = startPosition, TargetPosition = startPosition, _ghost = ghost };
+        if (ghost) node._previewFade = GhostAlpha;
         node.BuildSymbols(glyph);
         node.Scale = Vector2.One * 0.2f;
         node.Modulate = Colors.Transparent;
         return node;
     }
+
+    /// <summary>Points a ghost at an identical-looking glyph from a newer preview, without rebuilding it.</summary>
+    public void Rebind(Glyph glyph) => Glyph = glyph;
 
     /// <summary>Swap to a merged glyph in place, with a flourish.</summary>
     public void Rebuild(Glyph glyph)
@@ -90,13 +114,14 @@ public partial class NGlyph : Node2D
         Glyph = glyph;
         for (var i = 0; i < glyph.Runes.Count; i++)
         {
-            var symbol = NRuneSymbol.Create(glyph.Runes[i]);
+            var symbol = NRuneSymbol.Create(glyph.Runes[i], _ghost);
             symbol.Persisting = _persisting;
             symbol.Home = new Vector2(0f, -i * StackSpacing);
             _symbols.Add(symbol);
             AddChild(symbol);
         }
-        BuildHitbox(glyph.Runes.Count);
+        // Ghosts appear while a card is held, so they must never catch the mouse.
+        if (!_ghost) BuildHitbox(glyph.Runes.Count);
     }
 
     private void BuildHitbox(int runeCount)
@@ -220,6 +245,7 @@ public partial class NGlyph : Node2D
     public override void _Process(double delta)
     {
         var dt = (float)delta;
+        _time += dt;
         _pulse = Mathf.MoveToward(_pulse, 0f, dt * 2.5f);
         _fizzle = Mathf.MoveToward(_fizzle, 0f, dt * 1.5f);
 
@@ -241,9 +267,15 @@ public partial class NGlyph : Node2D
         Position = Position.Lerp(TargetPosition, 1f - Mathf.Exp(-FollowSpeed * dt));
         if (_fizzle > 0f) Position += new Vector2((GD.Randf() - 0.5f) * 6f * _fizzle, 0f);
 
-        var alpha = _fizzled ? Mathf.Lerp(FizzledAlpha, 1f, _fizzle)
-            : _spent ? Mathf.Lerp(SpentAlpha, 1f, _pulse) : 1f;
+        // Ghosts breathe gently so they read as "not inscribed yet".
+        var previewAlpha = _ghost ? GhostAlpha + Mathf.Sin(_time * 3f) * 0.12f
+            : Preview switch { GlyphPreview.Superseded => 0f, GlyphPreview.Leaving => LeavingAlpha, _ => 1f };
+        _previewFade = Mathf.MoveToward(_previewFade, previewAlpha, dt * PreviewFadeSpeed);
+
+        var alpha = (_fizzled ? Mathf.Lerp(FizzledAlpha, 1f, _fizzle)
+            : _spent ? Mathf.Lerp(SpentAlpha, 1f, _pulse) : 1f) * _previewFade;
         var grey = _fizzled ? Mathf.Max(_fizzle, 0.7f) : _fizzle;
+        if (Preview == GlyphPreview.Leaving) grey = Mathf.Max(grey, 0.7f);
         var tint = Colors.White.Lerp(new Color(0.5f, 0.5f, 0.5f), grey);
         var glow = 1f + _pulse * 0.8f;
 

@@ -22,7 +22,7 @@ public static class RuneCmd
         if (power == null) return;
 
         foreach (var listener in RuneListeners.Of(player))
-            list = listener.ModifyInscription(player, list);
+            list = listener.ModifyInscription(player, list, preview: false);
         if (list.Count == 0) return;
 
         await Place(choiceContext, player, power.Buffer, list);
@@ -258,10 +258,11 @@ public static class RuneCmd
     /// Side-effect-free dry run of the current Incantation, for tooltips and the overhead UI. Teammates Speak first in
     /// combat order, so their Incantations are dry-run first and what they apply (a Hex's Vulnerable…) carries over.
     /// </summary>
-    public static RunePreview? Forecast(Player player)
+    /// <param name="glyphs">Dry-run these instead of the current Incantation (a card's drag preview).</param>
+    public static RunePreview? Forecast(Player player, IReadOnlyList<Glyph>? glyphs = null)
     {
-        var buffer = GetBuffer(player.Creature);
-        if (buffer == null || buffer.Glyphs.Count == 0) return null;
+        glyphs ??= GetBuffer(player.Creature)?.Glyphs;
+        if (glyphs == null || glyphs.Count == 0) return null;
 
         var effects = new PreviewEffects();
         if (player.Creature.CombatState is { } combat)
@@ -272,15 +273,17 @@ public static class RuneCmd
         }
 
         var preview = new RunePreview(effects);
-        return DryRun(player, preview) ? preview : null;
+        return DryRun(player, preview, glyphs) ? preview : null;
     }
 
-    private static bool DryRun(Player player, RunePreview preview)
+    private static bool DryRun(Player player, RunePreview preview, IReadOnlyList<Glyph>? glyphs = null)
     {
         var buffer = GetBuffer(player.Creature);
-        if (buffer == null || buffer.Glyphs.Count == 0) return true;
-        var ctx = new RuneContext(new BlockingPlayerChoiceContext(), player, buffer, SpeakTiming.EndOfTurn, preview);
-        return RuneInterpreter.Run(ctx, buffer.Glyphs.ToList()).IsCompletedSuccessfully;
+        glyphs ??= buffer?.Glyphs;
+        if (glyphs == null || glyphs.Count == 0) return true;
+        // A preview never notifies the buffer, so a stand-in is fine before the Incantation exists.
+        var ctx = new RuneContext(new BlockingPlayerChoiceContext(), player, buffer ?? new RuneBuffer(), SpeakTiming.EndOfTurn, preview);
+        return RuneInterpreter.Run(ctx, glyphs.ToList()).IsCompletedSuccessfully;
     }
 
     private static async Task SpeakGlyphs(PlayerChoiceContext choiceContext, Player player, RuneBuffer buffer,

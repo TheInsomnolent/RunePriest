@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
@@ -21,6 +22,9 @@ public sealed class ImbuedSword() : RunePriestCard(1, CardType.Attack, CardRarit
         var bonus = ImbuedGlyphs.Sum(g => g.Runes.Sum(r => r.Value));
         await DealDamage(choiceContext, cardPlay, DynamicVars.Damage.BaseValue + bonus);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) =>
+        PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
 
     protected override void OnUpgrade() => DynamicVars["Imbue"].UpgradeValueBy(1m);
 }

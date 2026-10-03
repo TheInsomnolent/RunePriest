@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using RunePriest.RunePriestCode.Cards.Special;
@@ -20,4 +21,6 @@ public sealed class RerouteEnergy() : RunePriestCard(2, CardType.Skill, CardRari
         if (runes > 0) await PlayerCmd.GainEnergy(runes, Owner);
         if (IsUpgraded) await AddToHand<OldLantern>(1);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.RemoveWhere(_ => true);
 }

@@ -23,5 +23,11 @@ public sealed class Transmute() : RuneCard(1, CardType.Skill, CardRarity.Uncommo
         await base.OnPlay(choiceContext, cardPlay);
     }
 
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+        PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
+        base.PreviewIncantation(draft, anchor);
+    }
+
     protected override void OnUpgrade() => DynamicVars["Imbue"].UpgradeValueBy(1m);
 }

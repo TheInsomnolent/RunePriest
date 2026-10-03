@@ -27,4 +27,7 @@ public sealed class BlankRuneCard() : RunePriestCard(0, CardType.Skill, CardRari
         await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
         if (IsUpgraded) await Draw(choiceContext, DynamicVars.Cards.BaseValue);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) =>
+        PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
 }

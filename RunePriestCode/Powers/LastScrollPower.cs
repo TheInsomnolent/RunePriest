@@ -14,10 +14,10 @@ public sealed class LastScrollPower : RunePriestPower, IRuneListener
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Single;
 
-    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs)
+    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs, bool preview)
     {
         if (player != Owner.Player) return glyphs;
-        Flash();
+        if (!preview) Flash();
         return [];
     }
 

@@ -26,4 +26,11 @@ public sealed class Alloy() : RunePriestCard(0, CardType.Skill, CardRarity.Uncom
         if (removed != null) await Draw(choiceContext, DynamicVars.Cards.BaseValue);
         if (IsUpgraded && !IsImbued) await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+        if (IsUpgraded && IsImbued) PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
+        draft.Remove();
+        if (IsUpgraded && !IsImbued) PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
+    }
 }

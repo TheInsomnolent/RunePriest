@@ -19,4 +19,10 @@ public sealed class CleanSlate() : RuneCard(0, CardType.Skill, CardRarity.Common
         await base.OnPlay(choiceContext, cardPlay);
         if (IsUpgraded) await Draw(choiceContext, DynamicVars.Cards.BaseValue);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+        draft.Remove();
+        base.PreviewIncantation(draft, anchor);
+    }
 }

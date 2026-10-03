@@ -27,4 +27,10 @@ public sealed class FollysMirror() : RuneCard(0, CardType.Skill, CardRarity.Unco
         if (IsUpgraded) await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
         await base.OnPlay(choiceContext, cardPlay);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+        if (IsUpgraded) PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
+        base.PreviewIncantation(draft, anchor);
+    }
 }

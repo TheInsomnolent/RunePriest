@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
@@ -25,13 +26,23 @@ public sealed class LastScroll() : RunePriestCard(0, CardType.Skill, CardRarity.
     {
         if (IncantationSize > 0)
         {
-            var loops = DynamicVars["Loops"].IntValue;
             while (IncantationSize > 1) await RuneCmd.Remove(choiceContext, Owner, 1);
-            await RuneCmd.Inscribe(choiceContext, Owner, Enumerable.Range(0, loops).Select(_ => Glyph.Of(new EndLoopRune())).ToList(), this);
-            await RuneCmd.Prepend(choiceContext, Owner, Enumerable.Range(0, loops).Select(_ => Glyph.Of(new LoopRune())).ToList(), this);
+            await RuneCmd.Inscribe(choiceContext, Owner, Repeat(() => new EndLoopRune()), this);
+            await RuneCmd.Prepend(choiceContext, Owner, Repeat(() => new LoopRune()), this);
         }
         await PowerCmd.Apply<LastScrollPower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+        if (IncantationSize == 0) return;
+        for (var i = IncantationSize - 1; i >= 1; i--) draft.Remove(i);
+        draft.Inscribe(Repeat(() => new EndLoopRune()), this);
+        draft.Prepend(Repeat(() => new LoopRune()), this);
+    }
+
+    private List<Glyph> Repeat(Func<Rune> rune) =>
+        Enumerable.Range(0, DynamicVars["Loops"].IntValue).Select(_ => Glyph.Of(rune())).ToList();
 
     protected override void OnUpgrade() => DynamicVars["Loops"].UpgradeValueBy(1m);
 }

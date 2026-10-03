@@ -1,6 +1,7 @@
 using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models.CardPools;
@@ -17,12 +18,13 @@ public sealed class OldLantern() : RunePriestCard(0, CardType.Skill, CardRarity.
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, ..new KindleRune(1).HoverTips];
 
-    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
-    {
-        var x = ResolveEnergyXValue();
-        if (x <= 0) return;
-        await RuneCmd.Inscribe(choiceContext, Owner, [Glyph.Of(new KindleRune(x))], this);
-    }
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
+        await RuneCmd.Inscribe(choiceContext, Owner, Inscription(ResolveEnergyXValue()), this);
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) =>
+        draft.Inscribe(Inscription(PreviewXValue), this);
+
+    private static Glyph[] Inscription(int x) => x > 0 ? [Glyph.Of(new KindleRune(x))] : [];
 
     protected override void OnUpgrade() => RemoveKeyword(CardKeyword.Exhaust);
 }

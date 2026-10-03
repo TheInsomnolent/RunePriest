@@ -19,17 +19,19 @@ public sealed class OddSigilPower : RunePriestPower, IRuneListener
 
     protected override object InitInternalData() => new TurnCounter();
 
-    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs)
+    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs, bool preview)
     {
         if (player != Owner.Player) return glyphs;
 
+        var inscribed = InscribedThisTurn;
         var result = new List<Glyph>(glyphs.Count);
         foreach (var glyph in glyphs)
         {
-            var doubled = ++InscribedThisTurn % 2 == 0;
-            if (doubled) Flash();
+            var doubled = ++inscribed % 2 == 0;
+            if (doubled && !preview) Flash();
             result.Add(doubled ? glyph.Scaled(2) : glyph);
         }
+        if (!preview) InscribedThisTurn = inscribed;
         return result;
     }
 

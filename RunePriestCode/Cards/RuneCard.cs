@@ -32,6 +32,8 @@ public abstract class RuneCard(int cost, CardType type, CardRarity rarity, Targe
     protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
         RuneCmd.Inscribe(choiceContext, Owner, Glyphs(cardPlay.Target), this);
 
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.Inscribe(Glyphs(anchor), this);
+
     /// <summary>
     /// A var's value, with this card's enchantment (Sharp, Nimble…) baked into damage and block values: the rune
     /// carries it, so it is amplified/looped with the rune and never re-applied when it resolves.

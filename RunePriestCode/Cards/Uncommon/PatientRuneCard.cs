@@ -23,12 +23,13 @@ public sealed class PatientRuneCard() : RuneCard(1, CardType.Attack, CardRarity.
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor).Persist()];
 
-    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
-    {
-        var amount = Var("Strike") + (Incantation?.RunesInscribed ?? 0);
-        await RuneCmd.Inscribe(choiceContext, Owner,
-            [Glyph.Of(new StrikeRune(amount)).AnchoredTo(cardPlay.Target).Persist()], this);
-    }
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
+        await RuneCmd.Inscribe(choiceContext, Owner, Inscription(cardPlay.Target), this);
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.Inscribe(Inscription(anchor), this);
+
+    private Glyph[] Inscription(Creature? anchor) =>
+        [Glyph.Of(new StrikeRune(Var("Strike") + (Incantation?.RunesInscribed ?? 0))).AnchoredTo(anchor).Persist()];
 
     protected override void OnUpgrade() => DynamicVars["Strike"].UpgradeValueBy(4m);
 }

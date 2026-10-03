@@ -32,10 +32,11 @@ public partial class NRuneSymbol : Node2D
     private Rune? _rune;
     private Label? _value;
 
-    public static NRuneSymbol Create(Rune rune)
+    /// <param name="ghost">A drag-preview rune: desaturated, with sparser particles.</param>
+    public static NRuneSymbol Create(Rune rune, bool ghost = false)
     {
         var node = new NRuneSymbol();
-        node.Build(rune);
+        node.Build(rune, ghost);
         return node;
     }
 
@@ -95,9 +96,10 @@ public partial class NRuneSymbol : Node2D
         return points;
     }
 
-    private void Build(Rune rune)
+    private void Build(Rune rune, bool ghost)
     {
         var color = RuneVisuals.ColorOf(rune);
+        if (ghost) color = RuneVisuals.Desaturate(color);
         _mandalaColor = color;
         var intensity = RuneVisuals.IntensityOf(rune);
 
@@ -109,11 +111,12 @@ public partial class NRuneSymbol : Node2D
         if (rune is VoidRune)
         {
             _vortex = new NVoidVortex();
+            if (ghost) _vortex.Modulate = new Color(0.75f, 0.75f, 0.75f);
             AddChild(_vortex);
             return;
         }
 
-        _particles = CreateParticles(color, intensity);
+        _particles = CreateParticles(color, intensity * (ghost ? 0.4f : 1f));
         AddChild(_particles);
 
         var label = new Label

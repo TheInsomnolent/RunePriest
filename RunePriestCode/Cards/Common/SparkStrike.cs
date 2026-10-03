@@ -22,5 +22,7 @@ public sealed class SparkStrike() : RunePriestCard(1, CardType.Attack, CardRarit
             await DealDamage(choiceContext, cardPlay, DynamicVars.Damage.BaseValue);
     }
 
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.Remove();
+
     protected override void OnUpgrade() => DynamicVars.Damage.UpgradeValueBy(3m);
 }

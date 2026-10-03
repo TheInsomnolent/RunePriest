@@ -17,10 +17,7 @@ public sealed class HealerPower : RunePriestPower, IRuneListener
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Single;
 
-    IReadOnlyList<Glyph> IRuneListener.ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs)
-        => ModifyInscription(player, glyphs);
-
-    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs)
+    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs, bool preview)
     {
         if (player != Owner.Player) return glyphs;
         

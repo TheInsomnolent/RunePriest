@@ -25,4 +25,11 @@ public sealed class FrenziedIncant() : RuneCard(0, CardType.Skill, CardRarity.Un
         await base.OnPlay(choiceContext, cardPlay);
         await RuneCmd.Prepend(choiceContext, Owner, [Glyph.Of(new TargetRune(TargetMode.Scatter))], this);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+        if (IsUpgraded) PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
+        base.PreviewIncantation(draft, anchor);
+        draft.Prepend([Glyph.Of(new TargetRune(TargetMode.Scatter))], this);
+    }
 }

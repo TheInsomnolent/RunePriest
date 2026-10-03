@@ -15,12 +15,12 @@ public sealed class Candlelight() : RuneCard(2, CardType.Skill, CardRarity.Uncom
     // Glyphs(null) is only used for hover tips; the real count is read when played.
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new KindleRune(1))];
 
-    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
-    {
-        var count = IncantationRuneCount;
-        if (count <= 0) return;
-        await RuneCmd.Inscribe(choiceContext, Owner, [Glyph.Of(new KindleRune(count))], this);
-    }
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
+        await RuneCmd.Inscribe(choiceContext, Owner, Inscription, this);
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.Inscribe(Inscription, this);
+
+    private Glyph[] Inscription => IncantationRuneCount is var count and > 0 ? [Glyph.Of(new KindleRune(count))] : [];
 
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

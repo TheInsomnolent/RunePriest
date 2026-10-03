@@ -80,8 +80,9 @@ public partial class NRuneArc : Node2D
             _curve[i] = Bezier(from, control, to, i / (float)CurveSegments);
 
         var strength = _alpha * (_random ? 0.45f : 1f);
-        DrawPolyline(_curve, new Color(_color, 0.18f * strength), 10f, antialiased: true);
-        DrawPolyline(_curve, new Color(_color.Lightened(0.4f), 0.35f * strength), 3f, antialiased: true);
+        // The line stays faint so the motes carry the effect.
+        DrawPolyline(_curve, new Color(_color, 0.1f * strength), 10f, antialiased: true);
+        DrawPolyline(_curve, new Color(_color.Lightened(0.4f), 0.2f * strength), 3f, antialiased: true);
 
         foreach (var (t, _, size, wobble) in _motes)
         {

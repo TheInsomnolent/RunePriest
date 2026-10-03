@@ -36,4 +36,10 @@ public sealed class Supernova() : RuneCard(1, CardType.Skill, CardRarity.Ancient
                 await RuneCmd.Remove(choiceContext, Owner, i);
         }
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+        base.PreviewIncantation(draft, anchor);
+        draft.RemoveWhere(g => g.Runes.Any(r => r is VoidRune));
+    }
 }

@@ -27,11 +27,14 @@ public sealed class ImbuedTeacup : RunePriestRelic, IRuneListener
         return Task.CompletedTask;
     }
 
-    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs)
+    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs, bool preview)
     {
         if (player != Owner || _usedThisTurn || glyphs.Count == 0) return glyphs;
-        _usedThisTurn = true;
-        Flash();
+        if (!preview)
+        {
+            _usedThisTurn = true;
+            Flash();
+        }
         return [glyphs[0].Scaled(2), ..glyphs.Skip(1)];
     }
 }

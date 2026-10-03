@@ -23,11 +23,13 @@ public sealed class HeavyRune() : RuneCard(2, CardType.Attack, CardRarity.Common
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor)];
 
-    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
-    {
-        var amount = Var("Strike") + IncantationRuneCount * Var("Bonus");
-        await RuneCmd.Inscribe(choiceContext, Owner, [Glyph.Of(new StrikeRune(amount)).AnchoredTo(cardPlay.Target)], this);
-    }
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
+        await RuneCmd.Inscribe(choiceContext, Owner, Inscription(cardPlay.Target), this);
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.Inscribe(Inscription(anchor), this);
+
+    private Glyph[] Inscription(Creature? anchor) =>
+        [Glyph.Of(new StrikeRune(Var("Strike") + IncantationRuneCount * Var("Bonus"))).AnchoredTo(anchor)];
 
     protected override void OnUpgrade() => DynamicVars["Bonus"].UpgradeValueBy(1m);
 }

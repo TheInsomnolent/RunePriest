@@ -6,7 +6,9 @@ using RunePriest.RunePriestCode.Extensions;
 using RunePriest.RunePriestCode.Runes;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
@@ -142,6 +144,26 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
         ImbuedRunes = GlyphCodec.Encode(taken);
         return taken.Count;
     }
+
+    /// <summary>
+    /// Drag preview: plays out on <paramref name="draft"/> what <c>OnPlay</c> would do to the Incantation if this card
+    /// were played now at <paramref name="anchor"/>. Mirror every <see cref="RuneCmd"/> call; must be side-effect free.
+    /// Default: nothing (no preview).
+    /// </summary>
+    public virtual void PreviewIncantation(IncantationDraft draft, Creature? anchor)
+    {
+    }
+
+    /// <summary>Drag preview of <see cref="Imbue"/>.</summary>
+    protected void PreviewImbue(IncantationDraft draft, Creature? anchor, int count, Func<Glyph, bool>? filter = null)
+    {
+        if (IsImbued) draft.Inscribe(ImbuedGlyphs.Select(g => g.AnchoredTo(anchor)), this);
+        else draft.TakeForImbue(count, filter);
+    }
+
+    /// <summary>What <c>ResolveEnergyXValue</c> would return if this X-cost card were played now (drag preview).</summary>
+    protected int PreviewXValue =>
+        CombatState is { } combat ? Hook.ModifyXValue(combat, this, Owner.PlayerCombatState?.Energy ?? 0) : 0;
 
     protected Task Draw(PlayerChoiceContext choiceContext, decimal count) => CardPileCmd.Draw(choiceContext, count, Owner);
 

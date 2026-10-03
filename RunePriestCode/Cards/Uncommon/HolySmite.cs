@@ -24,6 +24,9 @@ public sealed class HolySmite() : RunePriestCard(1, CardType.Attack, CardRarity.
         await DealDamage(choiceContext, cardPlay, DynamicVars.Damage.BaseValue + imbued * DynamicVars["Bonus"].BaseValue);
     }
 
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) =>
+        PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
+
     protected override void OnUpgrade()
     {
         DynamicVars.Damage.UpgradeValueBy(3m);

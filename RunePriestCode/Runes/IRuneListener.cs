@@ -26,7 +26,10 @@ public interface IRuneListener
     /// Reshapes one card's glyphs right before they are inscribed (e.g. double a value, wrap them in a Loop).
     /// Called once per Inscribe, in listener order; return the glyphs to actually inscribe.
     /// </summary>
-    IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs) => glyphs;
+    /// <param name="preview">
+    /// A card's drag preview (<see cref="IncantationDraft"/>): return the same result, but change no state and don't Flash.
+    /// </param>
+    IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs, bool preview) => glyphs;
 
     Task AfterInscribed(PlayerChoiceContext choiceContext, Player player, IReadOnlyList<Glyph> glyphs) => Task.CompletedTask;
 

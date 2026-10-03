@@ -87,6 +87,13 @@ public static class RuneVisuals
         _ => new Color("cfe8ff")
     };
 
+    /// <summary>Mostly grey with a hint of the original hue (drag-preview runes).</summary>
+    public static Color Desaturate(Color color, float amount = 0.8f)
+    {
+        var grey = color.Luminance;
+        return color.Lerp(new Color(grey, grey, grey, color.A), amount);
+    }
+
     /// <summary>0..1 visual intensity used for particle count, speed and symbol size.</summary>
     public static float IntensityOf(Rune rune) => rune.ShowsValue ? Mathf.Clamp(rune.Value / 30f, 0.1f, 1f) : 0.25f;
 }

@@ -9,6 +9,8 @@ namespace RunePriest.RunePriestCode.Nodes;
 /// <summary>
 /// Floating row of glyphs above a player's head, mirroring their <see cref="RuneBuffer"/>.
 /// Attached to every player <see cref="NCreature"/> by <c>NCreatureRuneBufferPatch</c>; invisible while empty.
+/// While the player holds a card that changes the Incantation (<see cref="RuneDragPreview"/>), desaturated ghost glyphs
+/// show the result: new glyphs, glyphs merged into the last one, and glyphs that would leave.
 /// </summary>
 public partial class NRuneBuffer : Node2D
 {
@@ -26,6 +28,12 @@ public partial class NRuneBuffer : Node2D
     private static readonly List<NRuneBuffer> Instances = [];
 
     private readonly List<NGlyph> _glyphs = [];
+    private readonly List<NGlyph> _ghosts = [];
+    // Drag preview slots; a merge ghost shares its slot with the glyph it replaces.
+    private readonly List<(NGlyph Node, int Slot)> _previewLayout = [];
+    private IncantationDraft? _draft;
+    private int _previewVersion = -1;
+    private int _shownSlots;
     private NCreature _creatureNode = null!;
     private RuneBuffer? _buffer;
     private int? _capacity;
@@ -60,6 +68,13 @@ public partial class NRuneBuffer : Node2D
             UpdateForecast();
         }
 
+        RuneDragPreview.Poll();
+        if (RuneDragPreview.Version != _previewVersion)
+        {
+            _previewVersion = RuneDragPreview.Version;
+            UpdatePreview();
+        }
+
         var alpha = IsInFocus() ? 1f : UnfocusedAlpha;
         Modulate = new Color(Modulate, Mathf.MoveToward(Modulate.A, alpha, (float)delta * FadeSpeed));
     }
@@ -75,8 +90,8 @@ public partial class NRuneBuffer : Node2D
     public override void _Draw()
     {
         if (_capacity is not { } capacity) return;
-        var slots = Math.Max(capacity, _glyphs.Count);
-        for (var i = _glyphs.Count; i < capacity; i++)
+        var slots = Math.Max(capacity, _shownSlots);
+        for (var i = _shownSlots; i < capacity; i++)
             DrawArc(SlotPosition(i, slots), 18f, 0f, Mathf.Tau, 24, new Color(1f, 1f, 1f, 0.25f), 2f);
     }
 
@@ -93,8 +108,8 @@ public partial class NRuneBuffer : Node2D
         Unsubscribe();
     }
 
-    // Powers changed (Weak, Frail, Strength…): rune values and outcomes may have too.
-    private void OnCombatStateChanged(CombatState _) => UpdateForecast();
+    // Powers changed (Weak, Frail, Strength…): rune values and outcomes may have too, and so may a held card's runes.
+    private void OnCombatStateChanged(CombatState _) => UpdatePreview();
 
     private void Bind(RuneBuffer? buffer)
     {
@@ -150,6 +165,11 @@ public partial class NRuneBuffer : Node2D
         {
             _glyphs.Sort((a, b) => IndexIn(current, a.Glyph).CompareTo(IndexIn(current, b.Glyph)));
             foreach (var node in _glyphs) node.ResetSpent();
+        }
+
+        BuildPreview();
+        if (!speaking)
+        {
             UpdateForecast();
             UpdateOtherForecasts();
         }
@@ -157,14 +177,88 @@ public partial class NRuneBuffer : Node2D
         Relayout();
     }
 
+    private void UpdatePreview()
+    {
+        BuildPreview();
+        Relayout();
+        UpdateForecast();
+    }
+
+    /// <summary>
+    /// Lays out the held card's <see cref="IncantationDraft"/>: ghosts for new and merged glyphs (reusing identical ghosts
+    /// so they don't flicker as the preview refreshes), the glyphs they merge into hidden, and leaving glyphs greyed.
+    /// </summary>
+    private void BuildPreview()
+    {
+        _draft = _buffer?.IsSpeaking != true && IsInstanceValid(_creatureNode)
+            ? RuneDragPreview.DraftFor(_creatureNode.Entity)
+            : null;
+
+        foreach (var node in _glyphs) node.Preview = GlyphPreview.None;
+        var pool = _ghosts.ToList();
+        _ghosts.Clear();
+        _previewLayout.Clear();
+
+        if (_draft != null)
+        {
+            var entries = _draft.Entries;
+            var slots = Math.Max(entries.Count, _capacity ?? 0);
+            for (var slot = 0; slot < entries.Count; slot++)
+            {
+                var entry = entries[slot];
+                var inscribed = entry.Inscribed == null ? null : _glyphs.FirstOrDefault(n => n.Glyph == entry.Inscribed);
+                if (inscribed != null)
+                {
+                    inscribed.Preview = entry.Change switch
+                    {
+                        DraftChange.Merged => GlyphPreview.Superseded,
+                        DraftChange.Removed or DraftChange.Overflowed => GlyphPreview.Leaving,
+                        _ => GlyphPreview.None
+                    };
+                    _previewLayout.Add((inscribed, slot));
+                }
+                if (entry.Change != DraftChange.Merged && entry.Inscribed != null) continue;
+
+                var ghost = TakeGhost(pool, entry.Glyph);
+                if (ghost == null)
+                {
+                    // A merge ghost grows out of the glyph it replaces.
+                    ghost = NGlyph.Create(entry.Glyph, inscribed?.Position ?? SlotPosition(slot, slots), ghost: true);
+                    AddChild(ghost);
+                }
+                ghost.Preview = entry.IsLive ? GlyphPreview.None : GlyphPreview.Leaving;
+                _ghosts.Add(ghost);
+                _previewLayout.Add((ghost, slot));
+            }
+        }
+
+        foreach (var stale in pool) stale.Dissolve();
+    }
+
+    private static NGlyph? TakeGhost(List<NGlyph> pool, Glyph glyph)
+    {
+        var index = pool.FindIndex(n => LooksSame(n.Glyph, glyph));
+        if (index < 0) return null;
+        var ghost = pool[index];
+        pool.RemoveAt(index);
+        ghost.Rebind(glyph);
+        return ghost;
+    }
+
+    private static bool LooksSame(Glyph a, Glyph b) =>
+        a.Persistent == b.Persistent && a.Runes.Count == b.Runes.Count &&
+        a.Runes.Zip(b.Runes).All(p => p.First.Key == p.Second.Key && p.First.Value == p.Second.Value);
+
     /// <summary>Dry-runs the Incantation to frame glyphs that outlast the Speak and show rune values after game effects.</summary>
     private void UpdateForecast()
     {
-        if (_buffer is not { IsSpeaking: false } || !IsInstanceValid(_creatureNode) ||
+        if (_buffer?.IsSpeaking == true || !IsInstanceValid(_creatureNode) ||
             _creatureNode.Entity.Player is not { } player) return;
-        var forecast = _glyphs.Count > 0 ? RuneCmd.Forecast(player) : null;
+        // While a card is held, forecast the Incantation as it would be after playing it.
+        var glyphs = _draft?.Result ?? _buffer?.Glyphs ?? [];
+        var forecast = glyphs.Count > 0 ? RuneCmd.Forecast(player, glyphs) : null;
         var keepsAll = RuneListeners.Of(player).Any(l => l.KeepsIncantation);
-        foreach (var node in _glyphs)
+        foreach (var node in _glyphs.Concat(_ghosts))
         {
             node.Persisting = keepsAll || forecast?.Persisting.Contains(node.Glyph) == true;
             node.ShowModifiedValues(forecast);
@@ -184,9 +278,18 @@ public partial class NRuneBuffer : Node2D
 
     private void Relayout()
     {
-        var slots = Math.Max(_glyphs.Count, _capacity ?? 0);
-        for (var i = 0; i < _glyphs.Count; i++)
-            _glyphs[i].TargetPosition = SlotPosition(i, slots);
+        _shownSlots = _draft?.Entries.Count ?? _glyphs.Count;
+        var slots = Math.Max(_shownSlots, _capacity ?? 0);
+        if (_draft == null)
+        {
+            for (var i = 0; i < _glyphs.Count; i++)
+                _glyphs[i].TargetPosition = SlotPosition(i, slots);
+        }
+        else
+        {
+            foreach (var (node, slot) in _previewLayout)
+                node.TargetPosition = SlotPosition(slot, slots);
+        }
         QueueRedraw();
     }
 

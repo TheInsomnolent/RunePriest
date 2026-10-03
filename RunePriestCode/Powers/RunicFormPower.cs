@@ -19,21 +19,23 @@ public sealed class RunicFormPower : RunePriestPower, IRuneListener
 
     protected override object InitInternalData() => new TurnCounter();
 
-    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs)
+    public IReadOnlyList<Glyph> ModifyInscription(Player player, IReadOnlyList<Glyph> glyphs, bool preview)
     {
         if (player != Owner.Player || InscribedThisTurn >= 2) return glyphs;
 
+        var inscribed = InscribedThisTurn;
         var result = new List<Glyph>();
         foreach (var glyph in glyphs)
         {
-            if (InscribedThisTurn == 0) result.Add(Glyph.Of(new LoopRune()));
+            if (inscribed == 0) result.Add(Glyph.Of(new LoopRune()));
             result.Add(glyph);
-            if (++InscribedThisTurn == 2)
+            if (++inscribed == 2)
             {
                 result.Add(Glyph.Of(new EndLoopRune()));
-                Flash();
+                if (!preview) Flash();
             }
         }
+        if (!preview) InscribedThisTurn = inscribed;
         return result;
     }
 

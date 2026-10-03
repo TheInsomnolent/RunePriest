@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
@@ -25,6 +26,8 @@ public sealed class Strategi() : RunePriestCard(0, CardType.Skill, CardRarity.An
         // Draw 3 cards
         await Draw(choiceContext, DynamicVars.Cards.BaseValue);
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => PreviewImbue(draft, anchor, 1);
 
     /// <summary>Ascended cards never upgrade.</summary>
     public override int MaxUpgradeLevel => 0;

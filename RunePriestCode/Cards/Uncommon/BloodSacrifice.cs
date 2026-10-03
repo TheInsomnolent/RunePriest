@@ -22,15 +22,20 @@ public sealed class BloodSacrifice() : RunePriestCard(0, CardType.Attack, CardRa
         ..new StrikeRune(0).HoverTips
     ];
 
-    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
-    {
-        var x = ResolveEnergyXValue();
-        var strikes = IsUpgraded ? x + 1 : x;
-        if (strikes <= 0) return;
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
+        await RuneCmd.Inscribe(choiceContext, Owner, Inscription(ResolveEnergyXValue(), cardPlay.Target), this);
 
-        var glyphs = Enumerable.Range(0, x).Select(_ => Glyph.Of(new BloodRune(1)))
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) =>
+        draft.Inscribe(Inscription(PreviewXValue, anchor), this);
+
+    private List<Glyph> Inscription(int x, Creature? anchor)
+    {
+        var strikes = IsUpgraded ? x + 1 : x;
+        if (strikes <= 0) return [];
+
+        return Enumerable.Range(0, x).Select(_ => Glyph.Of(new BloodRune(1)))
             .Concat(IsUpgraded ? [Glyph.Of(new EchoRune())] : Array.Empty<Glyph>())
-            .Concat(Enumerable.Range(0, strikes).Select(_ => Glyph.Of(new StrikeRune(strikes)).AnchoredTo(cardPlay.Target)));
-        await RuneCmd.Inscribe(choiceContext, Owner, glyphs, this);
+            .Concat(Enumerable.Range(0, strikes).Select(_ => Glyph.Of(new StrikeRune(strikes)).AnchoredTo(anchor)))
+            .ToList();
     }
 }

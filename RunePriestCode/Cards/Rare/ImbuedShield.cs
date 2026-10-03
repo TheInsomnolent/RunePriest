@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
@@ -26,6 +27,9 @@ public sealed class ImbuedShield() : RunePriestCard(1, CardType.Skill, CardRarit
         await Imbue(choiceContext, cardPlay, DynamicVars["Imbue"].IntValue);
         if (wasImbued) ImbuedRunes = "";
     }
+
+    public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) =>
+        PreviewImbue(draft, anchor, DynamicVars["Imbue"].IntValue);
 
     protected override void OnUpgrade() => DynamicVars["Block"].UpgradeValueBy(2m);
 }
