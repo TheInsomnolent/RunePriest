@@ -71,6 +71,14 @@ Game version at time of writing: min_game_version 0.107.0, BaseLib 3.4.7. Re-ver
 - The Regent's Sovereign Blade is a Spine animation state (`Models.Characters/Regent.cs`), not a reusable floating node.
 - Mod attachment approach: Harmony postfix on `NCreature._Ready` → `AddChild(NRuneBuffer)` when the creature is a player.
 
+## Character visuals & linen theme (RunePriest-specific)
+- Palette lives in `Character/LinenTheme.cs` (`Linen` `EDE3D1`, `Umber`, `DeepUmber`); character/card-pool colour overrides (`NameColor`, `MapDrawingColor`, `RemoteTargetingLine*`, `EnergyLabelOutlineColor`, `DeckEntryCardColor`, `EnergyOutlineColor`) all read from it.
+- Card frames: `CardPoolModel.FrameMaterial` (getter) feeds `NCard`, `NTinyCard` and `NDeckViewScreen` (which casts to `ShaderMaterial` and copies its `h` param to the sort buttons). Vanilla `res://shaders/hsv.gdshader` can't make a light border without washing out the text panel, so `LinenThemePatches` postfixes the getter with a runtime-compiled shader that only re-tints saturated pixels.
+- `.tscn` files can't be packed by the CI PckPacker, so scenes are either built in code or borrowed: `RunePriestScenes` serves virtual `res://RunePriest/scenes/...` paths via an `AssetCache.GetScene` prefix and rewrites them in `AssetCache.CreateSession` (preloading uses `ResourceLoader` directly).
+- Character select bg: `NCharacterSelectScreen` instantiates `CharacterModel.CharacterSelectBg` as a `Control` inside the full-rect `AnimatedBg` (≈2560×1200, parallax). Ours is the base game's "Arise" epoch art (`res://images/timeline/epoch_portraits/relic5_epoch.png`, 810×500).
+- Card trail: `NCardTrailVfx.Create(card, trailPath)`; shuffle VFX pass a non-`NCard` node, so ownership is detected via a unique trail path aliasing `vfx/card_trail_regent`. Energy counter: `NEnergyCounter.Create(player)` (Defect's scene); `RefreshLabel` resets layer materials every energy change.
+- Map marker: `NMapMarker` is a `TextureRect` sized to the texture (vanilla markers are 49×64).
+
 ## Localization
 - `new LocString(table, key)`, `.Add(name, value)`, `.GetFormattedText()`; `LocString.Exists(table, key)`.
 - Tables = file names in `RunePriest/localization/eng/`: `cards`, `powers`, `relics`, `potions`, `characters`, `ancients`, `card_keywords`, `static_hover_tips`.

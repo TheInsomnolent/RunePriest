@@ -1,5 +1,4 @@
 using BaseLib.Abstracts;
-using BaseLib.Utils;
 using BaseLib.Utils.NodeFactories;
 using RunePriest.RunePriestCode.Cards.Basic;
 using RunePriest.RunePriestCode.Extensions;
@@ -12,6 +11,7 @@ using MegaCrit.Sts2.Core.Entities.Characters;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Nodes.Vfx;
 
 namespace RunePriest.RunePriestCode.Character;
 
@@ -19,9 +19,16 @@ public class RunePriest : PlaceholderCharacterModel
 {
     public const string CharacterId = "RunePriest";
     
-    public static readonly Color Color = new("ffffff");
+    public static readonly Color Color = LinenTheme.Linen;
 
     public override Color NameColor => Color;
+    public override Color EnergyLabelOutlineColor => LinenTheme.Umber;
+    public override Color DialogueColor => LinenTheme.DeepUmber;
+    public override VfxColor SpeechBubbleColor => VfxColor.White;
+    // Map drawings sit on parchment, so they use a darker shade to stay visible.
+    public override Color MapDrawingColor => LinenTheme.Umber;
+    public override Color RemoteTargetingLineColor => LinenTheme.Linen;
+    public override Color RemoteTargetingLineOutline => LinenTheme.Umber;
     public override CharacterGender Gender => CharacterGender.Neutral;
     public override int StartingHp => 70;
     
@@ -47,11 +54,8 @@ public class RunePriest : PlaceholderCharacterModel
     public override RelicPoolModel RelicPool => ModelDb.RelicPool<RunePriestRelicPool>();
     public override PotionPoolModel PotionPool => ModelDb.PotionPool<RunePriestPotionPool>();
 
-    // Borrowed Architect Spine rig; HSV values feed res://shaders/hsv.gdshader (1,1,1 = unchanged).
+    // Borrowed Architect Spine rig.
     private static readonly string ArchitectVisualsPath = SceneHelper.GetScenePath("creature_visuals/architect");
-    private const float VisualsHue = 0.75f;
-    private const float VisualsSaturation = 1f;
-    private const float VisualsValue = 1f;
     private const float VisualsScale = 0.75f;
 
     public override NCreatureVisuals CreateCustomVisuals()
@@ -63,7 +67,6 @@ public class RunePriest : PlaceholderCharacterModel
         // The Architect faces left (enemy side); mirror only the body so bounds/markers stay put.
         var body = visuals.GetNode<Node2D>("%Visuals");
         body.Scale = new Vector2(-body.Scale.X, body.Scale.Y);
-        body.Call("set_normal_material", ShaderUtils.GenerateHsv(VisualsHue, VisualsSaturation, VisualsValue));
 
         // Player visuals need a %FormVfx holder: death and Form cards call Add/RemoveFormVfx, which throw without it.
         var formVfx = new Control { Name = "FormVfx", MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -95,4 +98,8 @@ public class RunePriest : PlaceholderCharacterModel
     public override string CustomCharacterSelectIconPath => "char_select_char_name.png".CharacterUiPath();
     public override string CustomCharacterSelectLockedIconPath => "char_select_char_name_locked.png".CharacterUiPath();
     public override string CustomMapMarkerPath => "map_marker_char_name.png".CharacterUiPath();
+    public override string CustomCharacterSelectBg => RunePriestScenes.SelectBackgroundPath;
+    public override string CustomTrailPath => RunePriestScenes.CardTrailPath;
+    // Defect's orb has the most neutral silhouette; LinenThemePatches tints it.
+    public override string CustomEnergyCounterPath => SceneHelper.GetScenePath("combat/energy_counters/defect_energy_counter");
 }
