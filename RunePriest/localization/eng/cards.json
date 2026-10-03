@@ -258,15 +258,9 @@
 
   "RUNEPRIEST-MIRRORORM_ANCIENT.title": "Mirrororrim",
   "RUNEPRIEST-MIRRORORM_ANCIENT.description": "[gold]Ethereal.[/gold] At the end of each turn, [gold]Inscribe[/gold] [blue]End Loop[/blue] and [blue]Reflection[/blue]. Enables reversals and loop closures. Upgraded: remove [gold]Ethereal[/gold].",
-  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.title": "Mirrororrim",
-  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.description": "At the end of each turn, inscribe [blue]End Loop[/blue] and [blue]Reflection[/blue].",
-  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.smartDescription": "At the end of each turn, inscribe [blue]End Loop[/blue] and [blue]Reflection[/blue].",
 
   "RUNEPRIEST-ETERNAL_SCROLL.title": "Eternal Scroll",
   "RUNEPRIEST-ETERNAL_SCROLL.description": "May be [gold]etched[/gold] at rest sites to bind runes permanently. [gold]Inscribe[/gold] all etched runes. Upgradable: Cost -1.",
   "RUNEPRIEST-CORRUPTED_SIGIL.title": "Corrupted Sigil",
-  "RUNEPRIEST-CORRUPTED_SIGIL.description": "This combat: all rune cards are [gold]Ethereal[/gold] and cost 0. [gold]Runes[/gold] persist between turns. Upgraded: remove [gold]Ethereal[/gold].",
-  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.title": "Corrupted Sigil",
-  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.description": "All rune cards are [gold]Ethereal[/gold], cost 0. [gold]Runes[/gold] persist between turns.",
-  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.smartDescription": "All rune cards are [gold]Ethereal[/gold], cost 0. [gold]Runes[/gold] persist between turns."
+  "RUNEPRIEST-CORRUPTED_SIGIL.description": "This combat: all rune cards are [gold]Ethereal[/gold] and cost 0. [gold]Runes[/gold] persist between turns. Upgraded: remove [gold]Ethereal[/gold]."
 }

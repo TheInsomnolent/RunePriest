@@ -93,5 +93,11 @@
   "RUNEPRIEST-TOUCH_OF_OROBAS_POWER.smartDescription": "The first time each combat you play a rune card, draw {Amount} {Amount:plural:card|cards}.",
   "RUNEPRIEST-HEALER_POWER.title": "Healer",
   "RUNEPRIEST-HEALER_POWER.description": "All runes [gold]Inscribed[/gold] this turn are inscribed with [blue]Mend[/blue] 3.",
-  "RUNEPRIEST-HEALER_POWER.smartDescription": "All runes [gold]Inscribed[/gold] this turn are inscribed with [blue]Mend[/blue] 3."
+  "RUNEPRIEST-HEALER_POWER.smartDescription": "All runes [gold]Inscribed[/gold] this turn are inscribed with [blue]Mend[/blue] 3.",
+  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.title": "Corrupted Sigil",
+  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.description": "All rune cards are [gold]Ethereal[/gold], cost 0. [gold]Runes[/gold] persist between turns.",
+  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.smartDescription": "All rune cards are [gold]Ethereal[/gold], cost 0. [gold]Runes[/gold] persist between turns.",
+  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.title": "Mirrororrim",
+  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.description": "At the end of each turn, inscribe [blue]End Loop[/blue] and [blue]Reflection[/blue].",
+  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.smartDescription": "At the end of each turn, inscribe [blue]End Loop[/blue] and [blue]Reflection[/blue]."
 }
