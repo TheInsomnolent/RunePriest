@@ -33,11 +33,14 @@ public sealed class BlessedToolbox : RunePriestRelic
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe];
 
+    /// <summary>Orobas' Touch of Orobas replaces this starter relic with its upgraded form.</summary>
+    public override RelicModel GetUpgradeReplacement() => ModelDb.Relic<HallowedToolbox>();
+
     public override async Task AfterObtained()
     {
         if (CardGranted) return;
         var options = ModelDb.CardPool<RunePriestCardPool>().AllCards
-            .Where(c => c.Rarity == CardRarity.Common && HasRuneInName(c)).ToList();
+            .Where(c => c.Rarity == CardRarity.Common && RunePriestCard.HasRuneInName(c)).ToList();
         var canonical = Owner.RunState.Rng.Niche.NextItem(options);
         if (canonical == null) return;
 
@@ -45,12 +48,6 @@ public sealed class BlessedToolbox : RunePriestRelic
         var card = Owner.RunState.CreateCard(canonical, Owner);
         CardCmd.PreviewCardPileAdd(await CardPileCmd.Add(card, PileType.Deck));
     }
-
-    /// <summary>
-    /// Whether the card is named "… Rune" (class <c>XRuneCard</c>, ID <c>…_RUNE_CARD</c>). Uses the model ID rather
-    /// than the localized title so every player in co-op gets the same options.
-    /// </summary>
-    private static bool HasRuneInName(CardModel card) => card.Id.Entry.RemovePrefix().Split('_').Contains("RUNE");
 
     public override Task BeforeCombatStart()
     {

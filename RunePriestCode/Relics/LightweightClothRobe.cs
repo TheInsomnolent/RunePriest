@@ -1,36 +1,41 @@
-using MegaCrit.Sts2.Core.Commands;
-using MegaCrit.Sts2.Core.Entities.Cards;
-using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Relics;
-using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Models;
 using RunePriest.RunePriestCode.Cards;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Relics;
 
 /// <summary>
-/// Blood inscriptions are doubled.
-/// 
-/// TODO (Future): "All Cards with Blood effects become free" requires a Harmony patch or event system
-/// to intercept card cost calculations when cards are added to hand/drawn. Currently only implements
-/// Blood value doubling via ModifyRuneValue hook.
+/// Event relic: cards with Blood runes (inscribed or Imbued) cost 0, and your Blood runes are doubled.
 /// </summary>
 public sealed class LightweightClothRobe : RunePriestRelic, IRuneListener
 {
-    public override RelicRarity Rarity => RelicRarity.Rare;
+    public override RelicRarity Rarity => RelicRarity.Event;
 
-    public override int MerchantCost => 350;
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [..new BloodRune(0).HoverTips];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips =>
-        [RuneTips.Inscribe, ..new BloodRune(0).HoverTips];
+    private static bool HasBlood(IEnumerable<Glyph> glyphs) => glyphs.Any(g => g.Runes.Any(r => r is BloodRune));
 
-    /// <summary>Double Blood rune values when inscribed.</summary>
-    public int ModifyRuneValue(RuneContext ctx, PayloadRune rune, int value)
+    public override bool TryModifyEnergyCostInCombat(CardModel card, decimal originalCost, out decimal modifiedCost)
     {
-        if (ctx.Owner != Owner || rune is not BloodRune) return value;
-        Flash();
-        return value * 2;
+        modifiedCost = originalCost;
+        // X-cost cards (Blood Sacrifice) pay with whatever Energy you have, so "free" doesn't apply.
+        if (card.Owner != Owner || card.EnergyCost.CostsX || originalCost <= 0) return false;
+        var blood = card is RunePriestCard rp && HasBlood(rp.ImbuedGlyphs) || card is RuneCard rune && HasBlood(rune.InscribedGlyphs);
+        if (!blood) return false;
+        modifiedCost = 0;
+        return true;
+    }
+
+    /// <summary>Must stay side-effect free (the forecast calls it), so the flash happens in <see cref="AfterPayload"/>.</summary>
+    public int ModifyRuneValue(RuneContext ctx, PayloadRune rune, int value) =>
+        ctx.Owner == Owner && rune is BloodRune ? value * 2 : value;
+
+    public Task AfterPayload(RuneContext ctx, PayloadRune rune, int value, IReadOnlyList<Creature> targets)
+    {
+        if (ctx.Owner == Owner && rune is BloodRune) Flash();
+        return Task.CompletedTask;
     }
 }
-

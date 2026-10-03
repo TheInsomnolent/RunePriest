@@ -12,7 +12,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// Diminish runes persist and halve in value every time they're Spoken.
 /// Ascended rarity prevents upgrades automatically.
 /// </summary>
-public sealed class Atrophy() : RuneCard(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
+public sealed class Atrophy() : RuneCard(2, CardType.Attack, CardRarity.Ancient, TargetType.AnyEnemy)
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
@@ -22,8 +22,10 @@ public sealed class Atrophy() : RuneCard(2, CardType.Attack, CardRarity.Rare, Ta
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new DiminishRune(Var("Damage"))).AnchoredTo(anchor)];
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }

@@ -2,20 +2,30 @@ namespace RunePriest.RunePriestCode.Runes;
 
 /// <summary>
 /// Text form of glyphs, used to store runes Imbued into cards: glyphs separated by <c>;</c>, runes by <c>,</c>,
-/// each rune as <c>KEY:VALUE</c> (e.g. <c>STRIKE:10,BLOOD:3;AMPLIFY:2</c>). Anchors and sources are not stored.
+/// each rune as <c>KEY:VALUE</c> (e.g. <c>STRIKE:10,BLOOD:3;AMPLIFY:2</c>); a Persistent glyph starts with <c>!</c>.
+/// Anchors and sources are not stored.
 /// Unknown runes are dropped, so a corrupt glyph decodes as malformed and simply fizzles when spoken.
 /// </summary>
 public static class GlyphCodec
 {
+    private const char PersistMark = '!';
+
     public static string Encode(IEnumerable<Glyph> glyphs) =>
-        string.Join(";", glyphs.Select(g => string.Join(",", g.Runes.Select(r => $"{r.Key}:{r.Value}"))));
+        string.Join(";", glyphs.Select(g =>
+            (g.Persistent ? PersistMark.ToString() : "") + string.Join(",", g.Runes.Select(r => $"{r.Key}:{r.Value}"))));
 
     public static IReadOnlyList<Glyph> Decode(string? code)
     {
         if (string.IsNullOrEmpty(code)) return [];
-        return code.Split(';')
-            .Select(g => Glyph.Of(g.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Parse).OfType<Rune>().ToArray()))
-            .ToList();
+        return code.Split(';').Select(DecodeGlyph).ToList();
+    }
+
+    private static Glyph DecodeGlyph(string text)
+    {
+        var persistent = text.StartsWith(PersistMark);
+        var glyph = Glyph.Of(text.TrimStart(PersistMark).Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(Parse).OfType<Rune>().ToArray());
+        return persistent ? glyph.Persist() : glyph;
     }
 
     private static Rune? Parse(string text)
@@ -43,6 +53,7 @@ public static class GlyphCodec
         "SANCTIFY" => new SanctifyRune(),
         "VOID" => new VoidRune(),
         "GROWTH" => new GrowthRune(value),
+        "OVERGROWTH" => new OvergrowthRune(value),
         "REFLECTION" => new ReflectionRune(),
         "CLONE" => new CloneRune(),
         "FRIENDSHIP" => new FriendshipRune(value),

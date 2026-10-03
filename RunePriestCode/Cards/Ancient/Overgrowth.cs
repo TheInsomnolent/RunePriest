@@ -10,15 +10,17 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// Inscribe a single OvergrowthRune modifier with value 3.
 /// Ascended rarity prevents upgrades automatically.
 /// </summary>
-public sealed class Overgrowth() : RuneCard(0, CardType.Skill, CardRarity.Rare, TargetType.Self)
+public sealed class Overgrowth() : RuneCard(0, CardType.Skill, CardRarity.Ancient, TargetType.Self)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Growth", 3m)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new OvergrowthRune(Var("Growth")))];
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }

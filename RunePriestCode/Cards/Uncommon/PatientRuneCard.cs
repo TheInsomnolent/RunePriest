@@ -2,17 +2,20 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
 using RunePriest.RunePriestCode.Runes;
 
-namespace RunePriest.RunePriestCode.Cards.Common;
+namespace RunePriest.RunePriestCode.Cards.Uncommon;
 /// <summary>
 /// Inscribe a persistent Strike worth 1 plus every rune inscribed so far this combat (value fixed when played).
 /// </summary>
-public sealed class PatientRuneCard() : RuneCard(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
+public sealed class PatientRuneCard() : RuneCard(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
 {
-    public override IEnumerable<CardKeyword> CanonicalKeywords => [RunePriestKeywords.Persist, CardKeyword.Exhaust];
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromKeyword(RunePriestKeywords.Persist)];
+
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 1m, ValueProp.Move)];
 

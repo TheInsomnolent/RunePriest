@@ -11,7 +11,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// Ascended Skill - Cost 0
 /// Apply Imbue effect (grant +1 imbuement). Draw 3 cards.
 /// </summary>
-public sealed class Strategi() : RunePriestCard(0, CardType.Skill, CardRarity.Rare, TargetType.Self)
+public sealed class Strategi() : RunePriestCard(0, CardType.Skill, CardRarity.Ancient, TargetType.Self)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(3)];
 
@@ -26,8 +26,10 @@ public sealed class Strategi() : RunePriestCard(0, CardType.Skill, CardRarity.Ra
         await Draw(choiceContext, DynamicVars.Cards.BaseValue);
     }
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }

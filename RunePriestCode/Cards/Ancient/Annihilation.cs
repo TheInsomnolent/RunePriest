@@ -7,7 +7,7 @@ using RunePriest.RunePriestCode.Runes;
 namespace RunePriest.RunePriestCode.Cards.Ancient;
 
 /// <summary>Ascended Attack: Inscribe Execution, then three massive Strikes for a devastating finishing blow.</summary>
-public sealed class Annihilation() : RuneCard(1, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
+public sealed class Annihilation() : RuneCard(1, CardType.Attack, CardRarity.Ancient, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 15m, ValueProp.Move)];
 
@@ -19,8 +19,10 @@ public sealed class Annihilation() : RuneCard(1, CardType.Attack, CardRarity.Rar
         Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor)
     ];
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }

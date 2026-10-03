@@ -33,6 +33,14 @@ public sealed class RuneBuffer
 
     internal void NotifySpeakEnded() => SpeakEnded?.Invoke();
 
+    /// <summary>
+    /// Whether the glyph at <paramref name="index"/> is delayed by the Growth/Overgrowth right before it. New runes never
+    /// merge into a growing glyph, otherwise each later cast would be multiplied by every remaining tick.
+    /// </summary>
+    public bool IsGrowing(int index) =>
+        index > 0 && index < _glyphs.Count && _glyphs[index - 1] is { Kind: RuneKind.Modifier } previous &&
+        previous.Runes[0] is GrowingRune;
+
     public void Inscribe(IEnumerable<Glyph> glyphs)
     {
         _glyphs.AddRange(glyphs);

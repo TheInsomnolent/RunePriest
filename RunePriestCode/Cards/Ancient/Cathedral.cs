@@ -12,7 +12,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// Together they enable powerful combo patterns.
 /// Ascended rarity prevents upgrades automatically.
 /// </summary>
-public sealed class Cathedral() : RuneCard(1, CardType.Skill, CardRarity.Rare, TargetType.Self)
+public sealed class Cathedral() : RuneCard(1, CardType.Skill, CardRarity.Ancient, TargetType.Self)
 {
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
@@ -20,8 +20,10 @@ public sealed class Cathedral() : RuneCard(1, CardType.Skill, CardRarity.Rare, T
         Glyph.Of(new EchoRune())
     ];
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }

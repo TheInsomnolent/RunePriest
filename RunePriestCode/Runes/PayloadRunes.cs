@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
 using RunePriest.RunePriestCode.Powers;
@@ -34,16 +35,38 @@ public abstract class PayloadRune(int value) : Rune(value)
 
     /// <summary>
     /// <paramref name="value"/> after game effects (Strength, Weak, Vulnerable, Frail…) as it would resolve against
-    /// <paramref name="target"/> (null: not a single known creature). Must stay side-effect free.
+    /// <paramref name="target"/> (null: not a single known creature), including <paramref name="effects"/> that earlier
+    /// runes will have applied by then. Must stay side-effect free.
     /// </summary>
-    public virtual int Modified(Player owner, Glyph glyph, Creature? target, int value) => value;
+    public virtual int Modified(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects = null) => value;
 
-    /// <summary>Mirrors the damage a Strike deals when it resolves.</summary>
-    protected static int ModifiedAttack(Player owner, Glyph glyph, Creature? target, int value) =>
-        owner.Creature.CombatState is { } combat
-            ? (int)Hook.ModifyDamage(owner.RunState, combat, target, owner.Creature, value, ValueProp.Move, glyph.Source,
-                null, ModifyDamageHookType.All, CardPreviewMode.None, out _)
-            : value;
+    /// <summary>Canonical powers this rune applies to its targets when it resolves, so later runes preview against them.</summary>
+    public virtual IEnumerable<PowerModel> PreviewPowers => [];
+
+    /// <summary>
+    /// Mirrors the damage a Strike deals when it resolves. Pending <paramref name="effects"/> slot into the game's own
+    /// order: every additive modifier, then every multiplicative one, then caps.
+    /// </summary>
+    protected static int ModifiedAttack(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects)
+    {
+        if (owner.Creature.CombatState is not { } combat) return value;
+        var dealer = owner.Creature;
+        var pending = effects?.Powers ?? [];
+        if (pending.Count == 0)
+            return (int)Hook.ModifyDamage(owner.RunState, combat, target, dealer, value, ValueProp.Move, glyph.Source,
+                null, ModifyDamageHookType.All, CardPreviewMode.None, out _);
+
+        var damage = Hook.ModifyDamage(owner.RunState, combat, target, dealer, value, ValueProp.Move, glyph.Source, null,
+            ModifyDamageHookType.Additive, CardPreviewMode.None, out _);
+        damage = Math.Max(0m, damage + pending.Sum(p => p.ModifyDamageAdditive(target, damage, ValueProp.Move, dealer, glyph.Source, null)));
+        damage = Hook.ModifyDamage(owner.RunState, combat, target, dealer, damage, ValueProp.Move, glyph.Source, null,
+            ModifyDamageHookType.Multiplicative, CardPreviewMode.None, out _);
+        foreach (var power in pending)
+            damage *= power.ModifyDamageMultiplicative(target, damage, ValueProp.Move, dealer, glyph.Source, null);
+        damage = Hook.ModifyDamage(owner.RunState, combat, target, dealer, damage, ValueProp.Move, glyph.Source, null,
+            ModifyDamageHookType.Cap, CardPreviewMode.None, out _);
+        return (int)damage;
+    }
 }
 
 public sealed class StrikeRune(int value) : PayloadRune(value)
@@ -52,8 +75,8 @@ public sealed class StrikeRune(int value) : PayloadRune(value)
     public override Rune WithValue(int value) => new StrikeRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
 
-    public override int Modified(Player owner, Glyph glyph, Creature? target, int value) =>
-        ModifiedAttack(owner, glyph, target, value);
+    public override int Modified(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects = null) =>
+        ModifiedAttack(owner, glyph, target, value, effects);
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
     {
@@ -85,7 +108,7 @@ public sealed class DefendRune(int value) : PayloadRune(value)
     public override Rune WithValue(int value) => new DefendRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Ally;
 
-    public override int Modified(Player owner, Glyph glyph, Creature? target, int value) =>
+    public override int Modified(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects = null) =>
         owner.Creature.CombatState is { } combat
             ? (int)Hook.ModifyBlock(combat, target ?? owner.Creature, value, ValueProp.Move, null, null, out _)
             : value;
@@ -178,6 +201,8 @@ public sealed class HexRune(int value = 1) : PayloadRune(value)
     public override IEnumerable<IHoverTip> HoverTips =>
         [..base.HoverTips, HoverTipFactory.FromPower<WeakPower>(), HoverTipFactory.FromPower<VulnerablePower>()];
 
+    public override IEnumerable<PowerModel> PreviewPowers => [ModelDb.Power<WeakPower>(), ModelDb.Power<VulnerablePower>()];
+
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
     {
         await PowerCmd.Apply<WeakPower>(ctx.ChoiceContext, targets, value, ctx.Creature, glyph.Source);
@@ -198,8 +223,8 @@ public sealed class DiminishRune(int value) : PayloadRune(value)
     public override Rune WithValue(int value) => new DiminishRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
 
-    public override int Modified(Player owner, Glyph glyph, Creature? target, int value) =>
-        ModifiedAttack(owner, glyph, target, value);
+    public override int Modified(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects = null) =>
+        ModifiedAttack(owner, glyph, target, value, effects);
 
     public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
         new StrikeRune(Value).Resolve(ctx, glyph, value, targets);

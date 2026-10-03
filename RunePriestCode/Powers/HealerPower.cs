@@ -24,13 +24,8 @@ public sealed class HealerPower : RunePriestPower, IRuneListener
     {
         if (player != Owner.Player) return glyphs;
         
-        // Add Mend(3) to each glyph
-        return glyphs.Select(g => 
-        {
-            var glyphRunes = g.Runes.ToList();
-            glyphRunes.Add(new MendRune(3));
-            return g.WithRunes(glyphRunes.ToArray());
-        }).ToList();
+        // Only payload glyphs can hold another payload rune; anything else would become malformed and fizzle.
+        return glyphs.Select(g => g.Kind == RuneKind.Payload ? g.WithRunes([..g.Runes, new MendRune(3)]) : g).ToList();
     }
 
     public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)

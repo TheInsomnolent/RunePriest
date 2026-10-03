@@ -9,15 +9,17 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// Ascended Skill - Cost 1
 /// All runes inscribed this turn inscribe with + Mend 3.
 /// </summary>
-public sealed class Healer() : RunePriestCard(1, CardType.Skill, CardRarity.Rare, TargetType.Self)
+public sealed class Healer() : RunePriestCard(1, CardType.Skill, CardRarity.Ancient, TargetType.Self)
 {
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await PowerCmd.Apply<HealerPower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
     }
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }

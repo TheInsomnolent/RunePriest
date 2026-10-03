@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
 using RunePriest.RunePriestCode.Runes;
@@ -11,7 +12,7 @@ namespace RunePriest.RunePriestCode.Cards.Uncommon;
 /// </summary>
 public sealed class WaningMoon() : RuneCard(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
 {
-    public override IEnumerable<CardKeyword> CanonicalKeywords => [RunePriestKeywords.Persist];
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromKeyword(RunePriestKeywords.Persist)];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [

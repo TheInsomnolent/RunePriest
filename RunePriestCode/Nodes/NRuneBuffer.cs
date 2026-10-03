@@ -151,6 +151,7 @@ public partial class NRuneBuffer : Node2D
             _glyphs.Sort((a, b) => IndexIn(current, a.Glyph).CompareTo(IndexIn(current, b.Glyph)));
             foreach (var node in _glyphs) node.ResetSpent();
             UpdateForecast();
+            UpdateOtherForecasts();
         }
 
         Relayout();
@@ -167,7 +168,18 @@ public partial class NRuneBuffer : Node2D
         {
             node.Persisting = keepsAll || forecast?.Persisting.Contains(node.Glyph) == true;
             node.ShowModifiedValues(forecast);
+            node.ShowTargets(forecast?.TargetsOf(node.Glyph));
         }
+    }
+
+    /// <summary>
+    /// Co-op: teammates Speak in combat order, so what one player inscribes (a Hex…) changes the values previewed
+    /// over the players who Speak after them.
+    /// </summary>
+    private void UpdateOtherForecasts()
+    {
+        foreach (var other in Instances.Where(b => b != this && IsInstanceValid(b)))
+            other.UpdateForecast();
     }
 
     private void Relayout()

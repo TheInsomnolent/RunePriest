@@ -1,0 +1,5 @@
+{
+  "OPTION_RUNEPRIEST_ETCH.name": "Etch",
+  "OPTION_RUNEPRIEST_ETCH.description": "Remove a rune card from your deck and [gold]Etch[/gold] its runes onto your [gold]Eternal Scroll[/gold]. The Scroll costs 1 more.",
+  "OPTION_RUNEPRIEST_ETCH.descriptionDisabled": "You need an [gold]Eternal Scroll[/gold] and another rune card in your deck to [gold]Etch[/gold]."
+}

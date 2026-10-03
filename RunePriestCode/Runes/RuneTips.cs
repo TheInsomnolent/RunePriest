@@ -13,6 +13,7 @@ public static class RuneTips
     public static IHoverTip Imbue => Tip("IMBUE");
     public static IHoverTip Overflow => Tip("OVERFLOW");
     public static IHoverTip Fizzle => Tip("FIZZLE");
+    public static IHoverTip Etch => Tip("ETCH");
 
     /// <summary>Lists the runes bound to an Imbued card.</summary>
     public static IHoverTip Imbued(IEnumerable<Glyph> glyphs)

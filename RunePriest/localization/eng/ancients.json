@@ -2,20 +2,5 @@
   "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-0r.char": "I am angry at the architect",
   "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-0r.next": "Continue",
   "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-1r.ancient": "You die",
-  "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-attack": "Both",
-
-  "RUNEPRIEST-CORRUPTED_SIGIL.title": "Corrupted Sigil",
-  "RUNEPRIEST-CORRUPTED_SIGIL.description": "Remove all [gold]Eternal Sigil[/gold] cards from your deck. Gain [gold]Corrupted Sigil[/gold] relic.",
-
-  "RUNEPRIEST-TOUCH_OF_OROBAS.title": "Touch of Orobas",
-  "RUNEPRIEST-TOUCH_OF_OROBAS.description": "Whenever you play a rune card, draw {Cards} {Cards:plural:card|cards}.",
-
-  "RUNEPRIEST-DARK_TABLET.title": "Dark Tablet",
-  "RUNEPRIEST-DARK_TABLET.description": "[blue]Blood[/blue] and [blue]Mend[/blue] runes damage/heal enemies instead of yourself.",
-
-  "RUNEPRIEST-ARCHIAC_TOOTH.title": "Archiac Tooth",
-  "RUNEPRIEST-ARCHIAC_TOOTH.description": "Your starting rune gains an [gold]Ascended[/gold] form.",
-
-  "RUNEPRIEST-DUSTY_TOME.title": "Dusty Tome",
-  "RUNEPRIEST-DUSTY_TOME.description": "Add [gold]Mirrororrim[/gold] to your deck."
+  "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-attack": "Both"
 }

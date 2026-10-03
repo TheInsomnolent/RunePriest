@@ -82,8 +82,10 @@ public static class RuneCmd
         for (var i = 0; i < list.Count; i++)
         {
             // Only the first glyph of a cast merges; a card's own glyph sequence (e.g. Strike, Strike) stays separate.
+            // A glyph delayed by a Growth never merges, so the Growth can't multiply every later cast.
             var last = buffer.Glyphs.Count > 0 ? buffer.Glyphs[^1] : null;
-            if (i == 0 && !buffer.IsSpeaking && last?.MergeWith(list[i]) is { } merged)
+            if (i == 0 && !buffer.IsSpeaking && !buffer.IsGrowing(buffer.Glyphs.Count - 1) &&
+                last?.MergeWith(list[i]) is { } merged)
             {
                 buffer.Replace(buffer.Glyphs.Count - 1, merged);
                 MainFile.Logger.Info($"[Rune] Merged {last} + {list[i]} -> {merged}");
@@ -229,16 +231,33 @@ public static class RuneCmd
         await SpeakGlyphs(choiceContext, player, buffer, [glyph], SpeakTiming.Invoked, keep: false);
     }
 
-    /// <summary>Side-effect-free dry run of the current Incantation, for tooltips.</summary>
+    /// <summary>
+    /// Side-effect-free dry run of the current Incantation, for tooltips and the overhead UI. Teammates Speak first in
+    /// combat order, so their Incantations are dry-run first and what they apply (a Hex's Vulnerable…) carries over.
+    /// </summary>
     public static RunePreview? Forecast(Player player)
     {
         var buffer = GetBuffer(player.Creature);
         if (buffer == null || buffer.Glyphs.Count == 0) return null;
 
-        var preview = new RunePreview();
+        var effects = new PreviewEffects();
+        if (player.Creature.CombatState is { } combat)
+        {
+            foreach (var creature in combat.PlayerCreatures.TakeWhile(c => c != player.Creature))
+                if (creature is { IsAlive: true, Player: { } teammate })
+                    DryRun(teammate, new RunePreview(effects));
+        }
+
+        var preview = new RunePreview(effects);
+        return DryRun(player, preview) ? preview : null;
+    }
+
+    private static bool DryRun(Player player, RunePreview preview)
+    {
+        var buffer = GetBuffer(player.Creature);
+        if (buffer == null || buffer.Glyphs.Count == 0) return true;
         var ctx = new RuneContext(new BlockingPlayerChoiceContext(), player, buffer, SpeakTiming.EndOfTurn, preview);
-        var run = RuneInterpreter.Run(ctx, buffer.Glyphs.ToList());
-        return run.IsCompletedSuccessfully ? preview : null;
+        return RuneInterpreter.Run(ctx, buffer.Glyphs.ToList()).IsCompletedSuccessfully;
     }
 
     private static async Task SpeakGlyphs(PlayerChoiceContext choiceContext, Player player, RuneBuffer buffer,

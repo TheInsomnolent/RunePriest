@@ -65,26 +65,32 @@ public sealed class VoidRune() : ModifierRune(0)
 }
 
 /// <summary>
-/// Delays the next glyph: every trigger (so every loop pass) ticks the Growth down and doubles that glyph in place,
-/// keeping it for next turn instead of resolving it. Ticked down to 0, the Growth vanishes and the glyph resolves on
-/// its next trigger. Handled by the interpreter, not through <see cref="ModifierRune.ApplyTo"/>.
+/// Delays the next glyph: every trigger (so every loop pass) ticks it down and multiplies that glyph by
+/// <see cref="Factor"/> in place, keeping it for next turn instead of resolving it. Ticked down to 0, it vanishes and the
+/// glyph resolves on its next trigger. Handled by the interpreter, not through <see cref="ModifierRune.ApplyTo"/>.
+/// Glyphs inscribed onto the glyph it delays never merge into it (<see cref="RuneBuffer.IsGrowing"/>), so it can't
+/// compound every later cast.
 /// </summary>
-public sealed class GrowthRune(int value) : ModifierRune(value)
+public abstract class GrowingRune(int value) : ModifierRune(value)
+{
+    public override bool Amplifiable => true;
+
+    /// <summary>What the delayed glyph's values are multiplied by on every trigger.</summary>
+    public abstract int Factor { get; }
+}
+
+public sealed class GrowthRune(int value) : GrowingRune(value)
 {
     public override string Key => "GROWTH";
-    public override bool Amplifiable => true;
+    public override int Factor => 2;
     public override Rune WithValue(int value) => new GrowthRune(value);
 }
 
-/// <summary>
-/// Like Growth but escalates more dramatically (Ascended): delays the next glyph and escalates its value by squaring
-/// on each trigger. Every trigger triples the glyph's values in place, keeping it for next turn. Ticked down by 1,
-/// the Overgrowth vanishes and the glyph resolves on its next trigger. Handled by the interpreter.
-/// </summary>
-public sealed class OvergrowthRune(int value) : ModifierRune(value)
+/// <summary>Ascended Growth (Overgrowth card): triples the delayed glyph on every trigger instead of doubling it.</summary>
+public sealed class OvergrowthRune(int value) : GrowingRune(value)
 {
     public override string Key => "OVERGROWTH";
-    public override bool Amplifiable => true;
+    public override int Factor => 3;
     public override bool IsAscended => true;
     public override Rune WithValue(int value) => new OvergrowthRune(value);
 }

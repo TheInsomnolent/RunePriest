@@ -47,6 +47,8 @@ public static class RuneVisuals
         ["VOID"] = new(RuneFamily.Modifier, "⊖"),
         // Growth grows with its remaining turns: hiragana ordered so bigger values look denser.
         ["GROWTH"] = new(RuneFamily.Modifier, "あいうえおかきくけこさしすせそ"),
+        // Ascended Growth: the same script, gilded.
+        ["OVERGROWTH"] = new(RuneFamily.Modifier, "あいうえおかきくけこさしすせそ", Tint: new Color("ffd75e")),
         ["REFLECTION"] = new(RuneFamily.Modifier, "∽"),
         ["CLONE"] = new(RuneFamily.Modifier, "々"),
         ["FRIENDSHIP"] = new(RuneFamily.Modifier, "∪"),

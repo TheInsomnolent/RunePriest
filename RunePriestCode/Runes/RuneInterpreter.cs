@@ -1,4 +1,5 @@
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 
 namespace RunePriest.RunePriestCode.Runes;
 
@@ -10,6 +11,8 @@ public static class RuneInterpreter
 {
     public const int MaxPayloadExecutions = 60;
     public const int MaxSteps = 500;
+
+    private static readonly StrikeRune TargetProbe = new(1);
 
     private sealed class LoopFrame(int start, int end, int remaining, List<ModifierRune> mods)
     {
@@ -120,13 +123,19 @@ public static class RuneInterpreter
                     unusedTarget = slot;
                     await Activate(ctx, slot);
                     ctx.ApplyTarget(((TargetRune)glyph.Runes[0]).Mode);
+                    if (ctx.Preview != null)
+                    {
+                        // What the mode would pick for an enemy rune (hover highlight).
+                        var (picked, random) = ctx.PreviewTargets(TargetProbe, glyph);
+                        ctx.Preview.Target(slot.Origin, picked, random);
+                    }
                     pc++;
                     break;
 
                 // Growth delays the following glyph: every trigger (so every loop pass) ticks it down and doubles that
-                // glyph in place, keeping it for next turn instead of resolving it. Ticked down to 0 the Growth
-                // vanishes, and the glyph resolves on its next trigger.
-                case RuneKind.Modifier when glyph.Runes[0] is GrowthRune growth:
+                // glyph in place (Overgrowth: triples), keeping it for next turn instead of resolving it. Ticked down
+                // to 0 the Growth vanishes, and the glyph resolves on its next trigger.
+                case RuneKind.Modifier when glyph.Runes[0] is GrowingRune growth:
                 {
                     if (growth.Value <= 0)
                     {
@@ -143,12 +152,12 @@ public static class RuneInterpreter
                     }
                     await Activate(ctx, slot);
                     var grown = tape[next];
-                    grown.Current = grown.Current.Scaled(2);
+                    grown.Current = grown.Current.Scaled(growth.Factor);
                     grown.GrownBy = slot;
                     grown.Carry = true;
                     if (growth.Value > 1)
                     {
-                        slot.Current = glyph.WithRunes(new GrowthRune(growth.Value - 1));
+                        slot.Current = glyph.WithRunes(growth.WithValue(growth.Value - 1)!);
                         slot.Carry = true;
                     }
                     else
@@ -367,10 +376,16 @@ public static class RuneInterpreter
             if (ctx.Preview != null)
             {
                 // Preview never resolves targets: that would advance the shared combat RNG.
-                var target = ctx.PreviewTarget(rune, glyph);
-                ctx.Preview.Show(slot.Origin, i, inscribed.Modified(ctx.Owner, glyph, target, inscribed.Value));
+                var (previewTargets, random) = ctx.PreviewTargets(rune, glyph);
+                ctx.Preview.Show(slot.Origin, i, PreviewValue(ctx, inscribed, glyph, previewTargets, inscribed.Value));
                 if (value <= 0) continue;
-                ctx.Preview.Record(rune, value, rune.Modified(ctx.Owner, glyph, target, value));
+                ctx.Preview.Target(slot.Origin, previewTargets, random);
+                ctx.Preview.Record(rune, value, PreviewValue(ctx, rune, glyph, previewTargets, value));
+                // Later runes see what this one applies (a Hex's Vulnerable), unless its target is still to be rolled.
+                if (!random)
+                    foreach (var target in previewTargets)
+                    foreach (var power in rune.PreviewPowers)
+                        ctx.Preview.Effects.Apply(target, power);
                 resolved = true;
                 continue;
             }
@@ -391,6 +406,14 @@ public static class RuneInterpreter
             if (ctx.ShouldStop) break;
         }
         return resolved;
+    }
+
+    /// <summary>A rune's value after game effects: the value every target agrees on, else the target-independent one.</summary>
+    private static int PreviewValue(RuneContext ctx, PayloadRune rune, Glyph glyph, IReadOnlyList<Creature> targets, int value)
+    {
+        var effects = ctx.Preview?.Effects;
+        var values = targets.Select(t => rune.Modified(ctx.Owner, glyph, t, value, effects)).Distinct().ToList();
+        return values.Count == 1 ? values[0] : rune.Modified(ctx.Owner, glyph, null, value, effects);
     }
 
     private static List<Slot> TakeAll(List<Slot> pending)

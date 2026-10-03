@@ -1,6 +1,9 @@
 using Godot;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.HoverTips;
+using MegaCrit.Sts2.Core.Nodes.Rooms;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Nodes;
@@ -16,6 +19,10 @@ public partial class NGlyph : Node2D
     private const float FizzledAlpha = 0.25f;
 
     private readonly List<NRuneSymbol> _symbols = [];
+    private readonly List<NRuneArc> _arcs = [];
+    private readonly List<NCreature> _highlighted = [];
+    private (IReadOnlyCollection<Creature> Creatures, bool Random)? _targets;
+    private bool _hovered;
     private Control? _hitbox;
     private float _pulse;
     private float _fizzle;
@@ -47,6 +54,16 @@ public partial class NGlyph : Node2D
     {
         for (var i = 0; i < _symbols.Count; i++)
             _symbols[i].ShowModifiedValue(forecast?.ShownValue(Glyph, i));
+    }
+
+    /// <summary>Who this glyph would affect, from the same dry run; highlighted with arcs while hovered.</summary>
+    public void ShowTargets((IReadOnlyCollection<Creature> Creatures, bool Random)? targets)
+    {
+        var same = targets is { } next && _targets is { } current && next.Random == current.Random &&
+                   next.Creatures.Count == current.Creatures.Count && next.Creatures.All(current.Creatures.Contains);
+        _targets = targets;
+        // Forecasts refresh often; only rebuild the arcs when the targets actually change, so they don't flicker.
+        if (_hovered && !same) HighlightTargets();
     }
 
     public static NGlyph Create(Glyph glyph, Vector2 startPosition)
@@ -102,11 +119,47 @@ public partial class NGlyph : Node2D
         if (_hitbox == null || _dissolving) return;
         var tips = Glyph.Runes.DistinctBy(r => r.Key).SelectMany(r => r.HoverTips).ToList();
         NHoverTipSet.CreateAndShow(_hitbox, tips, HoverTip.GetHoverTipAlignment(_hitbox))?.SetFollowOwner();
+        _hovered = true;
+        HighlightTargets();
     }
 
     private void HideTips()
     {
         if (_hitbox != null) NHoverTipSet.Remove(_hitbox);
+        _hovered = false;
+        ClearTargets();
+    }
+
+    /// <summary>Puts the targeting reticle on every creature this glyph would affect and streams an arc to each.</summary>
+    private void HighlightTargets()
+    {
+        ClearTargets();
+        if (_targets is not { } targets || NCombatRoom.Instance is not { } room) return;
+
+        var rune = Glyph.Runes.FirstOrDefault(r => r is PayloadRune) ?? Glyph.Runes.FirstOrDefault();
+        if (rune == null) return;
+        var color = RuneVisuals.ColorOf(rune);
+        foreach (var creature in targets.Creatures)
+        {
+            var node = room.GetCreatureNode(creature);
+            if (node == null || !IsInstanceValid(node)) continue;
+            node.ShowSingleSelectReticle();
+            _highlighted.Add(node);
+
+            var last = node.Hitbox.GetGlobalRect().GetCenter();
+            var arc = NRuneArc.Create(() => GlobalPosition,
+                () => IsInstanceValid(node) ? last = node.Hitbox.GetGlobalRect().GetCenter() : last, color, targets.Random);
+            _arcs.Add(arc);
+            AddChild(arc);
+        }
+    }
+
+    private void ClearTargets()
+    {
+        foreach (var node in _highlighted.Where(IsInstanceValid)) node.HideSingleSelectReticle();
+        _highlighted.Clear();
+        foreach (var arc in _arcs.Where(IsInstanceValid)) arc.Release();
+        _arcs.Clear();
     }
 
     public override void _ExitTree() => HideTips();

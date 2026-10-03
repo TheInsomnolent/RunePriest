@@ -1,32 +1,26 @@
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using RunePriest.RunePriestCode.Powers;
 
 namespace RunePriest.RunePriestCode.Cards.Ancient;
 
 /// <summary>
-/// Corrupted Sigil: Ancient Power, Cost 0
-/// All rune cards become Ethereal and cost 0.
-/// Runes persist between turns.
-/// Upgradable: Remove Ethereal.
-/// 
-/// TODO: This is a stub pending card modification integration.
-/// - Requires OnCardInstanceModify hook or Harmony patch to intercept card cost/keyword getters
-/// - Complex integration deferred to follow-up task
+/// Ancient Power (from Vakuu's Corrupted Sigil relic): cards with "Rune" in their name are Ethereal, Exhaust and cost 0;
+/// runes remain between turns. Upgrade: rune cards are no longer Ethereal.
 /// </summary>
-public sealed class CorruptedSigil() : RunePriestCard(0, CardType.Power, CardRarity.Rare, TargetType.Self)
+public sealed class CorruptedSigil() : RunePriestCard(0, CardType.Power, CardRarity.Ancient, TargetType.Self)
 {
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [HoverTipFactory.FromPower<CorruptedSigilPower>()];
+
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        // Apply the power that modifies rune cards
-        await PowerCmd.Apply<CorruptedSigilPower>(choiceContext, Owner.Creature, 1, Owner.Creature, this);
+        var power = await PowerCmd.Apply<CorruptedSigilPower>(choiceContext, Owner.Creature, 1, Owner.Creature, this);
+        if (IsUpgraded) power?.RemoveEthereal();
     }
 
     protected override void OnUpgrade()
     {
-        // Upgrade: power still applies but doesn't make cards Ethereal
-        // This would require passing info to the power or creating a different power variant
-        // Deferred to implementation task
     }
 }

@@ -22,6 +22,7 @@ description: "Card/power/relic text conventions for RunePriest localization file
   ```
   [gold]Inscribe[/gold] [blue]Defend[/blue] {Defend:diff()}, [blue]Blood[/blue] {Blood:inverseDiff()}.
   ```
+- **Persist** goes inline after the rune it applies to: `[gold]Inscribe[/gold] [blue]Void[/blue]. [gold]Persist[/gold].` Such cards don't also list the Persist keyword (that would print it twice); add `HoverTipFactory.FromKeyword(RunePriestKeywords.Persist)` to `AdditionalHoverTips` instead.
 - Identical consecutive runes may be collapsed: `[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()} twice.` / `{Hits} times.`
 - Don't use "then" or "+" to join runes.
 - Non-Inscribe effects go on their own line before or after the Inscribe lines, matching the order they happen in `OnPlay`. Imbue lines: `{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue}.|{ImbuedRunes}}` — once the card is Imbued, the line is replaced by its bound runes (`ImbuedCount` / `ImbuedRunes` come from `RunePriestCard.AddExtraArgsToDescription`).

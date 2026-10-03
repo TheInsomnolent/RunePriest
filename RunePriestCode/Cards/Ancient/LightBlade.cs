@@ -7,12 +7,12 @@ using RunePriest.RunePriestCode.Runes;
 namespace RunePriest.RunePriestCode.Cards.Ancient;
 
 /// <summary>Ascended Attack: Inscribe a Strike, plus 3 additional damage for every rune currently inscribed.</summary>
-public sealed class LightBlade() : RuneCard(0, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
+public sealed class LightBlade() : RuneCard(0, CardType.Attack, CardRarity.Ancient, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new DamageVar("Strike", 9m, ValueProp.Move),
-        new IntVar("BonusPerRune", 4m)
+        new IntVar("BonusPerRune", 3m)
     ];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
@@ -21,8 +21,10 @@ public sealed class LightBlade() : RuneCard(0, CardType.Attack, CardRarity.Rare,
             .AnchoredTo(anchor)
     ];
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }

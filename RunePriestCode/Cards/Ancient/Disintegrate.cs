@@ -9,7 +9,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// <summary>
 /// Ascended Attack: Set up a loop with Amplify, then inscribe two Strikes inside, closing the loop for double-amplified output.
 /// </summary>
-public sealed class Disintegrate() : RuneCard(1, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
+public sealed class Disintegrate() : RuneCard(1, CardType.Attack, CardRarity.Ancient, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -26,8 +26,10 @@ public sealed class Disintegrate() : RuneCard(1, CardType.Attack, CardRarity.Rar
         Glyph.Of(new EndLoopRune())
     ];
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }

@@ -1,6 +1,6 @@
 # Rune System Design — "The Incantation"
 
-Status: **v0.9 — design sync 10/1/2026 (#18)** (rune core, 98 cards incl. 6 special, 13 relics, 4 potions, card-slot Imbue, overhead UI, capacity, forecast, co-op rune sharing, Growth/Reflection/Friendship/Diminish/Clone runes, Persist, Fizzle visuals).
+Status: **v0.10 — Ancients & Ascended cards (10/3/2026)** (rune core, 98 cards incl. 6 special, 13 relics, 4 potions, card-slot Imbue, overhead UI, capacity, forecast, co-op rune sharing, Growth/Reflection/Friendship/Diminish/Clone runes, Persist, Fizzle visuals).
 Untested in-game; all numbers are first-pass. Update this doc when decisions change.
 
 ## 1. Pitch
@@ -38,7 +38,9 @@ runes in the same order, same anchor), they merge and values add: `[Strike 6]` +
 Mergeable runes implement `Rune.WithValue`; targets, Loops, End Loop, Seal and Sanctify never merge (so `[Loop]` +
 `[Loop]` nests instead of merging; Loops have no value, so nothing can change their count).
 A single card's own glyph sequence (Double Stroke's two Strikes) stays separate, so multi-hit cards keep their
-per-hit behaviour. Merging does not use a capacity slot.
+per-hit behaviour. Merging does not use a capacity slot. A glyph delayed by a Growth/Overgrowth (the glyph right after it)
+never merges: otherwise `[Growth 1][Strike 5]` + Strike Rune would grow every later cast too. Persistent glyphs (Patient
+Rune, Persist…) still merge as usual.
 
 ## 4. Base rune set (v1)
 
@@ -83,7 +85,8 @@ runes and empties the slot), Alchemize+, Folly's Mirror+, Frenzied Incant+. Conj
 | **Echo** | Execute the next glyph one extra time. |
 | **Sanctify** | Blood runes in the next glyph (or whole loop body) resolve as 0. Engine-only. |
 | **Void** | **Consumes** the next glyph — any kind (another Void, a Loop, a Growth…); targets and End Loops are transparent. The consumed glyph fizzles once and is gone for the rest of the Speak (and isn't kept). The Void itself stays, so every later loop pass or Reflection consumes again. A consumed Loop's End Loop stays and fizzles. Dark Magick, Darkness Falls, Nebula, Dark Star, Waning Moon. |
-| **Growth X** | Delays the next glyph: **every trigger** (so every loop pass) ticks the Growth down and **doubles that glyph in place**, keeping it for next turn instead of resolving it (`[Loop][Growth 3][Strike 3]` → Growth 1 + Strike 12 next turn). Ticked down to 0, the Growth vanishes and the glyph resolves on its next trigger (so `[Growth 1][Strike]` waits exactly one turn). Reached while its Growth still lives (after a Reflection) it just waits. Handled by the interpreter (not `ApplyTo`). |
+| **Growth X** | Delays the next glyph: **every trigger** (so every loop pass) ticks the Growth down and **doubles that glyph in place**, keeping it for next turn instead of resolving it (`[Loop][Growth 3][Strike 3]` → Growth 1 + Strike 12 next turn). Ticked down to 0, the Growth vanishes and the glyph resolves on its next trigger (so `[Growth 1][Strike]` waits exactly one turn). Reached while its Growth still lives (after a Reflection) it just waits. Handled by the interpreter (not `ApplyTo`). New casts never merge into the glyph it is growing (§3). |
+| **Overgrowth X** *(Ascended)* | Growth that **triples** the delayed glyph each trigger (`GrowingRune.Factor` 3). Only the Overgrowth Ancient card inscribes it. |
 | **Reflection** | The Speak turns around: earlier glyphs are Spoken again in reverse order **as earlier runes left them** (consumed glyphs gone, grown/diminished values kept); loops still open stop repeating; glyphs after the Reflection are never Spoken. Handled by the interpreter. |
 | **Friendship** | Co-op: the next supportive (ally) payload — value > 0: every later one — affects **all living players** instead of only the caster. Handled by the interpreter. |
 | **Clone** | Persists; each trigger duplicates the following glyph into next turn's Incantation as a Persistent copy. Nothing after it → fizzles (unless the Clone itself Persists). Handled by the interpreter. |
@@ -125,8 +128,11 @@ Mirror is only for curses/status/enemy effects — no player card inscribes it y
 | **Seal** | Stop speaking. Glyphs **after** the Seal stay in the Incantation for next turn (Seal is consumed). Enables multi-turn setups. |
 
 ### Persist (keyword)
-Cards with the **Persist** keyword mark their glyphs `Glyph.Persistent`: they stay in the Incantation after being
-Spoken instead of being cleared (Patient Rune, Cocoon, Dark Star), and are drawn with a white outline square in the
+Persistent glyphs (`Glyph.Persistent`, set per glyph with `.Persist()`) stay in the Incantation after being
+Spoken. Card text writes `[gold]Persist[/gold].` inline right after the rune it applies to (`Inscribe [Void]. Persist.`);
+those cards don't list the `RunePriestKeywords.Persist` keyword (it would print a second "Persist") and add its hover
+tip via `AdditionalHoverTips` instead. Persistent glyphs they stay in the Incantation after being
+Spoken instead of being cleared (Patient Rune, Cocoon, Dark Star, Curse, Cloning Rune), and are drawn with a white outline square in the
 overhead UI. A Persist *modifier* with nothing after it doesn't
 fizzle — it just stays (Dark Star's Void). Growth and Diminish glyphs manage their own carry-over, so a Persist Growth
 still vanishes once fully grown and a Diminish still fizzles once halved below 5. Merging keeps Persist if either half
@@ -218,7 +224,7 @@ RunePriestCode/
     RuneCmd.cs            Inscribe / Share / ShareAt / Prepend / Speak / SpeakAt / TakeForImbue / Fizzle / Remove / Transform / Forecast / GetBuffer
     RuneTips.cs           static hover tips (Inscribe, Speak, Imbue, Imbued, Overflow, Incantation script title)
     IRuneListener.cs      ModifyRuneValue / ReplacePayload / ModifyCapacity / KeepsIncantation / ModifyInscription / AfterInscribed / AfterImbued / AfterRemoved / AfterPayload / AfterFizzle / AfterSpeak (+ RuneListeners helper)
-    RunePreview.cs        dry-run totals for the Forecast tooltip
+    RunePreview.cs        dry-run totals, shown values and per-glyph targets; PreviewEffects = powers earlier runes will have applied
   Powers/
     IncantationPower.cs   hosts RuneBuffer (InitInternalData → fresh per clone); Speaks in BeforeSideTurnEnd; DisplayAmount = glyph count; hover tip lists glyphs
     AmplifySigilPower.cs  IRuneListener: every rune Spoken as if preceded by Amplify +Amount (amplifiable runes only)
@@ -239,6 +245,7 @@ RunePriestCode/
     RuneFont.cs           composite FontVariation from the game's bundled jpn/kor/tha/rus fonts; HasChar fallback
   Patches/NCreatureRuneBufferPatch.cs  Harmony postfix on NCreature._Ready → attach NRuneBuffer for players
   Patches/NeowAetherQuillPatch.cs      Harmony postfix on Neow.GenerateInitialOptions → sometimes offers the Aether Inkwell
+  Patches/AncientOptionPatches.cs      postfixes on Darv/Vakuu/Tezcatara → Dark Tablet / Corrupted Sigil / Eternal Candle (§15)
 ```
 Key decisions:
 - **Buffer lives on a Power** (`IncantationPower`) on the player creature: auto-receives hooks with a correctly owned `PlayerChoiceContext` (co-op safe), auto-cleans at combat end, and its icon + hover tip is the v1 UI. Applied lazily on first Inscribe; stays for the rest of combat (Amount fixed at 1).
@@ -293,7 +300,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Quick Ward | Common | Skill | 0 | Inscribe [Defend 3 + Swift 1]. | also draw 1 on play |
 | Heavy Ward | Common | Skill | 2 | Inscribe [Defend 12]. | Defend 15 |
 | Heavy Rune | Common | Attack | 2 | Inscribe [Strike 9 + 3 per rune in the Incantation]. | +4 per rune |
-| Patient Rune (`PatientRuneCard`) | Common | Attack | 1 | Inscribe [Strike 1 + 1 per rune inscribed this combat]. Persist. Exhaust. No upgrade. | — |
+| Patient Rune (`PatientRuneCard`) | Uncommon | Attack | 1 | Inscribe [Strike 1 + 1 per rune inscribed this combat]. Persist. Exhaust. | Strike 5 |
 | Cracked Rune (`CrackedRuneCard`) | Common | Attack | 1 | Inscribe [Strike 2]×2 (separate, so they don't merge). | ×3 |
 | Growth Rune (`GrowthRuneCard`) | Common | Skill | 1 | Inscribe [Growth 3]. | cost 0 |
 | Imbued Sword | Common | Attack | 1 | Imbue 1. Deal 5 + total value of its bound runes. | Imbue 2 |
@@ -326,7 +333,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Reflection Rune (`ReflectionRuneCard`) | Uncommon | Skill | 1 | Inscribe [Blood 2][Reflection]. | cost 0 |
 | Blood Magick | Uncommon | Attack | 1 | Inscribe [Hex 1][Strike 6][Blood 2]. | Hex 2 |
 | Leeches | Uncommon | Skill | 0 | Inscribe [Blood 2][Cleanse]. Exhaust. | no Exhaust |
-| Cocoon | Uncommon | Skill | 1 | Inscribe [Growth 2][Defend 3]. Persist. | cost 0 |
+| Cocoon | Uncommon | Skill | 1 | Inscribe [Growth 2][Defend 2 (Persist)]. | Defend 3 |
 | Nebula | Uncommon | Attack | 2 | Inscribe [Nova][Twin ×2][Loop][Strike 5][End Loop][Void] (the Void fizzles harmlessly). | no End Loop: the Void — and anything inscribed after — joins the loop |
 | Nyx | Uncommon | Power | 0 | Whenever you play a card Imbued with a [Void], deal 20 (Unpowered) to ALL enemies. | 30 |
 | Eternal Sigil | Rare | Power | 3 | Incantation is kept after Speaking. Ethereal. | no Ethereal |
@@ -352,7 +359,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Folly's Mirror | Uncommon | Skill | 0 | Inscribe [Echo][Nova][Echo][Nova]. | Imbue 1 first |
 | Energy Overflow | Uncommon | Power | 1 | Whenever a rune fizzles, deal 5 damage to ALL enemies. | cost 0 |
 | Dark Magick | Rare | Skill | 1 | Inscribe [Void]. Add 2 upgraded Loop Runes to your hand. | Inscribe [Kindle 1] first |
-| Unforgiveable Curse | Rare | Power | 1 | Whenever a rune fizzles, add a random cursed weapon to your hand (end-of-turn fizzles deliver next turn). | also Inscribe [Nova] ×3 (two of them fizzle unused → two cursed items) |
+| Unforgiveable Curse | Rare | Power | 1 | Whenever a rune fizzles, add a random cursed item to your hand (end-of-turn fizzles deliver next turn). | also Inscribe [Nova] ×3 (two of them fizzle unused → two cursed items) |
 | Choral Evocation | Rare | Skill | 1 | Multiplayer only. This turn, [Defend] runes you Inscribe are also Inscribed for all other players. Exhaust. | every rune is shared |
 | Waning Moon | Uncommon | Attack | 2 | Inscribe [Loop][Strike 4][Defend 4][Void (Persist)][Defend 4][Strike 4][Reflection]. | Inscribe [Amplify +2] first |
 | Diminishing Rune (`DiminishingRuneCard`) | Common | Attack | 2 | Inscribe [Diminish 20]. Exhaust. | cost 1 |
@@ -392,11 +399,16 @@ without being Spoken, which includes fizzles; Holy Water Sigil uses the heal amo
 | Imbued Teacup | Uncommon | The first rune inscribed each turn has its values doubled (`Glyph.Scaled(2)`; Loops are unaffected since #18). |
 | Healer's Scroll | Uncommon | The first time each combat you Inscribe a [Blood] rune, Inscribe [Mend] equal to the Blood amount. |
 | Baptised Idol | Uncommon | On pickup, upgrade 2 random cards that Inscribe (`RuneCard`s) — used instead of a "Rune" name match. |
-| Runic Sphere | Uncommon | Cards that Inscribe (`RuneCard`s) have Retain (single-turn retain re-applied on draw and at turn start). |
+| Runic Sphere | Uncommon | Cards with "Rune" in their name (`RunePriestCard.HasRuneInName`) have Retain (single-turn retain re-applied on draw and at turn start). |
 | Enchanted Anvil | Rare | Whenever you Inscribe, deal 2 damage to ALL enemies. |
 | De-illuminator | Rare | The first [Void] you Inscribe each combat immediately Fizzles (feeds fizzle triggers like Unforgiveable Curse). |
 | Midas Hand | Rare | Whenever you Inscribe, gain 2 Gold. |
 | Undead Quill | Shop (300 Gold) | [Blood] and [Mend] runes swap their effects when Spoken (`IRuneListener.ReplacePayload`; side-effect-free so the forecast shows it too). |
+| Lightweight Cloth Robe | Event | Cards with [Blood] runes (inscribed or Imbued; not X-cost) cost 0. Your [Blood] runes are doubled. No event grants it yet. |
+| Hallowed Toolbox | Starter | Blessed Toolbox upgraded by Orobas' Touch of Orobas (`CustomRelicModel.GetUpgradeReplacement`): whenever you play a rune card, draw 1. |
+| Dark Tablet | Ancient (Darv) | Your [Blood] runes damage enemies and your [Mend] runes heal enemies instead of you (`ReplacePayload`; follow the target mode). |
+| Corrupted Sigil | Ancient (Vakuu, pool 2) | Upon pickup, remove every Eternal Sigil from your deck and add a Corrupted Sigil card. Always offered to the Rune Priest. |
+| Eternal Candle | Ancient (Tezcatara, pool 3) | Upon pickup, add an Eternal Scroll. Rest sites offer **Etch**: remove a rune card from your deck and etch its runes onto the Scroll. |
 | Aether Inkwell | Ancient | Upon pickup, obtain an Aether Quill. Neow-only wrapper for the potion (see §14); Ancient rarity keeps it out of regular relic rewards. |
 
 | Potion | Rarity | Effect |
@@ -439,6 +451,8 @@ Energy emptying a huge Incantation, Undead Quill turning Martyr/Blood Sacrifice 
 - Design sync 10/1/2026 (issue #18): **Loops lost their mutable value** (`LoopRune` no longer implements `WithValue`): Loops never merge (adjacent Loop casts nest) and no value effect — Growth doubling, Amplify, Imbued Teacup — can change a loop count; Echo still repeats loop bodies and Twin/Amplify still distribute across them. **Growth ticks once per trigger** (a Growth inside a loop ticks every iteration). New runes **Diminish** (Strike-like payload that persists at half value and fizzles below 5) and **Clone** (persists; duplicates the following glyph into next turn as a Persistent copy). **Fizzle is now a keyword tip** with a visual (grey puff, lingering faded glyph), and unused target runes fizzle (overridden before use, or unused at the end of the Speak — so Unforgiveable Curse+ triggers off its own extra Novas). Debuff runes (Hex) get their own dark-purple family colour; Persistent glyphs are drawn with a white outline square. Card changes: Unforgiveable Curse+ inscribes 3 Novas (was Echoes), Paladin Sigil gives Energy (was Strength), Meditate 4/4 (was 5/5), Dark Magick+ Kindles first, Echo Rune moved to Common (starting deck is 5 Strike/5 Defend), Alchemize renamed **Alloy** (only draws if a rune was removed; Imbued Alloy+ inscribes first so it always draws), Folly's Mirror inscribes Echo+Nova twice, Choral Evocation costs 1, Orobas Strike's loop Persists. 11 new cards (4 Common, 4 Uncommon, 2 Rare + the Old Lantern token) and 5 new relics — see §9. Assumptions: Folly's Mirror "Echo + Nova" = sequential glyphs; Last Scroll wraps the first rune in a closed Loop and blocks further inscriptions via `LastScrollPower` (`ModifyInscription` → []); Two-way Mirror+ appends to the ally's Incantation; Diminish uses the inscribed value for every execution within one Speak and halves only the carried-over copy, fizzling when the halved result is below 5; "start of combat" relics inscribe on the owner's first turn start.
 - Interpreter rework 10/1/2026: runes act on the Incantation **as it runs** (slot tape, §5). **Void consumes** the next glyph of any kind (so `[Void][Void][Strike]` strikes, and a Void before a Loop eats the Loop — its End Loop fizzles); the Void stays and consumes again on later loop passes and Reflections. **Growth doubles in place on every trigger** (compounds inside loops). **Diminish halves after every execution** (Echo included). A Reflection replays the slots as earlier runes left them (Waning Moon's Void eats a different Defend each way) and still stops open loops.
 - Loops lost their number (10/1/2026): `LoopRune` is valueless like targets/Echo and always speaks its body twice; nest Loops for more (`IRuneListener.ModifyLoopCount` removed). Last Scroll now inscribes 2 nested Loops (3 upgraded) instead of Loop 5/8.
+- Ancients pass 10/3/2026: Ascended cards moved to **Ancient rarity** (out of card rewards; never upgrade) and are reached through Orobas' Archaic Tooth; the stubbed ancient boons were implemented as real relics (§15). **Growth/Overgrowth can't be stacked on**: casts no longer merge into the glyph a Growth is delaying (regular Persist glyphs still merge). Mirrororrim now inscribes in `BeforeSideTurnEndEarly` (it used to race the Speak in `BeforeSideTurnEnd`, so its runes often landed after it and sat there next turn). Preview: earlier runes' effects (Hex) and teammates who Speak first now feed the overhead values; hovering a glyph highlights its targets with arcs. Patient Rune is Uncommon (so it is no longer a possible starting rune). Assumptions: Corrupted Sigil is always offered (Eternal Sigil removal is incidental); Etch removes the chosen rune card and etches its `RuneCard.InscribedGlyphs` (`GlyphCodec` now keeps Persist with a `!` prefix, which also applies to Imbued runes); Healer only adds Mend to payload glyphs.
+- Card-pool pass 10/3/2026: Emanate renamed **Emenate**; Cocoon no longer inscribes a Void; Persist is written once, inline after its rune (keyword dropped from those cards); Unforgiveable Curse says "item"; Runic Sphere only affects cards with "Rune" in their name; Lightweight Cloth Robe is an **Event** relic (unobtainable until a Rune Priest event grants it) and its "Blood cards are free" half is now implemented.
 
 ## 12. Overhead visuals (Phase 3)
 From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;
@@ -477,10 +491,20 @@ flip with `NRuneBuffer.ReadRightToLeft`). Compound glyphs stack vertically = "th
 - Glyphs that will outlast the next Speak are framed by a mandala in the rune's colour (a heptagon inside a pentagon, counter-rotating). It comes from a dry run of the Incantation (`RuneCmd.Forecast` → `RunePreview.Persisting`), so it covers Persist, Diminish (unless it would fizzle away), Growth and the glyph it grows, the glyph a Clone copies, everything after a Seal, and the whole Incantation under Eternal Sigil / Lingering Aroma.
 - Co-op: other players' runes are faded; hovering another player brings theirs forward and fades yours.
 - Rune values overhead show game effects (Strength, Weak, Vulnerable, Frail, Dexterity…) via `PayloadRune.Modified`
-  (green = raised, red = lowered, like card text). The same dry run supplies them; refreshed on `CombatStateChanged`.
+  (green = raised, red = lowered, like card text). The same dry run supplies them; refreshed on `CombatStateChanged` and
+  whenever any player's Incantation changes.
+- **Effects of earlier runes count**: a payload's `PreviewPowers` (Hex: Weak + Vulnerable) are applied to its known targets
+  as detached power copies in `PreviewEffects`, and later runes preview against them (`[Hex 1][Strike 5]` shows Strike 7 on
+  the same target). Targets follow the target runes before them (Anchor/Nova/Execution/Mirror); a rolled target (Scatter,
+  dead anchor with several enemies) applies nothing. A rune hitting several creatures shows the value they all agree on,
+  else the target-independent one. **Co-op**: players Speak in combat order, so `RuneCmd.Forecast` dry-runs every
+  teammate before you first and carries their effects over (P1's Hex raises P2's Strike).
+- **Hovering a glyph** shows its tips, puts the game's targeting reticle on every creature it would affect and streams an
+  arc of rune-coloured motes to each (`NRuneArc`; fainter and sparser for rolled targets). Target runes highlight what
+  their mode would pick (Execution → lowest HP).
 - Fonts: only the game's bundled locale fonts are used; missing glyphs log a warning and render `◆`.
   To use scripts not covered (e.g. Elder Futhark runes ᚠᚢᚦ), ship an OFL font such as Noto Sans Runic in `RunePriest/`.
-- Known gaps: no mouse hover on the floating runes yet (use the Incantation power tooltip); placeholder particles are untextured squares.
+- Known gaps: placeholder particles are untextured squares; runes inscribed at end of turn (Mirrororrim) aren't previewed.
 
 ## 13. Phase 4 — Expansion
 Decisions made autonomously (user unavailable; revisit on review):
@@ -492,6 +516,7 @@ Decisions made autonomously (user unavailable; revisit on review):
 - **Forecast**: the Incantation power tooltip shows a dry run (`RuneCmd.Forecast` → interpreter with `RunePreview`): totals
   per payload, fizzles, overload. Totals include game effects (`PayloadRune.Modified`, green/red vs base); a target's
   effects (Vulnerable) only count when the target is known without rolling, so preview never advances the combat RNG.
+  Effects that runes earlier in the Speak (or a teammate's earlier Speak) will apply are included — see §12.
 - New listener hooks: `ModifyLoopCount`, `ModifyCapacity`, `KeepsIncantation`, `AfterInscribed`, `AfterPayload`,
   `AfterFizzle`, `AfterSpeak` (with `RuneContext.GlyphsSpoken` / `Fizzles`). Value/loop/capacity hooks must be pure.
 - New rune: **Sanctify** (modifier, ⊘). (Venom was added here and removed again in Phase 5.)
@@ -522,3 +547,43 @@ keep/SpeakAt) are still available for future content.
   modifier) run it replaces one of the two positive offers with the Aether Inkwell relic
   (`NeowAetherQuillPatch.Chance` = 25%, rolled with the event's own RNG so co-op and reloads agree). The relic grants
   the potion on pickup — Neow's offers are relic options, so the relic is the carrier.
+
+## 15. Ancients and Ascended cards
+Ancient boons are relics offered by the game's ancients. BaseLib covers Orobas and Darv's Dusty Tome; the rest are
+Harmony postfixes (`AncientOptionPatches`) that swap a Rune Priest boon into one slot with roughly the odds of one more
+relic in that slot's pool, rolled on the event's own RNG (deterministic for co-op and reloads).
+
+| Ancient | Boon | How |
+|---|---|---|
+| Orobas | **Touch of Orobas** → Blessed Toolbox becomes **Hallowed Toolbox** | `BlessedToolbox.GetUpgradeReplacement` |
+| Orobas | **Archaic Tooth** → your starting rune (the Common "… Rune" card Blessed Toolbox added) transforms into its Ascended form | `ITranscendenceCard` on each Common rune card |
+| Darv | **Dusty Tome** → Mirrororrim (upgraded) | `ITomeCard` on `Mirrororrim` |
+| Darv | **Dark Tablet** (25%, replaces an old relic, never Dusty Tome) | `AncientOptionPatches.DarvOptions` |
+| Vakuu | **Corrupted Sigil** (25%, pool 2 slot) | `AncientOptionPatches.VakuuOptions` |
+| Tezcatara | **Eternal Candle** (20%, pool 3 slot) | `AncientOptionPatches.TezcataraOptions` |
+
+Archaic Tooth mapping (starting rune → Ascended card): Execution → Annihilation, Nova → Supernova, Hex → Curse,
+Mending → Healer, Cracked → Disintegrate, Blank → Strategi, Echo → Cathedral, Heavy Rune → Light Blade,
+Amplification → Multiply, Growth → Overgrowth, Diminishing → Atrophy.
+
+Ancient cards (`Cards/Ancient`, `CardRarity.Ancient`: never in card rewards or random generation; full-art frame):
+
+| Card | Type | Cost | Effect | Upgrade |
+|---|---|---|---|---|
+| Annihilation | Attack | 1 | Inscribe [Execution][Strike 15]×3. | Ascended: none |
+| Supernova | Skill | 1 | Inscribe [Nova]. Remove every [Void] (`RuneCmd.Remove`). | Ascended: none |
+| Curse | Skill | 1 | Inscribe [Hex 1] (Persist). | Ascended: none |
+| Healer | Skill | 1 | This turn, every payload rune you inscribe gets a simultaneous [Mend 3] in the same glyph; targeting, empowering (modifier) and flow runes can't hold a payload, so they're skipped. | Ascended: none |
+| Multiply | Skill | 1 | Inscribe [Twin ×2][Twin ×2]. | Ascended: none |
+| Strategi | Skill | 0 | Imbue 1. Draw 3. | Ascended: none |
+| Cathedral | Skill | 1 | Inscribe [Clone][Echo]. | Ascended: none |
+| Light Blade | Attack | 0 | Inscribe [Strike 9 + 3 per rune in the Incantation]. | Ascended: none |
+| Disintegrate | Attack | 1 | Inscribe [Amplify +10][Loop][Strike 2][Strike 2][End Loop]. | Ascended: none |
+| Overgrowth | Skill | 0 | Inscribe [Overgrowth 3]. | Ascended: none |
+| Atrophy | Attack | 2 | Inscribe [Diminish 80]. Exhaust. | Ascended: none |
+| Eternal Scroll | Skill | 0 | Inscribe its etched runes. +1 cost per Etching (saved `EtchedRunes`/`Etchings`; cost = base + etchings − upgrades, min 0). | −1 cost, unlimited |
+| Corrupted Sigil | Power | 0 | Cards with "Rune" in their name are Ethereal, Exhaust and cost 0; the Incantation is kept after Speaking. | not Ethereal |
+| Mirrororrim | Power | 2 | Ethereal. End of turn (before the Speak, `BeforeSideTurnEndEarly`): Inscribe [End Loop][Reflection]. | not Ethereal |
+
+Ascended cards (the first eleven) are a subset of Ancient cards with `MaxUpgradeLevel => 0`.
+

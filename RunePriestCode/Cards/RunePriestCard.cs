@@ -55,6 +55,12 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
 
     public bool IsImbued => !string.IsNullOrEmpty(ImbuedRunes);
 
+    /// <summary>
+    /// Whether a card is named "… Rune" (class <c>XRuneCard</c>, ID <c>…_RUNE_CARD</c>). Uses the model ID rather than
+    /// the localized title so every player in co-op agrees.
+    /// </summary>
+    public static bool HasRuneInName(CardModel card) => card.Id.Entry.RemovePrefix().Split('_').Contains("RUNE");
+
     /// <summary>Whether this combat card is Imbued and has a deck card its Imbue can be made permanent on.</summary>
     public bool CanMakeImbuePermanent =>
         IsImbued && DeckVersion is RunePriestCard deckCard && !ReferenceEquals(deckCard, this)

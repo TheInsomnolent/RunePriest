@@ -6,7 +6,7 @@ using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
 
-public sealed class Emanate() : RuneCard(0, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
+public sealed class Emenate() : RuneCard(0, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 

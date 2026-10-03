@@ -78,21 +78,35 @@ public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner,
         };
     }
 
-    /// <summary>The single creature a payload would hit, without rolling random targets; null if unknown or several.</summary>
-    public Creature? PreviewTarget(PayloadRune rune, Glyph glyph)
+    /// <summary>
+    /// The creatures a payload would affect, without rolling random targets (that would advance the shared combat RNG).
+    /// <c>Random</c>: one of <c>Creatures</c> is picked when it resolves.
+    /// </summary>
+    public (IReadOnlyList<Creature> Creatures, bool Random) PreviewTargets(PayloadRune rune, Glyph glyph)
     {
-        if (rune.Targeting == RuneTargeting.Self || (rune.Targeting == RuneTargeting.Enemy) == Mirrored) return Creature;
-        if (Creature.CombatState is not { } combat) return null;
+        if (rune.Targeting == RuneTargeting.Self) return ([Creature], false);
+        if ((rune.Targeting == RuneTargeting.Enemy) == Mirrored)
+        {
+            if (rune.Targeting == RuneTargeting.Ally && Friendship != FriendshipScope.None && Creature.CombatState is { } allies)
+                return (allies.PlayerCreatures.Where(c => c.IsAlive).ToList(), false);
+            return ([Creature], false);
+        }
+        if (Creature.CombatState is not { } combat) return ([], false);
 
         var pool = combat.HittableEnemies.ToList();
+        if (pool.Count == 0) return ([], false);
         return TargetMode switch
         {
-            TargetMode.Nova => pool.Count == 1 ? pool[0] : null,
-            TargetMode.Execution => pool.MinBy(c => c.CurrentHp),
-            TargetMode.Scatter => pool.Count == 1 && !Listeners.Any(l => l.ScatterTargetsAnyone) ? pool[0] : null,
-            _ when glyph.Anchor != null && pool.Contains(glyph.Anchor) => glyph.Anchor,
-            _ => pool.Count == 1 ? pool[0] : null
+            TargetMode.Nova => (pool, false),
+            TargetMode.Execution => ([pool.MinBy(c => c.CurrentHp)!], false),
+            TargetMode.Scatter => Candidates(Listeners.Any(l => l.ScatterTargetsAnyone)
+                ? [..pool, ..combat.PlayerCreatures.Where(c => c.IsAlive)]
+                : pool),
+            _ when glyph.Anchor != null && pool.Contains(glyph.Anchor) => ([glyph.Anchor], false),
+            _ => Candidates(pool)
         };
+
+        static (IReadOnlyList<Creature>, bool) Candidates(List<Creature> candidates) => (candidates, candidates.Count > 1);
     }
 
     /// <summary>Mirror flips sides; any later targeting rune replaces it, which is how players counter a curse Mirror.</summary>

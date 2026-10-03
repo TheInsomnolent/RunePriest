@@ -83,7 +83,7 @@ Game version at time of writing: min_game_version 0.107.0, BaseLib 3.4.7. Re-ver
 |------|--------|--------|-----------|---------|-------|
 | **Standard** | Basic/Common/Uncommon/Rare | `Basic/Common/Uncommon/Rare/` | `RuneCard` or `RunePriestCard` | Strike Rune | Regular rune-casting cards |
 | **Token** | Token | `Token/` | `RunePriestCard` | Black Mark | Generated only (Curse-like), never in rewards |
-| **Ancient** | Rare/Relic (TBD) | `Ancient/` | `RunePriestCard` | TBD | Full-card-art cards granting Ascended runes; planned for future |
+| **Ancient** | Ancient | `Ancient/` | `RuneCard` or `RunePriestCard` | Annihilation | Ancient boon cards (full-art frame, never in rewards); Ascended cards are Ancient with `MaxUpgradeLevel => 0` |
 | **Quest** | Rare | `Quest/` | `RunePriestCard` | TBD | Multi-stage cards or milestone mechanics; planned for future |
 | **Event** | — | `Event/` | Event model (TBD) | TBD | Map event reward cards; planned for future |
 
@@ -91,21 +91,19 @@ Game version at time of writing: min_game_version 0.107.0, BaseLib 3.4.7. Re-ver
 - `[Pool(typeof(RunePriestCardPool))]` — standard cards (only rarity-gated rewards)
 - `[Pool(typeof(TokenCardPool))]` — generated cards (invisible to rewards, shows up via card-creating effects)
 
-**Ascended cards** (future Ancient type):
-- Use `CardRarity.Rare` or a special rarity if BaseLib supports it
-- Inscribe Ascended runes (see [docs/ascended-runes.md](ascended-runes.md))
-- May have full artwork on the card frame
+**Ascended cards**: `CardRarity.Ancient` + `MaxUpgradeLevel => 0`; reached through Orobas' Archaic Tooth (see
+[rune-system-design.md §15](rune-system-design.md#15-ancients-and-ascended-cards)).
 
-## Custom Ancients (RunePriest-specific)
+## Ancient boons (RunePriest-specific)
 
-Ancients are endgame upgrades that modify the player's deck or relics. Custom ancients integrate with the rune system:
+Ancient options are **relics**. See [docs/custom-ancients.md](custom-ancients.md).
 
-- **Base pattern:** Extend `RunePriestAncientChoice` (see [docs/custom-ancients.md](custom-ancients.md))
-- **Example:** Orobas upgrades the starting rune to Ascended
-- **Integration:** Likely requires Harmony patch to `Neow` or game's ancient generation
-- **Localization:** Keys in `ancients.json` as `RUNEPRIEST-<KEY>.*`
-
-**To investigate:** Does BaseLib provide `CustomAncientModel`? If not, pattern matches Harmony-patching approach (see `NeowAetherQuillPatch`).
+- Orobas Touch of Orobas: starter relic's `CustomRelicModel.GetUpgradeReplacement()` (BaseLib).
+- Orobas Archaic Tooth: BaseLib `ITranscendenceCard` on the starting card(s).
+- Darv Dusty Tome: BaseLib `ITomeCard` on the character's tome card.
+- Any other vanilla ancient: Harmony postfix on its `GenerateInitialOptions` (and `AllPossibleOptions` getter, for the
+  relic collection / dev console) — see `Patches/AncientOptionPatches.cs`. Option text falls back to the relic's
+  title and `description`/`eventDescription`, so no `ancients.json` keys are needed.
 
 ## Custom Events (RunePriest-specific)
 
@@ -122,7 +120,8 @@ Events are non-combat map encounters offering rewards or challenges. Custom even
 
 ## Investigation Checklist for Future Versions
 
-- [ ] BaseLib 3.5+ : Check for `CustomAncientModel` and `CustomEventModel` support
+- [x] BaseLib 3.4.7 has `CustomAncientModel` (whole new ancients) but no hook for adding options to vanilla ancients
+- [ ] BaseLib: check for `CustomEventModel` support
 - [ ] Game version 0.112+: Verify ancient/event APIs haven't changed
 - [ ] CI build: Ensure `UseSts2RefAssemblies=true` compiles without decompiled dependencies
 

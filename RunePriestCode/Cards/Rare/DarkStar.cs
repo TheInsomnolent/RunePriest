@@ -13,11 +13,9 @@ namespace RunePriest.RunePriestCode.Cards.Rare;
 /// </summary>
 public sealed class DarkStar() : RuneCard(0, CardType.Power, CardRarity.Rare, TargetType.Self)
 {
-    public override IEnumerable<CardKeyword> CanonicalKeywords => [RunePriestKeywords.Persist];
-
     protected override IEnumerable<DynamicVar> CanonicalVars => [new PowerVar<DarkStarPower>(1m)];
 
-    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromPower<DarkStarPower>()];
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromKeyword(RunePriestKeywords.Persist), HoverTipFactory.FromPower<DarkStarPower>()];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) => [Glyph.Of(new VoidRune()).Persist()];
 

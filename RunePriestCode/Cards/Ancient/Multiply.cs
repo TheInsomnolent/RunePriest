@@ -9,7 +9,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// Ascended Skill - Cost 1
 /// Inscribe Twin 2 + Twin 2 (4x multiplier total).
 /// </summary>
-public sealed class Multiply() : RuneCard(1, CardType.Skill, CardRarity.Rare, TargetType.Self)
+public sealed class Multiply() : RuneCard(1, CardType.Skill, CardRarity.Ancient, TargetType.Self)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [];
 
@@ -19,8 +19,10 @@ public sealed class Multiply() : RuneCard(1, CardType.Skill, CardRarity.Rare, Ta
         Glyph.Of(new TwinRune(2))
     ];
 
+    /// <summary>Ascended cards never upgrade.</summary>
+    public override int MaxUpgradeLevel => 0;
+
     protected override void OnUpgrade()
     {
-        // Ascended cards never upgrade
     }
 }
