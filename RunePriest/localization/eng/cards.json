@@ -228,20 +228,30 @@
 
   "RUNEPRIEST-OVERGROWTH_CARD.title": "Overgrowth",
   "RUNEPRIEST-OVERGROWTH_CARD.description": "[gold]Ascended.[/gold]\n[gold]Inscribe[/gold] [blue]Overgrowth[/blue] {Growth}. Delays and escalates the next rune, tripling its values with accelerating power.",
+  "RUNEPRIEST-OVERGROWTH.title": "Overgrowth",
+  "RUNEPRIEST-OVERGROWTH.description": "[gold]Ascended.[/gold]\n[gold]Inscribe[/gold] [blue]Overgrowth[/blue] {Growth}. Delays and escalates the next rune, tripling its values with accelerating power.",
 
   "RUNEPRIEST-ATROPHY_CARD.title": "Atrophy",
   "RUNEPRIEST-ATROPHY_CARD.description": "[gold]Ascended. Exhaust.[/gold]\n[gold]Inscribe[/gold] [blue]Diminish[/blue] {Damage}. Deals massive damage that halves with each execution and persists.",
+  "RUNEPRIEST-ATROPHY.title": "Atrophy",
+  "RUNEPRIEST-ATROPHY.description": "[gold]Ascended. Exhaust.[/gold]\n[gold]Inscribe[/gold] [blue]Diminish[/blue] {Damage}. Deals massive damage that halves with each execution and persists.",
 
   "RUNEPRIEST-CATHEDRAL_CARD.title": "Cathedral",
   "RUNEPRIEST-CATHEDRAL_CARD.description": "[gold]Ascended.[/gold]\n[gold]Inscribe[/gold] [blue]Clone[/blue] and [blue]Echo[/blue]. Enables program patterns: Clone persists the next rune for next turn; Echo repeats it.",
+  "RUNEPRIEST-CATHEDRAL.title": "Cathedral",
+  "RUNEPRIEST-CATHEDRAL.description": "[gold]Ascended.[/gold]\n[gold]Inscribe[/gold] [blue]Clone[/blue] and [blue]Echo[/blue]. Enables program patterns: Clone persists the next rune for next turn; Echo repeats it.",
 
   "RUNEPRIEST-ETERNAL_SCROLL_CARD.title": "Eternal Scroll",
   "RUNEPRIEST-ETERNAL_SCROLL_CARD.description": "May be [gold]etched[/gold] at rest sites to bind runes permanently. [gold]Inscribe[/gold] all etched runes. Upgradable: Cost -1.",
   "RUNEPRIEST-ETERNAL_SCROLL_CARD.etch.title": "Etch",
   "RUNEPRIEST-ETERNAL_SCROLL_CARD.etch.description": "At rest sites, you may add a rune to this card's permanent collection. Each etch increases its energy cost by 1.",
+  "RUNEPRIEST-ETERNAL_SCROLL.title": "Eternal Scroll",
+  "RUNEPRIEST-ETERNAL_SCROLL.description": "May be [gold]etched[/gold] at rest sites to bind runes permanently. [gold]Inscribe[/gold] all etched runes. Upgradable: Cost -1.",
 
   "RUNEPRIEST-CORRUPTED_SIGIL_CARD.title": "Corrupted Sigil",
   "RUNEPRIEST-CORRUPTED_SIGIL_CARD.description": "This combat: all rune cards are [gold]Ethereal[/gold] and cost 0. [gold]Runes[/gold] persist between turns. Upgraded: remove [gold]Ethereal[/gold].",
+  "RUNEPRIEST-CORRUPTED_SIGIL.title": "Corrupted Sigil",
+  "RUNEPRIEST-CORRUPTED_SIGIL.description": "This combat: all rune cards are [gold]Ethereal[/gold] and cost 0. [gold]Runes[/gold] persist between turns. Upgraded: remove [gold]Ethereal[/gold].",
 
   "RUNEPRIEST-MIRRORORRIM_ANCIENT_CARD.title": "Mirrororrim",
   "RUNEPRIEST-MIRRORORRIM_ANCIENT_CARD.description": "[gold]Ethereal.[/gold] At the end of each turn, [gold]Inscribe[/gold] [blue]End Loop[/blue] and [blue]Reflection[/blue]. Enables reversals and loop closures. Upgraded: remove [gold]Ethereal[/gold].",
