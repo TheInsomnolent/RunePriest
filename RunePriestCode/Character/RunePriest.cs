@@ -5,7 +5,6 @@ using RunePriest.RunePriestCode.Extensions;
 using RunePriest.RunePriestCode.Relics;
 using Godot;
 using MegaCrit.Sts2.Core.Animation;
-using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Bindings.MegaSpine;
 using MegaCrit.Sts2.Core.Entities.Characters;
 using MegaCrit.Sts2.Core.Helpers;
@@ -54,13 +53,16 @@ public class RunePriest : PlaceholderCharacterModel
     public override RelicPoolModel RelicPool => ModelDb.RelicPool<RunePriestRelicPool>();
     public override PotionPoolModel PotionPool => ModelDb.PotionPool<RunePriestPotionPool>();
 
-    // Borrowed Architect Spine rig.
-    private static readonly string ArchitectVisualsPath = SceneHelper.GetScenePath("creature_visuals/architect");
+    // Borrowed Architect Spine rig (see ArchitectRig). CreateCustomVisuals builds the actual node; the path still
+    // matters because it's preloaded with the run's character assets.
+    public override string CustomVisualPath => ArchitectRig.ScenePath;
+    public override string CustomRestSiteAnimPath => RunePriestScenes.RestSitePath;
+    public override string CustomMerchantAnimPath => RunePriestScenes.MerchantPath;
     private const float VisualsScale = 0.75f;
 
     public override NCreatureVisuals CreateCustomVisuals()
     {
-        var visuals = PreloadManager.Cache.GetScene(ArchitectVisualsPath).Instantiate<NCreatureVisuals>();
+        var visuals = ArchitectRig.InstantiateVisuals();
         visuals.DefaultScale = VisualsScale;
         visuals.Scale = Vector2.One * VisualsScale;
 
@@ -78,10 +80,9 @@ public class RunePriest : PlaceholderCharacterModel
         return visuals;
     }
 
-    // Architect-scene units (pre-VisualsScale). The scene's own %Bounds (-300..167 x -629..0) wraps the NPC's left-facing
-    // pose, so on the mirrored body the hitbox, HP bar (bounds width + 24) and rune row ended up too wide, too tall and
-    // left of the model. These fit the mirrored body to roughly vanilla proportions (~240x305 px after scaling).
-    private static readonly Rect2 BodyBounds = new(-140f, -410f, 320f, 410f);
+    // Architect-scene units (pre-VisualsScale). Fitting %Bounds to ArchitectRig.BodyBounds keeps the hitbox, HP bar
+    // (bounds width + 24) and rune row on the mirrored model instead of the NPC's wider left-facing pose.
+    private static Rect2 BodyBounds => ArchitectRig.BodyBounds;
     private static readonly Vector2 BodyCenter = new(20f, -220f);
     // Orbs fall back to IntentPos when there's no OrbPos; vanilla puts it ~30px above the bounds.
     private static readonly Vector2 BodyIntent = new(20f, -450f);
@@ -102,7 +103,7 @@ public class RunePriest : PlaceholderCharacterModel
 
     // The Architect rig only has idle_loop/attack/hurt; anything else falls back to idle.
     public override CreatureAnimator SetupCustomAnimationStates(MegaSprite controller) =>
-        SetupAnimationState(controller, "idle_loop", hitName: "hurt", attackName: "attack", castName: "attack");
+        SetupAnimationState(controller, ArchitectRig.IdleAnim, hitName: "hurt", attackName: "attack", castName: "attack");
     
     /*  PlaceholderCharacterModel will utilize placeholder basegame assets for most of your character assets until you
         override all the other methods that define those assets. 

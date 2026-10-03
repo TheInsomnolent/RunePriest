@@ -1,3 +1,4 @@
+using System.Reflection;
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Assets;
@@ -27,6 +28,22 @@ public static class RunePriestScenePatches
     [HarmonyPrefix]
     public static void SkipVirtualPreloads(ref IEnumerable<string> paths) =>
         paths = paths.Select(RunePriestScenes.PreloadPath).OfType<string>().Distinct().ToList();
+}
+
+/// <summary>Swaps <see cref="RunePriestScenes"/>' marker scenes for their code-built nodes.</summary>
+[HarmonyPatch]
+public static class RunePriestSceneInstantiatePatch
+{
+    // The non-generic overload; Instantiate<T> forwards to it.
+    public static MethodBase TargetMethod() =>
+        typeof(PackedScene).GetMethod(nameof(PackedScene.Instantiate), 0, [typeof(PackedScene.GenEditState)])!;
+
+    public static bool Prefix(PackedScene __instance, ref Node __result)
+    {
+        if (RunePriestScenes.Instantiate(__instance) is not { } node) return true;
+        __result = node;
+        return false;
+    }
 }
 
 /// <summary>Applies <see cref="LinenTheme"/> to card frames, card trails and the energy counter.</summary>
