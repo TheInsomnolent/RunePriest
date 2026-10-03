@@ -49,7 +49,7 @@ public static class RunePriestSceneInstantiatePatch
 /// <summary>Applies <see cref="LinenTheme"/> to card frames, card trails and the energy counter.</summary>
 public static class LinenThemePatches
 {
-    private const string LinenMeta = "runepriest_linen";
+    private const string LinenMeta = $"{MainFile.ModId}_linen";
 
     [HarmonyPatch(typeof(CardPoolModel), nameof(CardPoolModel.FrameMaterial), MethodType.Getter)]
     public static class FrameMaterial

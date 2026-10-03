@@ -21,7 +21,10 @@ combine, and the order you play your cards matters. If a spell doesn't make sens
 | Build | Link | Use it if… |
 |---|---|---|
 | **Latest release** | [**Releases → latest**](../../releases/latest) → `RunePriest.zip` | You want the most stable version. |
-| **Nightly** | [**Releases → nightly**](../../releases/tag/nightly) → `RunePriest.zip` | You want the newest changes and don't mind bugs. |
+| **Nightly** | [**Releases → nightly**](../../releases/tag/nightly) → `RunePriestNightly.zip` | You want the newest changes and don't mind bugs. |
+
+The nightly is a separate mod (**RunePriest (Nightly)**, folder `RunePriestNightly`) with a **NIGHTLY** banner on
+its character tile, so it can be installed next to the release. Below, swap in `RunePriestNightly` for the nightly.
 
 ### 2. Install
 1. Open your Slay the Spire 2 install folder. In Steam: right-click the game → **Manage → Browse local files**.
@@ -79,17 +82,13 @@ The full design is in [docs/rune-system-design.md](docs/rune-system-design.md).
 ### Prerequisites
 - [.NET SDK 9+](https://dotnet.microsoft.com/download) (10 works).
 - Slay the Spire 2 installed (the build finds it via Steam), for local builds that run in the game.
-- [MegaDot](https://megadot.megacrit.com/), MegaCrit's Godot 4.5.1 fork, to export the `.pck`. Set `<GodotPath>` in a local,
-  git-ignored `Directory.Build.props`:
-  ```xml
-  <Project><PropertyGroup><GodotPath>C:/path/to/MegaDot_v4.5.1-stable_mono_win64.exe</GodotPath></PropertyGroup></Project>
-  ```
 
 ### Commands
 ```powershell
-dotnet build RunePriest.csproj     # code only: builds the DLL and copies it to the game's mods folder
-dotnet publish RunePriest.csproj   # code + text/images: also exports the .pck via MegaDot
+dotnet build RunePriest.csproj     # builds the DLL + .pck and installs them to the game's mods/RunePriestLocal/
 ```
+Local builds are the **RunePriest (Local)** variant (own mod ID, content IDs and assets, **LOCAL** banner on the
+character tile), so they never clash with a Workshop or release copy. See [docs/build-variants.md](docs/build-variants.md).
 Close the game before building; Windows locks the DLL while it's running.
 
 ### CI and releases
@@ -101,9 +100,9 @@ Local builds are unaffected because they use your real game install.
 
 | Trigger | Result |
 |---|---|
-| Pull request | Build check, plus a downloadable `RunePriest` artifact (kept 7 days). |
-| Push to `main` | Replaces the **nightly** pre-release. |
-| Push a tag `vX.Y.Z` | Publishes a **release** named after the tag, with the version stamped into `RunePriest.json`. |
+| Pull request | Build check, plus a downloadable `mod` artifact (Nightly variant, kept 7 days). |
+| Push to `main` | Replaces the **nightly** pre-release (`RunePriestNightly.zip`). |
+| Push a tag `vX.Y.Z` | Publishes a **release** named after the tag (`RunePriest.zip`), with the version stamped into `RunePriest.json`. |
 
 To cut a release: `git tag v0.1.0 && git push origin v0.1.0`.
 

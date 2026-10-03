@@ -18,6 +18,23 @@
         <NoWarn>$(NoWarn);MSB3270</NoWarn>
     </PropertyGroup>
 
+    <!-- Build variant (docs/build-variants.md): Local (default, dev machine) | Nightly (CI main) | Release (CI v* tags).
+         Each variant is its own mod (manifest id, assembly, root namespace, res:// root, loc keys) so they can be
+         installed side by side without clobbering each other. -->
+    <PropertyGroup>
+        <ModVariant Condition="'$(ModVariant)' == ''">Local</ModVariant>
+        <ModBaseId>$(MSBuildProjectName)</ModBaseId>
+        <ModId Condition="'$(ModVariant)' == 'Release'">$(ModBaseId)</ModId>
+        <ModId Condition="'$(ModVariant)' != 'Release'">$(ModBaseId)$(ModVariant)</ModId>
+        <ModDisplayName Condition="'$(ModVariant)' == 'Release'">$(ModBaseId)</ModDisplayName>
+        <ModDisplayName Condition="'$(ModVariant)' != 'Release'">$(ModBaseId) ($(ModVariant))</ModDisplayName>
+        <AssemblyName>$(ModId)</AssemblyName>
+        <RootNamespace>$(ModId)</RootNamespace>
+        <DefineConstants>$(DefineConstants);MOD_VARIANT_$(ModVariant.ToUpperInvariant())</DefineConstants>
+        <!-- The pck is packed by our own target below (needs the staged asset folder). -->
+        <PckPackerEnabled>false</PckPackerEnabled>
+    </PropertyGroup>
+
     <!-- No local game (e.g. GitHub Actions): compile against reference stubs and pack the .pck without Godot.
          Keep the stub version in sync with the game version the mod targets. -->
     <PropertyGroup>
@@ -26,7 +43,6 @@
 
     <ItemGroup Condition="'$(UseSts2RefAssemblies)' == 'true'">
         <PackageReference Include="BSchneppe.Sts2.ReferenceAssemblies" Version="0.111.0-beta-41cef1ea" PrivateAssets="All" />
-        <PackageReference Include="BSchneppe.StS2.PckPacker" Version="0.1.1" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(UseSts2RefAssemblies)' != 'true'" >
@@ -48,8 +64,8 @@
     <ItemGroup>
         <PackageReference Include="Alchyr.Sts2.BaseLib" Version="*" PrivateAssets="All"/>
         <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*" />
-        <!-- Generates a .pck file when building if only using simple assets. May not work on all setups. Uncomment to test. -->
-        <!-- <PackageReference Include="BSchneppe.StS2.PckPacker" Version="0.1.1" PrivateAssets="All" /> -->
+        <!-- Packs RunePriest/ into the .pck without Godot (see PackModPck). -->
+        <PackageReference Include="BSchneppe.StS2.PckPacker" Version="0.1.1" PrivateAssets="All" />
         <AdditionalFiles Include="RunePriest/localization/**/*.json"/> <!-- Used by analyzer -->
     </ItemGroup>
 
@@ -109,28 +125,171 @@
                  Importance="high" />
     </Target>
     
-    <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent" Condition="'$(UseSts2RefAssemblies)' != 'true'">
-        <Message Text="Copying .dll .pdb and .json to mods folder." Importance="high" />
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
-        <Copy SourceFiles="$(AssemblyName).json" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
-        <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
+    <!-- ===== Build variants (docs/build-variants.md) =====
+         Non-release variants compile rewritten copies of the sources (RunePriest.RunePriestCode -> <ModId>.RunePriestCode,
+         so BaseLib's model ID prefix and Godot script paths differ) and stage assets/loc with RUNEPRIEST -> <MODID> keys,
+         packed under res://<ModId>/. #line directives keep diagnostics and the debugger on the original files. -->
+    <UsingTask TaskName="StageModVariantFiles" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+            <SourceRoot Required="true" />
+            <OutputRoot Required="true" />
+            <OldId Required="true" />
+            <NewId Required="true" />
+            <LineDirectives ParameterType="System.Boolean" />
+            <Prune ParameterType="System.Boolean" />
+            <Outputs ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System.Collections.Generic" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.Linq" />
+            <Using Namespace="System.Text" />
+            <Using Namespace="System.Text.RegularExpressions" />
+            <Code Type="Fragment" Language="cs"><![CDATA[
+            // Files under SourceRoot are copied to OutputRoot (rewriting .cs/.json); anything else passes through untouched.
+            string Dir(string d) => Path.GetFullPath(d).TrimEnd('/', '\\') + Path.DirectorySeparatorChar;
+            var src = Dir(SourceRoot);
+            var dst = Dir(OutputRoot);
+            var ns = new Regex(@"\b" + Regex.Escape(OldId) + @"\.RunePriestCode\b");
+            var key = new Regex(@"(?<![A-Za-z])" + Regex.Escape(OldId.ToUpperInvariant()) + @"(?=[-_])");
+            var res = "res://" + OldId + "/";
+            var written = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var outputs = new List<ITaskItem>();
+            foreach (var item in Files)
+            {
+                var path = item.GetMetadata("FullPath");
+                if (!path.StartsWith(src, StringComparison.OrdinalIgnoreCase)) { outputs.Add(item); continue; }
+                var target = dst + path.Substring(src.Length);
+                Directory.CreateDirectory(Path.GetDirectoryName(target));
+                byte[] bytes;
+                switch (Path.GetExtension(path).ToLowerInvariant())
+                {
+                    case ".cs":
+                        var code = ns.Replace(File.ReadAllText(path), NewId + ".RunePriestCode");
+                        if (LineDirectives) code = "#line 1 \"" + path + "\"\n" + code;
+                        bytes = new UTF8Encoding(false).GetBytes(code);
+                        break;
+                    case ".json":
+                        var json = key.Replace(File.ReadAllText(path), NewId.ToUpperInvariant()).Replace(res, "res://" + NewId + "/");
+                        bytes = new UTF8Encoding(false).GetBytes(json);
+                        break;
+                    default:
+                        bytes = File.ReadAllBytes(path);
+                        break;
+                }
+                if (!File.Exists(target) || !File.ReadAllBytes(target).SequenceEqual(bytes)) File.WriteAllBytes(target, bytes);
+                written.Add(target);
+                var output = new TaskItem(target);
+                item.CopyMetadataTo(output);
+                outputs.Add(output);
+            }
+            if (Prune && Directory.Exists(dst))
+                foreach (var stale in Directory.GetFiles(dst, "*", SearchOption.AllDirectories).Where(f => !written.Contains(Path.GetFullPath(f))))
+                    File.Delete(stale);
+            Outputs = outputs.ToArray();
+            ]]></Code>
+        </Task>
+    </UsingTask>
+
+    <UsingTask TaskName="WriteModVariantManifest" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <Template Required="true" />
+            <OutputFile Required="true" />
+            <ModId Required="true" />
+            <ModName Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.Text.RegularExpressions" />
+            <Code Type="Fragment" Language="cs"><![CDATA[
+            // The first "id"/"name" keys are the manifest's own (dependencies come later).
+            var json = File.ReadAllText(Template);
+            foreach (var (field, value) in new[] { ("id", ModId), ("name", ModName) })
+            {
+                var rule = new Regex("(\"" + field + "\"\\s*:\\s*\")[^\"]*\"");
+                if (!rule.IsMatch(json)) { Log.LogError("Mod manifest " + Template + " has no \"" + field + "\" field."); return false; }
+                json = rule.Replace(json, m => m.Groups[1].Value + value + "\"", 1);
+            }
+            Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
+            if (!File.Exists(OutputFile) || File.ReadAllText(OutputFile) != json) File.WriteAllText(OutputFile, json);
+            ]]></Code>
+        </Task>
+    </UsingTask>
+
+    <Target Name="ModVariantPaths">
+        <Error Condition="'$(ModVariant)' != 'Local' And '$(ModVariant)' != 'Nightly' And '$(ModVariant)' != 'Release'"
+               Text="ModVariant must be Local, Nightly or Release (got '$(ModVariant)')." />
+        <PropertyGroup>
+            <ModStagingDir>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'variant', '$(ModId)').Replace('\', '/'))</ModStagingDir>
+            <ModAssetStagingDir>$(ModStagingDir)assets/</ModAssetStagingDir>
+            <ModPckPath>$(TargetDir)$(ModId).pck</ModPckPath>
+            <ModManifestPath>$(ModStagingDir)$(ModId).json</ModManifestPath>
+            <ModPackageDir>$(TargetDir)package/$(ModId)/</ModPackageDir>
+        </PropertyGroup>
     </Target>
 
-    <Target Name="CopyQuickPck" AfterTargets="PackPck" Condition="Exists('$(PckPackerOutputPath)') And '$(PckPackerSkipped)' != 'true' And '$(UseSts2RefAssemblies)' != 'true'">
-        <Message Text="Copying quick .pck to mods folder." Importance="high"/>
-        <Copy SourceFiles="$(PckPackerOutputPath)"
-              DestinationFolder="$(ModsPath)/$(MSBuildProjectName)" />
+    <Target Name="StageModVariantSources" BeforeTargets="CoreCompile" DependsOnTargets="ModVariantPaths"
+            Condition="'$(ModId)' != '$(ModBaseId)' And '$(DesignTimeBuild)' != 'true'">
+        <StageModVariantFiles Files="@(Compile)" SourceRoot="$(MSBuildProjectDirectory)/$(ModBaseId)Code/"
+                              OutputRoot="$(ModStagingDir)$(ModBaseId)Code/" OldId="$(ModBaseId)" NewId="$(ModId)"
+                              LineDirectives="true" Prune="true">
+            <Output TaskParameter="Outputs" ItemName="_ModVariantCompile" />
+        </StageModVariantFiles>
+        <ItemGroup>
+            <Compile Remove="@(Compile)" />
+            <Compile Include="@(_ModVariantCompile)" />
+        </ItemGroup>
     </Target>
-    
-    <Target Name="NeedGodotForPublish" BeforeTargets="Publish">
-        <Error Text=" Godot path must be set up before publishing; Godot not found at path '$(GodotPath)'. Check Directory.Build.props file."
-               Condition="'$(GodotPath)' == '' or !Exists('$(GodotPath)')"/>
+
+    <Target Name="StageModVariantAssets" BeforeTargets="CoreCompile" DependsOnTargets="ModVariantPaths"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+        <ItemGroup>
+            <_ModAssetSource Include="$(ModBaseId)/**" Exclude="$(ModBaseId)/**/*.import;$(ModBaseId)/**/.DS_Store" />
+        </ItemGroup>
+        <StageModVariantFiles Files="@(_ModAssetSource)" SourceRoot="$(MSBuildProjectDirectory)/$(ModBaseId)/"
+                              OutputRoot="$(ModAssetStagingDir)" OldId="$(ModBaseId)" NewId="$(ModId)" Prune="true">
+            <Output TaskParameter="Outputs" ItemName="_ModStagedAsset" />
+        </StageModVariantFiles>
+        <!-- Lets PackModPck notice deleted assets. -->
+        <WriteLinesToFile File="$(ModStagingDir)assets.list" Lines="@(_ModStagedAsset)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+        <ItemGroup>
+            <AdditionalFiles Remove="$(ModBaseId)/localization/**/*.json" />
+            <AdditionalFiles Include="$(ModAssetStagingDir)localization/**/*.json" />
+        </ItemGroup>
     </Target>
-    
-    <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
-        <Message Text="Exporting Godot .pck to mods folder" Importance="high"/>
-        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(ModsPath)$(MSBuildProjectName)/$(MSBuildProjectName).pck&quot;"
-              EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
-              ContinueOnError="WarnAndContinue"/>
+
+    <Target Name="PackModPck" DependsOnTargets="ModVariantPaths;StageModVariantAssets"
+            Inputs="$(ModStagingDir)assets.list;@(_ModStagedAsset)" Outputs="$(ModPckPath)">
+        <PropertyGroup>
+            <_ModDotnet>$(DOTNET_HOST_PATH)</_ModDotnet>
+            <_ModDotnet Condition="'$(_ModDotnet)' == ''">dotnet</_ModDotnet>
+        </PropertyGroup>
+        <!-- The packer targets net9.0; roll forward so a newer-only runtime (e.g. .NET 10) can run it. -->
+        <Exec Command="&quot;$(_ModDotnet)&quot; &quot;$(_PckPackerToolDir)StS2PckPacker.dll&quot; &quot;$(ModAssetStagingDir)&quot; &quot;$(ModId)&quot; &quot;$(ModPckPath)&quot;"
+              EnvironmentVariables="DOTNET_ROLL_FORWARD=Major" IgnoreExitCode="true" ConsoleToMSBuild="true">
+            <Output TaskParameter="ExitCode" PropertyName="_ModPckExitCode" />
+            <Output TaskParameter="ConsoleOutput" PropertyName="_ModPckOutput" />
+        </Exec>
+        <Error Condition="'$(_ModPckExitCode)' == '2'"
+               Text="The PCK packer can't pack some files in $(ModBaseId)/ (e.g. .tscn/.tres); build them in code instead. $(_ModPckOutput)" />
+        <Error Condition="'$(_ModPckExitCode)' != '0'" Text="PCK packing failed (exit code $(_ModPckExitCode)): $(_ModPckOutput)" />
+        <Message Text="Packed $(ModPckPath) (res://$(ModId)/)" Importance="high" />
+    </Target>
+
+    <!-- bin/<cfg>/package/<ModId>/ is the installable mod folder (CI zips it). -->
+    <Target Name="AssembleModPackage" AfterTargets="Build" DependsOnTargets="ModVariantPaths;PackModPck">
+        <WriteModVariantManifest Template="$(MSBuildProjectDirectory)/$(ModBaseId).json" OutputFile="$(ModManifestPath)"
+                                 ModId="$(ModId)" ModName="$(ModDisplayName)" />
+        <Copy SourceFiles="$(TargetPath);$(ModPckPath);$(ModManifestPath)" DestinationFolder="$(ModPackageDir)" SkipUnchangedFiles="true" />
+        <Message Text="$(ModDisplayName) [$(ModId)] -> $(ModPackageDir)" Importance="high" />
+    </Target>
+
+    <Target Name="CopyToModsFolderOnBuild" AfterTargets="AssembleModPackage" Condition="'$(UseSts2RefAssemblies)' != 'true'">
+        <ItemGroup>
+            <_ModPackageFile Include="$(ModPackageDir)*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(_ModPackageFile);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModsPath)$(ModId)/" />
+        <Message Text="Installed $(ModDisplayName) to $(ModsPath)$(ModId)/" Importance="high" />
     </Target>
 </Project>

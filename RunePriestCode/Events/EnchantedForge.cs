@@ -46,7 +46,7 @@ public sealed class EnchantedForge : RuneEvent
 
     private async Task Forge()
     {
-        var prefs = new CardSelectorPrefs(new LocString("card_selection", "RUNEPRIEST-TO_FORGE"), ForgeCount);
+        var prefs = new CardSelectorPrefs(new LocString("card_selection", MainFile.ModPrefix + "TO_FORGE"), ForgeCount);
         var cards = (await CardSelectCmd.FromDeckForRemoval(Owner!, prefs, CanForge)).OfType<RuneCard>().ToList();
         if (cards.Count < ForgeCount)
         {

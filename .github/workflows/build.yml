@@ -1,8 +1,9 @@
 # Builds an installable mod zip without the game or Godot:
 # compiles against reference-assembly stubs and packs the .pck with BSchneppe.StS2.PckPacker (see RunePriest.csproj).
-#   - pull requests: build + short-lived artifact for testers
-#   - push to main:  refresh the rolling "nightly" pre-release + friends-only nightly Workshop item
-#   - tag v*:        publish a versioned release + update the release Workshop item
+#   - pull requests: Nightly variant build + short-lived artifact for testers
+#   - push to main:  Nightly variant -> rolling "nightly" pre-release + friends-only nightly Workshop item
+#   - tag v*:        Release variant -> versioned release + release Workshop item
+# Variants are separate mods (RunePriestNightly / RunePriest) so they can be installed side by side; see docs/build-variants.md.
 # Workshop uploads are skipped until the WORKSHOP_NIGHTLY_ID / WORKSHOP_RELEASE_ID repo variables are set.
 name: Build mod
 
@@ -25,6 +26,7 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   # Lets the net9.0 PCK packer tool run on a newer runtime if that's what the runner has.
   DOTNET_ROLL_FORWARD: Major
+  MOD_VARIANT: ${{ startsWith(github.ref, 'refs/tags/v') && 'Release' || 'Nightly' }}
 
 jobs:
   build:
@@ -50,24 +52,22 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         run: jq --arg v "$GITHUB_REF_NAME" '.version = $v' RunePriest.json > tmp.json && mv tmp.json RunePriest.json
 
-      # Godot editor import files would duplicate the remaps the packer generates.
-      - name: Remove editor import files
-        run: find RunePriest -name '*.import' -delete
-
       - name: Build
-        run: dotnet build RunePriest.csproj -c Release -p:UseSts2RefAssemblies=true
+        run: dotnet build RunePriest.csproj -c Release -p:UseSts2RefAssemblies=true -p:ModVariant=$MOD_VARIANT
 
+      # The build assembles bin/Release/package/<ModId>/ (dll, pck, manifest).
       - name: Package
         run: |
-          out=.godot/mono/temp/bin/Release
-          mkdir -p dist/RunePriest
-          cp "$out/RunePriest.dll" "$out/RunePriest.pck" RunePriest.json dist/RunePriest/
-          (cd dist && zip -qr ../RunePriest.zip RunePriest)
+          mkdir -p dist
+          cp -r .godot/mono/temp/bin/Release/package/. dist/
+          mod_id=$(ls dist)
+          echo "MOD_ZIP=$mod_id.zip" >> "$GITHUB_ENV"
+          (cd dist && zip -qr "../$mod_id.zip" "$mod_id")
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RunePriest
+          name: mod
           path: dist/
           retention-days: 7
 
@@ -77,7 +77,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete nightly --cleanup-tag --yes || true
-          gh release create nightly RunePriest.zip --prerelease --target "$GITHUB_SHA" \
+          gh release create nightly "$MOD_ZIP" --prerelease --target "$GITHUB_SHA" \
             --title "Nightly build" \
             --notes "Automatic build of \`main\` at ${GITHUB_SHA::7}. May be unstable. See the README for install steps."
 
@@ -85,7 +85,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" RunePriest.zip --title "RunePriest $GITHUB_REF_NAME" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" "$MOD_ZIP" --title "RunePriest $GITHUB_REF_NAME" --generate-notes
 
   workshop:
     needs: build
@@ -111,7 +111,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: RunePriest
+          name: mod
           path: dist
 
       # Official Valve tarball rather than a third-party action, since this job holds account credentials.

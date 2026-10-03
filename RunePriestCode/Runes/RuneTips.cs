@@ -6,7 +6,7 @@ namespace RunePriest.RunePriestCode.Runes;
 public static class RuneTips
 {
     public const string Table = "static_hover_tips";
-    public const string Prefix = "RUNEPRIEST-";
+    public const string Prefix = MainFile.ModPrefix;
 
     public static IHoverTip Inscribe => Tip("INSCRIBE");
     public static IHoverTip Speak => Tip("SPEAK");

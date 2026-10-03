@@ -37,4 +37,5 @@ description: "Card/power/relic text conventions for RunePriest localization file
 - Keys are `RUNEPRIEST-<UPPER_SNAKE_CLASS_NAME>.<field>` (e.g. `RUNEPRIEST-STRIKE_RUNE_CARD.title`). Renaming a class renames its key. Cards titled "X Rune" use class `XRuneCard` (the title stays "X Rune") so they don't clash with the rune classes.
 - Rune hover tips live in `static_hover_tips.json` as `RUNEPRIEST-RUNE_<KEY>.title/.description`, where `<KEY>` is the rune's `Key` (target runes: the `TargetMode` name upper-cased). The analyzer doesn't check these — add them by hand.
 - Missing card/power/relic/potion keys fail the build (STS001); fix by adding keys, not suppressing.
-- Localization changes need `dotnet publish RunePriest.csproj` to reach the game.
+- Localization changes reach the game with a normal `dotnet build RunePriest.csproj` (it repacks the `.pck`).
+- Write keys with the `RUNEPRIEST-` prefix; the build renames them per variant (`RUNEPRIESTLOCAL-`, …). See docs/build-variants.md.

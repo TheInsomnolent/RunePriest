@@ -36,7 +36,7 @@ public sealed class PulsingPedestal : RuneEvent
 
     private async Task Insert()
     {
-        var prefs = new CardSelectorPrefs(new LocString("card_selection", "RUNEPRIEST-TO_INSERT"), 1);
+        var prefs = new CardSelectorPrefs(new LocString("card_selection", MainFile.ModPrefix + "TO_INSERT"), 1);
         var card = (await CardSelectCmd.FromDeckGeneric(Owner!, prefs, CanInsert)).FirstOrDefault();
         if (card == null)
         {

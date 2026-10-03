@@ -24,10 +24,11 @@ This caches a login token in `C:\steamcmd\config\config.vdf`; later commands log
 
 ## 2. Create a Workshop item
 
-1. Put the mod files in the content folder so the layout is `C:\steamcmd\content\RunePriest\RunePriest.{dll,pck,json}`:
+1. Put the mod files in the content folder so the layout is `C:\steamcmd\content\<ModId>\<ModId>.{dll,pck,json}`
+   (`RunePriestNightly` for the nightly item, `RunePriest` for the release item; see [build-variants.md](build-variants.md)):
    ```powershell
    New-Item -ItemType Directory C:\steamcmd\content -Force | Out-Null
-   Invoke-WebRequest https://github.com/TheInsomnolent/RunePriest/releases/download/nightly/RunePriest.zip -OutFile $env:TEMP\RunePriest.zip
+   Invoke-WebRequest https://github.com/TheInsomnolent/RunePriest/releases/download/nightly/RunePriestNightly.zip -OutFile $env:TEMP\RunePriest.zip
    Expand-Archive $env:TEMP\RunePriest.zip C:\steamcmd\content -Force
    ```
    For a release item, download that release's `RunePriest.zip` instead.
@@ -86,6 +87,8 @@ Repo **Settings**:
 ## Tester notes
 
 - Nightly is friends-only: testers friend the uploading Steam account, then subscribe.
-- Subscribe to **either** the nightly or the release item, never both — same mod ID `RunePriest` gives a duplicate-ID error.
-- A copy in the local `mods/` folder with an equal or higher version overrides the Workshop copy; remove it.
+- Nightly and release are separate mods (`RunePriestNightly` "RunePriest (Nightly)" / `RunePriest`), so testers can
+  subscribe to both and pick on the character select screen (the nightly tile has a NIGHTLY banner). Their saves and
+  runs aren't interchangeable.
+- Local dev builds install as `mods/RunePriestLocal/` ("RunePriest (Local)") and don't shadow either Workshop item.
 - Co-op partners need the same build.

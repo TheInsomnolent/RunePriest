@@ -16,7 +16,7 @@ namespace RunePriest.RunePriestCode.RestSite;
 /// </summary>
 public sealed class EtchRestSiteOption(Player owner) : CustomRestSiteOption(owner)
 {
-    public override string OptionId => "RUNEPRIEST_ETCH";
+    public override string OptionId => ModVariant.IdUpper + "_ETCH";
 
     public override string CustomIconPath => "eternal_candle.png".RelicImagePath();
 
@@ -35,7 +35,7 @@ public sealed class EtchRestSiteOption(Player owner) : CustomRestSiteOption(owne
         var scroll = Scroll;
         if (scroll == null) return false;
 
-        var prefs = new CardSelectorPrefs(new LocString("card_selection", "RUNEPRIEST-TO_ETCH"), 1)
+        var prefs = new CardSelectorPrefs(new LocString("card_selection", MainFile.ModPrefix + "TO_ETCH"), 1)
         {
             Cancelable = true,
             RequireManualConfirmation = true
