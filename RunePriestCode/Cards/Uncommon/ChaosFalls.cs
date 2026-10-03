@@ -7,10 +7,8 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
-/// <summary>
-/// Multiplayer only. At the start of each turn, Inscribe Scatter, Twin and Loop — and Scatter now picks from
-/// everyone, players included.
-/// </summary>
+
+/// <summary>DEPRECATED: Multiplayer-only card replaced by other power options.</summary>
 public sealed class ChaosFalls() : RunePriestCard(2, CardType.Power, CardRarity.Uncommon, TargetType.Self)
 {
     public override CardMultiplayerConstraint MultiplayerConstraint => CardMultiplayerConstraint.MultiplayerOnly;

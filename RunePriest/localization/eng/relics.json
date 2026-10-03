@@ -14,7 +14,6 @@
   "RUNEPRIEST-RUNIC_SPHERE.title": "Runic Sphere",
   "RUNEPRIEST-RUNIC_SPHERE.description": "Cards that [gold]Inscribe[/gold] runes have [gold]Retain[/gold].",
   "RUNEPRIEST-RUNIC_SPHERE.flavor": "The symbols inside never settle.",
-
   "RUNEPRIEST-HOLY_SPARKLER.title": "Holy Sparkler",
   "RUNEPRIEST-HOLY_SPARKLER.description": "Whenever a rune [gold]Fizzles[/gold], gain {Block} [gold]Block[/gold].",
   "RUNEPRIEST-HOLY_SPARKLER.flavor": "Every misfire still makes a pretty light.",
@@ -24,7 +23,6 @@
   "RUNEPRIEST-AETHER_INKWELL.title": "Aether Inkwell",
   "RUNEPRIEST-AETHER_INKWELL.description": "Upon pickup, obtain an [gold]Aether Quill[/gold].",
   "RUNEPRIEST-AETHER_INKWELL.flavor": "The ink never dries, and neither do the runes it writes.",
-
   "RUNEPRIEST-ANCHOR_SCROLL.title": "Anchor Scroll",
   "RUNEPRIEST-ANCHOR_SCROLL.description": "At the start of combat, [gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}.",
   "RUNEPRIEST-ANCHOR_SCROLL.flavor": "Unrolled, it holds its ground.",
@@ -39,5 +37,11 @@
   "RUNEPRIEST-DE_ILLUMINATOR.flavor": "It un-writes the darkness before the darkness can un-write you.",
   "RUNEPRIEST-UNDEAD_QUILL.title": "Undead Quill",
   "RUNEPRIEST-UNDEAD_QUILL.description": "[blue]Blood[/blue] and [blue]Mend[/blue] runes swap their effects.",
-  "RUNEPRIEST-UNDEAD_QUILL.flavor": "It drains the writer and signs for the dead."
+  "RUNEPRIEST-UNDEAD_QUILL.flavor": "It drains the writer and signs for the dead.",
+  "RUNEPRIEST-LIGHTWEIGHT_CLOTH_ROBE.title": "Lightweight Cloth Robe",
+  "RUNEPRIEST-LIGHTWEIGHT_CLOTH_ROBE.description": "Cards with [blue]Blood[/blue] runes Imbued become free. [blue]Blood[/blue] runes are doubled when [gold]Inscribed[/gold].",
+  "RUNEPRIEST-LIGHTWEIGHT_CLOTH_ROBE.flavor": "Light enough to dodge, heavy enough to hurt.",
+  "RUNEPRIEST-CORRUPTED_SIGIL.title": "Corrupted Sigil",
+  "RUNEPRIEST-CORRUPTED_SIGIL.description": "A relic of corrupted power.",
+  "RUNEPRIEST-CORRUPTED_SIGIL.flavor": "Once holy, now twisted."
 }

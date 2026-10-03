@@ -5,7 +5,6 @@
   "RUNEPRIEST-DEFEND_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}.",
   "RUNEPRIEST-ECHO_RUNE_CARD.title": "Echo Rune",
   "RUNEPRIEST-ECHO_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Echo[/blue].",
-
   "RUNEPRIEST-NOVA_RUNE_CARD.title": "Nova Rune",
   "RUNEPRIEST-NOVA_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Nova[/blue].",
   "RUNEPRIEST-CHAIN_LIGHTNING.title": "Chain Lightning",
@@ -34,12 +33,10 @@
   "RUNEPRIEST-HASTY_SCRAWL.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}.\n[gold]Inscribe[/gold] [blue]Swift[/blue] {Swift:diff()}.",
   "RUNEPRIEST-MEDITATE.title": "Meditate",
   "RUNEPRIEST-MEDITATE.description": "[gold]Inscribe[/gold] [blue]Mend[/blue] {Mend}.\n[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}.",
-
   "RUNEPRIEST-AMPLIFIED_STRIKE.title": "Amplified Strike",
   "RUNEPRIEST-AMPLIFIED_STRIKE.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}.\n[gold]Inscribe[/gold] [blue]Amplify[/blue] +{Amplify:diff()}.",
   "RUNEPRIEST-FLINT_AND_STEEL.title": "Flint & Steel",
   "RUNEPRIEST-FLINT_AND_STEEL.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood}.\n[gold]Inscribe[/gold] [blue]Kindle[/blue] {Kindle}.",
-
   "RUNEPRIEST-STAR_SIGIL.title": "Star Sigil",
   "RUNEPRIEST-STAR_SIGIL.description": "At the start of your turn, [gold]Inscribe[/gold] [blue]Nova[/blue].{IfUpgraded:show:\nWhen played, draw {Cards} {Cards:plural:card|cards}.|}",
   "RUNEPRIEST-NOVA_SLICE.title": "Nova Slice",
@@ -86,7 +83,6 @@
   "RUNEPRIEST-DARKNESS_FALLS.description": "[gold]Inscribe[/gold] [blue]Void[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}.",
   "RUNEPRIEST-FLAGELLATION.title": "Flagellation",
   "RUNEPRIEST-FLAGELLATION.description": "Whenever you lose HP during your turn, [gold]Inscribe[/gold] [blue]Defend[/blue] {FlagellationPower}.",
-
   "RUNEPRIEST-ETERNAL_SIGIL.title": "Eternal Sigil",
   "RUNEPRIEST-ETERNAL_SIGIL.description": "Your Incantation is no longer cleared after you [gold]Speak[/gold].",
   "RUNEPRIEST-RUNIC_FORM.title": "Runic Form",
@@ -101,7 +97,6 @@
   "RUNEPRIEST-TRICK_OF_THE_LIGHT.description": "[gold]Inscribe[/gold] [blue]Swift[/blue] {Swift:diff()}.",
   "RUNEPRIEST-ANCIENT_TABLET.title": "Ancient Tablet",
   "RUNEPRIEST-ANCIENT_TABLET.description": "{ImbuedCount:choose(0):[gold]Imbue[/gold] every rune in your Incantation.|{ImbuedRunes}}",
-
   "RUNEPRIEST-CHANT.title": "Chant",
   "RUNEPRIEST-CHANT.description": "[gold]Speak[/gold] your Incantation. Its runes remain.",
   "RUNEPRIEST-RITUAL.title": "Ritual",
@@ -120,7 +115,6 @@
   "RUNEPRIEST-ENERGY_OVERFLOW.description": "Whenever a rune [gold]Fizzles[/gold], deal {EnergyOverflowPower} damage to ALL enemies.",
   "RUNEPRIEST-SPARK_STRIKE.title": "Spark Strike",
   "RUNEPRIEST-SPARK_STRIKE.description": "[gold]Fizzle[/gold] the last rune of your Incantation.\nIf you do, deal {Damage:diff()} damage.",
-
   "RUNEPRIEST-CURSED_SWORD.title": "Cursed Sword",
   "RUNEPRIEST-CURSED_SWORD.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood:inverseDiff()}.\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}.\nDeal {Damage} damage.",
   "RUNEPRIEST-CURSED_ARMOUR.title": "Cursed Armour",
@@ -131,7 +125,6 @@
   "RUNEPRIEST-BLACK_MARK.description": "Apply [gold]Black Mark[/gold].{IfUpgraded:show:\nDraw {Cards} {Cards:plural:card|cards}.|}",
   "RUNEPRIEST-CHORAL_EVOCATION.title": "Choral Evocation",
   "RUNEPRIEST-CHORAL_EVOCATION.description": "This turn, {IfUpgraded:show:every rune|[blue]Defend[/blue] runes} you [gold]Inscribe[/gold] {IfUpgraded:show:is|are} also [gold]Inscribed[/gold] for all other players.",
-
   "RUNEPRIEST-QUICK_WARD.title": "Quick Ward",
   "RUNEPRIEST-QUICK_WARD.description": "[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}, [blue]Swift[/blue] {Swift}.{IfUpgraded:show:\nDraw {Cards} {Cards:plural:card|cards}.|}",
   "RUNEPRIEST-HEAVY_WARD.title": "Heavy Ward",
@@ -139,7 +132,7 @@
   "RUNEPRIEST-HEAVY_RUNE.title": "Heavy Rune",
   "RUNEPRIEST-HEAVY_RUNE.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}, plus {Bonus:diff()} for every rune in your Incantation.",
   "RUNEPRIEST-PATIENT_RUNE_CARD.title": "Patient Rune",
-  "RUNEPRIEST-PATIENT_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}, plus 1 for every rune inscribed this combat.",
+  "RUNEPRIEST-PATIENT_RUNE_CARD.description": "[gold]Inscribe[/gold] a persistent [blue]Strike[/blue] {Strike:diff()}, dealing 1 more damage for each rune already inscribed this turn.",
   "RUNEPRIEST-CRACKED_RUNE_CARD.title": "Cracked Rune",
   "RUNEPRIEST-CRACKED_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike} {Hits:diff()} times.",
   "RUNEPRIEST-GROWTH_RUNE_CARD.title": "Growth Rune",
@@ -148,7 +141,6 @@
   "RUNEPRIEST-IMBUED_SWORD.description": "{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue:diff()}.|{ImbuedRunes}}\nDeal {Damage} damage, plus the total value of this card's runes.",
   "RUNEPRIEST-INQUIRE.title": "Inquire",
   "RUNEPRIEST-INQUIRE.description": "Draw {Cards} {Cards:plural:card|cards}.\n[gold]Inscribe[/gold] [blue]Swift[/blue] {Swift:diff()}.",
-
   "RUNEPRIEST-CONJURE_PORTAL.title": "Conjure Portal",
   "RUNEPRIEST-CONJURE_PORTAL.description": "Whenever you [gold]Imbue[/gold] a rune, [gold]Inscribe[/gold] it for a random other player.",
   "RUNEPRIEST-CHAOS_FALLS.title": "Chaos Falls",
@@ -164,10 +156,9 @@
   "RUNEPRIEST-COCOON.title": "Cocoon",
   "RUNEPRIEST-COCOON.description": "[gold]Inscribe[/gold] [blue]Growth[/blue] {Growth}.\n[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend:diff()}.\n[gold]Inscribe[/gold] [blue]Void[/blue]. [gold]Persist[/gold].",
   "RUNEPRIEST-NEBULA.title": "Nebula",
-  "RUNEPRIEST-NEBULA.description": "[gold]Inscribe[/gold] [blue]Nova[/blue].\n[gold]Inscribe[/gold] [blue]Twin[/blue] ×{Twin}.\n[gold]Inscribe[/gold] [blue]Loop[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}.{IfUpgraded:show:|\n[gold]Inscribe[/gold] [blue]End Loop[/blue].}\n[gold]Inscribe[/gold] [blue]Void[/blue].",
+  "RUNEPRIEST-NEBULA.description": "[gold]Inscribe[/gold] [blue]Nova[/blue].\n[gold]Inscribe[/gold] [blue]Twin[/blue] ×{Twin}.\n[gold]Inscribe[/gold] [blue]Loop[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}.{IfUpgraded:show:|\n[gold]Inscribe[/gold] [blue]End Loop[/blue].}\n[gold]Inscribe[/gold] [blue]Void[/blue].",
   "RUNEPRIEST-NYX.title": "Nyx",
   "RUNEPRIEST-NYX.description": "Whenever you play a card [gold]Imbued[/gold] with a [blue]Void[/blue] rune, deal {NyxPower:diff()} damage to ALL enemies.",
-
   "RUNEPRIEST-FRIENDSHIP_RUNE_CARD.title": "Friendship Rune",
   "RUNEPRIEST-FRIENDSHIP_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Friendship[/blue].{IfUpgraded:show:\nIt affects ALL supportive runes after it.|}",
   "RUNEPRIEST-OROBAS_STRIKE.title": "Orobas Strike",
@@ -182,7 +173,6 @@
   "RUNEPRIEST-IMBUED_SHIELD.description": "Gain {Block:diff()} [gold]Block[/gold], doubled while this card is [gold]Imbued[/gold].\n{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue}.|{ImbuedRunes}\nEmpty this card's Imbue slot.}",
   "RUNEPRIEST-DARK_STAR.title": "Dark Star",
   "RUNEPRIEST-DARK_STAR.description": "[gold]Inscribe[/gold] [blue]Void[/blue].\nWhile a [blue]Void[/blue] is in your Incantation, draw {DarkStarPower:diff()} {DarkStarPower:plural:card|cards} at the start of each turn.",
-
   "RUNEPRIEST-WANING_MOON.title": "Waning Moon",
   "RUNEPRIEST-WANING_MOON.description": "{IfUpgraded:show:[gold]Inscribe[/gold] [blue]Amplify[/blue] +{Amplify}.\n|}[gold]Inscribe[/gold] [blue]Loop[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}.\n[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}.\n[gold]Inscribe[/gold] [blue]Void[/blue]. [gold]Persist[/gold].\n[gold]Inscribe[/gold] [blue]Defend[/blue] {Defend}.\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike}.\n[gold]Inscribe[/gold] [blue]Reflection[/blue].",
   "RUNEPRIEST-DIMINISHING_RUNE_CARD.title": "Diminishing Rune",
@@ -204,5 +194,20 @@
   "RUNEPRIEST-TWO_WAY_MIRROR.title": "Two-way Mirror",
   "RUNEPRIEST-TWO_WAY_MIRROR.description": "[gold]Inscribe[/gold] [blue]Reflection[/blue].\n[gold]Inscribe[/gold] [blue]Reflection[/blue] {IfUpgraded:show:at the end of|into a random slot on} a random ally's Incantation.",
   "RUNEPRIEST-MARTYR.title": "Martyr",
-  "RUNEPRIEST-MARTYR.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood}.\n[gold]Inscribe[/gold] [blue]Mend[/blue] {Mend}.\n[gold]Inscribe[/gold] [blue]Reflection[/blue]."
+  "RUNEPRIEST-MARTYR.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood}.\n[gold]Inscribe[/gold] [blue]Mend[/blue] {Mend}.\n[gold]Inscribe[/gold] [blue]Reflection[/blue].",
+  "RUNEPRIEST-EMANATE.title": "Emanate",
+  "RUNEPRIEST-EMANATE.description": "[gold]Inscribe[/gold] [blue]Nova[/blue].\n[gold]Inscribe[/gold] [blue]Hex[/blue] {Hex:diff()}.\n[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood}.",
+  "RUNEPRIEST-A_POUND_OF_FLESH.title": "A Pound of Flesh",
+  "RUNEPRIEST-A_POUND_OF_FLESH.description": "At the start of your turn, gain 1 [gold]Energy[/gold] and [gold]Inscribe[/gold] [blue]Blood[/blue] {Blood:inverseDiff()}.",
+  "RUNEPRIEST-MIRRORORRIM.title": "Mirrororrim",
+  "RUNEPRIEST-MIRRORORRIM.description": "[gold]Inscribe[/gold] a copy of the last rune in your Incantation.",
+
+  "RUNEPRIEST-ANNIHILATION_CARD.title": "Annihilation",
+  "RUNEPRIEST-ANNIHILATION_CARD.description": "[gold]Inscribe[/gold] [blue]Execution[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()} three times.",
+
+  "RUNEPRIEST-LIGHT_BLADE_CARD.title": "Light Blade",
+  "RUNEPRIEST-LIGHT_BLADE_CARD.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}. Deals {BonusPerRune} additional damage for every rune currently inscribed.",
+
+  "RUNEPRIEST-DISINTEGRATE_CARD.title": "Disintegrate",
+  "RUNEPRIEST-DISINTEGRATE_CARD.description": "[gold]Inscribe[/gold] [blue]Amplify[/blue] +{Amplify:diff()}.\n[gold]Inscribe[/gold] [blue]Loop[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()} twice.\n[gold]Inscribe[/gold] [blue]End Loop[/blue]."
 }

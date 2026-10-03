@@ -77,6 +77,19 @@ public sealed class GrowthRune(int value) : ModifierRune(value)
 }
 
 /// <summary>
+/// Like Growth but escalates more dramatically (Ascended): delays the next glyph and escalates its value by squaring
+/// on each trigger. Every trigger triples the glyph's values in place, keeping it for next turn. Ticked down by 1,
+/// the Overgrowth vanishes and the glyph resolves on its next trigger. Handled by the interpreter.
+/// </summary>
+public sealed class OvergrowthRune(int value) : ModifierRune(value)
+{
+    public override string Key => "OVERGROWTH";
+    public override bool Amplifiable => true;
+    public override bool IsAscended => true;
+    public override Rune WithValue(int value) => new OvergrowthRune(value);
+}
+
+/// <summary>
 /// Sends the Speak back the way it came: earlier glyphs (as earlier runes left them) are Spoken again in reverse order,
 /// unfinished loops stop looping, and glyphs after this one are never Spoken. Handled by the interpreter.
 /// </summary>

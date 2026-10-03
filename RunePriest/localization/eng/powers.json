@@ -81,5 +81,14 @@
   "RUNEPRIEST-DARK_STAR_POWER.smartDescription": "While a [blue]Void[/blue] is in your Incantation, draw {Amount} {Amount:plural:card|cards} at the start of each turn.",
   "RUNEPRIEST-LAST_SCROLL_POWER.title": "Last Scroll",
   "RUNEPRIEST-LAST_SCROLL_POWER.description": "You may no longer [gold]Inscribe[/gold] this turn.",
-  "RUNEPRIEST-LAST_SCROLL_POWER.smartDescription": "You may no longer [gold]Inscribe[/gold] this turn."
+  "RUNEPRIEST-LAST_SCROLL_POWER.smartDescription": "You may no longer [gold]Inscribe[/gold] this turn.",
+  "RUNEPRIEST-A_POUND_OF_FLESH_POWER.title": "A Pound of Flesh",
+  "RUNEPRIEST-A_POUND_OF_FLESH_POWER.description": "At the start of your turn, gain 1 [gold]Energy[/gold] and [gold]Inscribe[/gold] [blue]Blood[/blue].",
+  "RUNEPRIEST-A_POUND_OF_FLESH_POWER.smartDescription": "At the start of your turn, gain 1 [gold]Energy[/gold] and [gold]Inscribe[/gold] [blue]Blood[/blue] {Amount}.",
+  "RUNEPRIEST-DARK_TABLET_POWER.title": "Dark Tablet",
+  "RUNEPRIEST-DARK_TABLET_POWER.description": "[blue]Blood[/blue] and [blue]Mend[/blue] runes damage and heal enemies instead of yourself.",
+  "RUNEPRIEST-DARK_TABLET_POWER.smartDescription": "[blue]Blood[/blue] and [blue]Mend[/blue] runes damage and heal enemies instead of yourself.",
+  "RUNEPRIEST-TOUCH_OF_OROBAS_POWER.title": "Touch of Orobas",
+  "RUNEPRIEST-TOUCH_OF_OROBAS_POWER.description": "The first time each combat you play a rune card, draw a card.",
+  "RUNEPRIEST-TOUCH_OF_OROBAS_POWER.smartDescription": "The first time each combat you play a rune card, draw {Amount} {Amount:plural:card|cards}."
 }

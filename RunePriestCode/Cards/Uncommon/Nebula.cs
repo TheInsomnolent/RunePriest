@@ -23,4 +23,6 @@ public sealed class Nebula() : RuneCard(2, CardType.Attack, CardRarity.Uncommon,
         if (!IsUpgraded) yield return Glyph.Of(new EndLoopRune());
         yield return Glyph.Of(new VoidRune());
     }
+
+    protected override void OnUpgrade() => DynamicVars["Strike"].UpgradeValueBy(2m);
 }

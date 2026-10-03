@@ -9,6 +9,8 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Common;
+
+/// <summary>DEPRECATED: This card was replaced by other common attack options.</summary>
 public sealed class QuickJab() : RuneCard(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
