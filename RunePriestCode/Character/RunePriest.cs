@@ -64,9 +64,10 @@ public class RunePriest : PlaceholderCharacterModel
         visuals.DefaultScale = VisualsScale;
         visuals.Scale = Vector2.One * VisualsScale;
 
-        // The Architect faces left (enemy side); mirror only the body so bounds/markers stay put.
+        // The Architect faces left (enemy side); mirror only the body, then refit bounds/markers around it.
         var body = visuals.GetNode<Node2D>("%Visuals");
         body.Scale = new Vector2(-body.Scale.X, body.Scale.Y);
+        FitToBody(visuals);
 
         // Player visuals need a %FormVfx holder: death and Form cards call Add/RemoveFormVfx, which throw without it.
         var formVfx = new Control { Name = "FormVfx", MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -75,6 +76,28 @@ public class RunePriest : PlaceholderCharacterModel
         formVfx.Owner = visuals;
         formVfx.UniqueNameInOwner = true;
         return visuals;
+    }
+
+    // Architect-scene units (pre-VisualsScale). The scene's own %Bounds (-300..167 x -629..0) wraps the NPC's left-facing
+    // pose, so on the mirrored body the hitbox, HP bar (bounds width + 24) and rune row ended up too wide, too tall and
+    // left of the model. These fit the mirrored body to roughly vanilla proportions (~240x305 px after scaling).
+    private static readonly Rect2 BodyBounds = new(-140f, -410f, 320f, 410f);
+    private static readonly Vector2 BodyCenter = new(20f, -220f);
+    // Orbs fall back to IntentPos when there's no OrbPos; vanilla puts it ~30px above the bounds.
+    private static readonly Vector2 BodyIntent = new(20f, -450f);
+
+    private static void FitToBody(NCreatureVisuals visuals)
+    {
+        var bounds = visuals.GetNode<Control>("%Bounds");
+        bounds.OffsetLeft = BodyBounds.Position.X;
+        bounds.OffsetTop = BodyBounds.Position.Y;
+        bounds.OffsetRight = BodyBounds.End.X;
+        bounds.OffsetBottom = BodyBounds.End.Y;
+
+        visuals.GetNode<Marker2D>("%CenterPos").Position = BodyCenter;
+        visuals.GetNode<Marker2D>("%IntentPos").Position = BodyIntent;
+        var talk = visuals.GetNode<Marker2D>("%TalkPos");
+        talk.Position = new Vector2(-talk.Position.X, talk.Position.Y);
     }
 
     // The Architect rig only has idle_loop/attack/hurt; anything else falls back to idle.
