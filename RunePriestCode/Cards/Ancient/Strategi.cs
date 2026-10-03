@@ -25,4 +25,9 @@ public sealed class Strategi() : RunePriestCard(0, CardType.Skill, CardRarity.Ra
         // Draw 3 cards
         await Draw(choiceContext, DynamicVars.Cards.BaseValue);
     }
+
+    protected override void OnUpgrade()
+    {
+        // Ascended cards never upgrade
+    }
 }

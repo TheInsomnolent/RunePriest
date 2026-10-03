@@ -20,17 +20,8 @@ public sealed class TouchOfOrobasPower : RunePriestPower
 
     protected override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(1)];
 
-    private bool _usedThisCombat;
-
-    public override Task BeforeCombatStart()
-    {
-        _usedThisCombat = false;
-        return Task.CompletedTask;
-    }
-
     /// <summary>
-    /// Hook into rune card play events. Draws a card when a rune card is played.
-    /// Only triggers once per combat to prevent abuse.
+    /// Hook into rune card play events. Draws a card whenever a rune card is played.
     /// </summary>
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
@@ -40,10 +31,6 @@ public sealed class TouchOfOrobasPower : RunePriestPower
         // Only trigger for rune cards
         if (cardPlay.Card is not RuneCard) return;
         
-        // Only trigger once per combat
-        if (_usedThisCombat) return;
-        
-        _usedThisCombat = true;
         Flash();
         await CardPileCmd.Draw(choiceContext, DynamicVars.Cards.BaseValue, Owner.Player);
     }

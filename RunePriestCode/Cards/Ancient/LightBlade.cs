@@ -12,7 +12,7 @@ public sealed class LightBlade() : RuneCard(0, CardType.Attack, CardRarity.Rare,
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new DamageVar("Strike", 9m, ValueProp.Move),
-        new IntVar("BonusPerRune", 3m)
+        new IntVar("BonusPerRune", 4m)
     ];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
@@ -23,8 +23,6 @@ public sealed class LightBlade() : RuneCard(0, CardType.Attack, CardRarity.Rare,
 
     protected override void OnUpgrade()
     {
-        // Ascended cards don't upgrade in the standard sense; this is the "upgraded" variant
-        // The localization/UI will indicate the enhanced bonus (4 per rune)
-        DynamicVars["BonusPerRune"].UpgradeValueBy(1m);
+        // Ascended cards never upgrade
     }
 }

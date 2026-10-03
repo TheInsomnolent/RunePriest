@@ -17,6 +17,11 @@ public sealed class Supernova() : RuneCard(1, CardType.Skill, CardRarity.Rare, T
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new TargetRune(TargetMode.Nova))];
 
+    protected override void OnUpgrade()
+    {
+        // Ascended cards never upgrade
+    }
+
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await base.OnPlay(choiceContext, cardPlay);

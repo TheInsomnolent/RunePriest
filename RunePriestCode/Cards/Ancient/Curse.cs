@@ -17,4 +17,9 @@ public sealed class Curse() : RuneCard(1, CardType.Skill, CardRarity.Rare, Targe
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new HexRune(Var("Hex")))];
+
+    protected override void OnUpgrade()
+    {
+        // Ascended cards never upgrade
+    }
 }

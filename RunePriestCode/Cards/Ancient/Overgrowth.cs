@@ -16,4 +16,9 @@ public sealed class Overgrowth() : RuneCard(0, CardType.Skill, CardRarity.Rare, 
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new OvergrowthRune(Var("Growth")))];
+
+    protected override void OnUpgrade()
+    {
+        // Ascended cards never upgrade
+    }
 }

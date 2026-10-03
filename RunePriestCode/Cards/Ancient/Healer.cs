@@ -15,4 +15,9 @@ public sealed class Healer() : RunePriestCard(1, CardType.Skill, CardRarity.Rare
     {
         await PowerCmd.Apply<HealerPower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
     }
+
+    protected override void OnUpgrade()
+    {
+        // Ascended cards never upgrade
+    }
 }

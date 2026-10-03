@@ -21,4 +21,9 @@ public sealed class Atrophy() : RuneCard(2, CardType.Attack, CardRarity.Rare, Ta
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
         [Glyph.Of(new DiminishRune(Var("Damage"))).AnchoredTo(anchor)];
+
+    protected override void OnUpgrade()
+    {
+        // Ascended cards never upgrade
+    }
 }

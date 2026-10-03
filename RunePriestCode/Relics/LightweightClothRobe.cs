@@ -10,7 +10,11 @@ using RunePriest.RunePriestCode.Runes;
 namespace RunePriest.RunePriestCode.Relics;
 
 /// <summary>
-/// All Cards with Blood effects on them become free. Blood inscriptions are doubled.
+/// Blood inscriptions are doubled.
+/// 
+/// TODO (Future): "All Cards with Blood effects become free" requires a Harmony patch or event system
+/// to intercept card cost calculations when cards are added to hand/drawn. Currently only implements
+/// Blood value doubling via ModifyRuneValue hook.
 /// </summary>
 public sealed class LightweightClothRobe : RunePriestRelic, IRuneListener
 {

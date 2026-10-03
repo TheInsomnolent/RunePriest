@@ -19,4 +19,9 @@ public sealed class Cathedral() : RuneCard(1, CardType.Skill, CardRarity.Rare, T
         Glyph.Of(new CloneRune()),
         Glyph.Of(new EchoRune())
     ];
+
+    protected override void OnUpgrade()
+    {
+        // Ascended cards never upgrade
+    }
 }

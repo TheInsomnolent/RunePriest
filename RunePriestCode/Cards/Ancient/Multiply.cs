@@ -18,4 +18,9 @@ public sealed class Multiply() : RuneCard(1, CardType.Skill, CardRarity.Rare, Ta
         Glyph.Of(new TwinRune(2)),
         Glyph.Of(new TwinRune(2))
     ];
+
+    protected override void OnUpgrade()
+    {
+        // Ascended cards never upgrade
+    }
 }
