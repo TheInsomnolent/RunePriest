@@ -45,11 +45,17 @@ public abstract class RuneEvent : CustomEventModel
         }
     }
 
+    /// <summary>
+    /// Initial-page option loc key. Uses the prefixed <see cref="AbstractModel.Id"/> like BaseLib; vanilla
+    /// <c>InitialOptionKey</c> drops the mod prefix, so the option text is missing and <see cref="EventOption"/> throws.
+    /// </summary>
+    private string OptionKey(string option) => $"{Id.Entry}.pages.INITIAL.options.{option}";
+
     protected EventOption Choice(Func<Task> onChosen, string option, params IHoverTip[] tips) =>
-        new(this, onChosen, InitialOptionKey(option), tips);
+        new(this, onChosen, OptionKey(option), tips);
 
     /// <summary>A greyed-out option (<c>&lt;OPTION&gt;_LOCKED</c>) explaining why this player can't take it.</summary>
-    protected EventOption Locked(string option) => new(this, null, InitialOptionKey(option + "_LOCKED"));
+    protected EventOption Locked(string option) => new(this, null, OptionKey(option + "_LOCKED"));
 
     /// <summary>Finishes the event on page <paramref name="page"/>'s description.</summary>
     protected void Finish(string page) => SetEventFinished(L10NLookup($"{Id.Entry}.pages.{page}.description"));
