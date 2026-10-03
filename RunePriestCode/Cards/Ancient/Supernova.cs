@@ -10,7 +10,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// Ascended Skill - Cost 1
 /// Inscribe Nova. Remove all void in your incantation.
 /// </summary>
-public sealed class Supernova() : RuneCard(1, CardType.Skill, CardRarity.Ascended, TargetType.Self)
+public sealed class Supernova() : RuneCard(1, CardType.Skill, CardRarity.Rare, TargetType.Self)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [];
 

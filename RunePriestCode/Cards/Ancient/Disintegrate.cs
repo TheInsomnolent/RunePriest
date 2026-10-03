@@ -9,7 +9,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// <summary>
 /// Ascended Attack: Set up a loop with Amplify, then inscribe two Strikes inside, closing the loop for double-amplified output.
 /// </summary>
-public sealed class Disintegrate() : RuneCard(1, CardType.Attack, CardRarity.Ascended, TargetType.AnyEnemy)
+public sealed class Disintegrate() : RuneCard(1, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -19,7 +19,7 @@ public sealed class Disintegrate() : RuneCard(1, CardType.Attack, CardRarity.Asc
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
-        Glyph.Of(new AmplifyRune(DynamicVars["Amplify"].IntValue)),
+        Glyph.Of(new AmplifyRune(Var("Amplify"))),
         Glyph.Of(new LoopRune()),
         Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor),
         Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor),

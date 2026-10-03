@@ -9,7 +9,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 /// Ascended Skill - Cost 1 (Persist - card is playable again this turn)
 /// Inscribe Hex.
 /// </summary>
-public sealed class Curse() : RuneCard(1, CardType.Skill, CardRarity.Ascended, TargetType.Self)
+public sealed class Curse() : RuneCard(1, CardType.Skill, CardRarity.Rare, TargetType.Self)
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [RunePriestKeywords.Persist];
 

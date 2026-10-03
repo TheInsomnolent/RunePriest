@@ -202,12 +202,61 @@
   "RUNEPRIEST-MIRRORORRIM.title": "Mirrororrim",
   "RUNEPRIEST-MIRRORORRIM.description": "[gold]Inscribe[/gold] a copy of the last rune in your Incantation.",
 
-  "RUNEPRIEST-ANNIHILATION_CARD.title": "Annihilation",
-  "RUNEPRIEST-ANNIHILATION_CARD.description": "[gold]Inscribe[/gold] [blue]Execution[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()} three times.",
+  "RUNEPRIEST-ANNIHILATION.title": "Annihilation",
+  "RUNEPRIEST-ANNIHILATION.description": "[gold]Inscribe[/gold] [blue]Execution[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()} three times.",
 
-  "RUNEPRIEST-LIGHT_BLADE_CARD.title": "Light Blade",
-  "RUNEPRIEST-LIGHT_BLADE_CARD.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}. Deals {BonusPerRune} additional damage for every rune currently inscribed.",
+  "RUNEPRIEST-LIGHT_BLADE.title": "Light Blade",
+  "RUNEPRIEST-LIGHT_BLADE.description": "[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()}. Deals {BonusPerRune} additional damage for every rune currently inscribed.",
 
-  "RUNEPRIEST-DISINTEGRATE_CARD.title": "Disintegrate",
-  "RUNEPRIEST-DISINTEGRATE_CARD.description": "[gold]Inscribe[/gold] [blue]Amplify[/blue] +{Amplify:diff()}.\n[gold]Inscribe[/gold] [blue]Loop[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()} twice.\n[gold]Inscribe[/gold] [blue]End Loop[/blue]."
+  "RUNEPRIEST-DISINTEGRATE.title": "Disintegrate",
+  "RUNEPRIEST-DISINTEGRATE.description": "[gold]Inscribe[/gold] [blue]Amplify[/blue] +{Amplify:diff()}.\n[gold]Inscribe[/gold] [blue]Loop[/blue].\n[gold]Inscribe[/gold] [blue]Strike[/blue] {Strike:diff()} twice.\n[gold]Inscribe[/gold] [blue]End Loop[/blue].",
+
+  "RUNEPRIEST-SUPERNOVA.title": "Supernova",
+  "RUNEPRIEST-SUPERNOVA.description": "[gold]Inscribe[/gold] [blue]Nova[/blue].\nRemove all [blue]Void[/blue] runes from your Incantation.",
+
+  "RUNEPRIEST-CURSE.title": "Curse",
+  "RUNEPRIEST-CURSE.description": "[gold]Inscribe[/gold] [blue]Hex[/blue]. [gold]Persist[/gold].",
+
+  "RUNEPRIEST-HEALER.title": "Healer",
+  "RUNEPRIEST-HEALER.description": "All runes [gold]Inscribed[/gold] this turn are inscribed with [blue]Mend[/blue] 3.",
+
+  "RUNEPRIEST-MULTIPLY.title": "Multiply",
+  "RUNEPRIEST-MULTIPLY.description": "[gold]Inscribe[/gold] [blue]Twin[/blue] ×2 twice (×4 total multiplier).",
+
+  "RUNEPRIEST-STRATEGI.title": "Strategi",
+  "RUNEPRIEST-STRATEGI.description": "Take 1 rune from your Incantation and bind it to this card.\nDraw 3 {Cards:plural:card|cards}.",
+
+  "RUNEPRIEST-OVERGROWTH_CARD.title": "Overgrowth",
+  "RUNEPRIEST-OVERGROWTH_CARD.description": "[gold]Ascended.[/gold]\n[gold]Inscribe[/gold] [blue]Overgrowth[/blue] {Growth}. Delays and escalates the next rune, tripling its values with accelerating power.",
+
+  "RUNEPRIEST-ATROPHY_CARD.title": "Atrophy",
+  "RUNEPRIEST-ATROPHY_CARD.description": "[gold]Ascended. Exhaust.[/gold]\n[gold]Inscribe[/gold] [blue]Diminish[/blue] {Damage}. Deals massive damage that halves with each execution and persists.",
+
+  "RUNEPRIEST-CATHEDRAL_CARD.title": "Cathedral",
+  "RUNEPRIEST-CATHEDRAL_CARD.description": "[gold]Ascended.[/gold]\n[gold]Inscribe[/gold] [blue]Clone[/blue] and [blue]Echo[/blue]. Enables program patterns: Clone persists the next rune for next turn; Echo repeats it.",
+
+  "RUNEPRIEST-ETERNAL_SCROLL_CARD.title": "Eternal Scroll",
+  "RUNEPRIEST-ETERNAL_SCROLL_CARD.description": "May be [gold]etched[/gold] at rest sites to bind runes permanently. [gold]Inscribe[/gold] all etched runes. Upgradable: Cost -1.",
+  "RUNEPRIEST-ETERNAL_SCROLL_CARD.etch.title": "Etch",
+  "RUNEPRIEST-ETERNAL_SCROLL_CARD.etch.description": "At rest sites, you may add a rune to this card's permanent collection. Each etch increases its energy cost by 1.",
+
+  "RUNEPRIEST-CORRUPTED_SIGIL_CARD.title": "Corrupted Sigil",
+  "RUNEPRIEST-CORRUPTED_SIGIL_CARD.description": "This combat: all rune cards are [gold]Ethereal[/gold] and cost 0. [gold]Runes[/gold] persist between turns. Upgraded: remove [gold]Ethereal[/gold].",
+
+  "RUNEPRIEST-MIRRORORRIM_ANCIENT_CARD.title": "Mirrororrim",
+  "RUNEPRIEST-MIRRORORRIM_ANCIENT_CARD.description": "[gold]Ethereal.[/gold] At the end of each turn, [gold]Inscribe[/gold] [blue]End Loop[/blue] and [blue]Reflection[/blue]. Enables reversals and loop closures. Upgraded: remove [gold]Ethereal[/gold].",
+
+  "RUNEPRIEST-MIRRORORM_ANCIENT.title": "Mirrororrim",
+  "RUNEPRIEST-MIRRORORM_ANCIENT.description": "[gold]Ethereal.[/gold] At the end of each turn, [gold]Inscribe[/gold] [blue]End Loop[/blue] and [blue]Reflection[/blue]. Enables reversals and loop closures. Upgraded: remove [gold]Ethereal[/gold].",
+  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.title": "Mirrororrim",
+  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.description": "At the end of each turn, inscribe [blue]End Loop[/blue] and [blue]Reflection[/blue].",
+  "RUNEPRIEST-MIRRORORM_ANCIENT_POWER.smartDescription": "At the end of each turn, inscribe [blue]End Loop[/blue] and [blue]Reflection[/blue].",
+
+  "RUNEPRIEST-ETERNAL_SCROLL.title": "Eternal Scroll",
+  "RUNEPRIEST-ETERNAL_SCROLL.description": "May be [gold]etched[/gold] at rest sites to bind runes permanently. [gold]Inscribe[/gold] all etched runes. Upgradable: Cost -1.",
+  "RUNEPRIEST-CORRUPTED_SIGIL.title": "Corrupted Sigil",
+  "RUNEPRIEST-CORRUPTED_SIGIL.description": "This combat: all rune cards are [gold]Ethereal[/gold] and cost 0. [gold]Runes[/gold] persist between turns. Upgraded: remove [gold]Ethereal[/gold].",
+  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.title": "Corrupted Sigil",
+  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.description": "All rune cards are [gold]Ethereal[/gold], cost 0. [gold]Runes[/gold] persist between turns.",
+  "RUNEPRIEST-CORRUPTED_SIGIL_POWER.smartDescription": "All rune cards are [gold]Ethereal[/gold], cost 0. [gold]Runes[/gold] persist between turns."
 }
