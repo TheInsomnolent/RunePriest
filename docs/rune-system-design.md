@@ -239,7 +239,7 @@ RunePriestCode/
     Basic/ Common/ Uncommon/ Rare/
   Relics/BlessedToolbox.cs starter (random Common rune card on pickup; first rune card each combat → draw 1)
   Nodes/
-    NRuneBuffer.cs        row above a player's head; polls RuneCmd.GetBuffer, diffs glyphs by reference, lays out (ReadRightToLeft const)
+    NRuneBuffer.cs        rows above a player's head; polls RuneCmd.GetBuffer, diffs glyphs by reference, lays out (9 per row, wraps; ReadRightToLeft const)
     NGlyph.cs             one slot; compound runes stacked vertically; appear / pulse (activated) / shake+grey (fizzle) / dissolve; ghost + GlyphPreview states
     NRuneArc.cs           hover arc of rune-coloured motes from a glyph to a target
     RuneDragPreview.cs    tracks the held card (NCardPlay) and its aimed-at creature → IncantationDraft for NRuneBuffer
@@ -468,6 +468,9 @@ Energy emptying a huge Incantation, Undead Quill turning Martyr/Blood Sacrifice 
 ## 12. Overhead visuals (Phase 3)
 From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;
 flip with `NRuneBuffer.ReadRightToLeft`). Compound glyphs stack vertically = "these resolve together".
+Past 9 glyphs (`GlyphsPerRow`) the Incantation **wraps like text**: the first glyph is top-left, rows read top to bottom,
+and the newest row sits just above the head (earlier rows climb as rows are added). Each row clears the tallest compound
+glyph of the row below it; a partial last row is left-aligned to the grid.
 
 - **Colour = family**: Offense red (Strike/Diminish), Debuff dark purple (Hex), Support green (Defend/Mend/Cleanse), Resource gold (Kindle/Swift),
   Cost crimson (Blood), Modifier violet, Target pink, Flow pale blue.

@@ -19,8 +19,10 @@ public partial class NRuneBuffer : Node2D
 
     private const float HeightAboveHead = 70f;
     private const float GlyphSpacing = 58f;
-    private const float MinGlyphSpacing = 34f;
-    private const int GlyphsBeforeCompressing = 9;
+    // Longer Incantations wrap like text: the first rune is top-left and the newest row sits just above the head.
+    private const int GlyphsPerRow = 9;
+    // Between rows, on top of however high the row below's compound glyphs stack.
+    private const float RowSpacing = 64f;
     // Co-op: runes of whichever player isn't in focus fade back so long rows don't clutter each other.
     private const float UnfocusedAlpha = 0.3f;
     private const float FadeSpeed = 8f;
@@ -29,6 +31,9 @@ public partial class NRuneBuffer : Node2D
 
     private readonly List<NGlyph> _glyphs = [];
     private readonly List<NGlyph> _ghosts = [];
+    // Created since the last layout; they appear in their slot rather than sliding in.
+    private readonly List<NGlyph> _fresh = [];
+    private Vector2[] _slots = [];
     // Drag preview slots; a merge ghost shares its slot with the glyph it replaces.
     private readonly List<(NGlyph Node, int Slot)> _previewLayout = [];
     private IncantationDraft? _draft;
@@ -89,10 +94,9 @@ public partial class NRuneBuffer : Node2D
 
     public override void _Draw()
     {
-        if (_capacity is not { } capacity) return;
-        var slots = Math.Max(capacity, _shownSlots);
-        for (var i = _shownSlots; i < capacity; i++)
-            DrawArc(SlotPosition(i, slots), 18f, 0f, Mathf.Tau, 24, new Color(1f, 1f, 1f, 0.25f), 2f);
+        if (_capacity == null) return;
+        for (var i = _shownSlots; i < _slots.Length; i++)
+            DrawArc(_slots[i], 18f, 0f, Mathf.Tau, 24, new Color(1f, 1f, 1f, 0.25f), 2f);
     }
 
     public override void _EnterTree()
@@ -156,7 +160,8 @@ public partial class NRuneBuffer : Node2D
 
         foreach (var glyph in current.Where(g => _glyphs.All(n => n.Glyph != g)))
         {
-            var node = NGlyph.Create(glyph, SlotPosition(_glyphs.Count, _glyphs.Count + 1));
+            var node = NGlyph.Create(glyph, Vector2.Zero);
+            _fresh.Add(node);
             _glyphs.Add(node);
             AddChild(node);
         }
@@ -202,7 +207,6 @@ public partial class NRuneBuffer : Node2D
         if (_draft != null)
         {
             var entries = _draft.Entries;
-            var slots = Math.Max(entries.Count, _capacity ?? 0);
             for (var slot = 0; slot < entries.Count; slot++)
             {
                 var entry = entries[slot];
@@ -223,7 +227,8 @@ public partial class NRuneBuffer : Node2D
                 if (ghost == null)
                 {
                     // A merge ghost grows out of the glyph it replaces.
-                    ghost = NGlyph.Create(entry.Glyph, inscribed?.Position ?? SlotPosition(slot, slots), ghost: true);
+                    ghost = NGlyph.Create(entry.Glyph, inscribed?.Position ?? Vector2.Zero, ghost: true);
+                    if (inscribed == null) _fresh.Add(ghost);
                     AddChild(ghost);
                 }
                 ghost.Preview = entry.IsLive ? GlyphPreview.None : GlyphPreview.Leaving;
@@ -279,27 +284,57 @@ public partial class NRuneBuffer : Node2D
     private void Relayout()
     {
         _shownSlots = _draft?.Entries.Count ?? _glyphs.Count;
-        var slots = Math.Max(_shownSlots, _capacity ?? 0);
+        var stacks = new int[Math.Max(_shownSlots, _capacity ?? 0)];
+        Array.Fill(stacks, 1);
         if (_draft == null)
         {
-            for (var i = 0; i < _glyphs.Count; i++)
-                _glyphs[i].TargetPosition = SlotPosition(i, slots);
+            for (var i = 0; i < _glyphs.Count; i++) stacks[i] = _glyphs[i].Glyph.Runes.Count;
         }
         else
         {
-            foreach (var (node, slot) in _previewLayout)
-                node.TargetPosition = SlotPosition(slot, slots);
+            foreach (var (node, slot) in _previewLayout) stacks[slot] = Math.Max(stacks[slot], node.Glyph.Runes.Count);
         }
+
+        _slots = SlotPositions(stacks);
+        if (_draft == null)
+        {
+            for (var i = 0; i < _glyphs.Count; i++) _glyphs[i].TargetPosition = _slots[i];
+        }
+        else
+        {
+            foreach (var (node, slot) in _previewLayout) node.TargetPosition = _slots[slot];
+        }
+
+        foreach (var node in _fresh) node.Position = node.TargetPosition;
+        _fresh.Clear();
         QueueRedraw();
     }
 
-    private Vector2 SlotPosition(int index, int count)
+    /// <summary>
+    /// One row, centred, up to <see cref="GlyphsPerRow"/> glyphs; beyond that a grid read like text (left to right, top
+    /// to bottom) whose last row sits just above the head, so earlier rows climb as the Incantation grows.
+    /// </summary>
+    /// <param name="stacks">Runes in each slot's glyph: compound glyphs stack upward, so the row above must clear them.</param>
+    private static Vector2[] SlotPositions(IReadOnlyList<int> stacks)
     {
-        var spacing = count <= GlyphsBeforeCompressing
-            ? GlyphSpacing
-            : Mathf.Max(MinGlyphSpacing, GlyphSpacing * GlyphsBeforeCompressing / count);
-        var slot = ReadRightToLeft ? count - 1 - index : index;
-        return new Vector2((slot - (count - 1) / 2f) * spacing, 0f);
+        var count = stacks.Count;
+        var positions = new Vector2[count];
+        var columns = Math.Min(count, GlyphsPerRow);
+        var rows = (count + GlyphsPerRow - 1) / GlyphsPerRow;
+        var y = 0f;
+        for (var row = rows - 1; row >= 0; row--)
+        {
+            var start = row * GlyphsPerRow;
+            var end = Math.Min(start + GlyphsPerRow, count);
+            for (var i = start; i < end; i++)
+            {
+                var column = ReadRightToLeft ? columns - 1 - (i - start) : i - start;
+                positions[i] = new Vector2((column - (columns - 1) / 2f) * GlyphSpacing, y);
+            }
+            var tallest = Enumerable.Range(start, end - start).Max(i => stacks[i]);
+            y -= RowSpacing + (tallest - 1) * NGlyph.StackSpacing;
+        }
+        return positions;
     }
 
     private static int IndexIn(IReadOnlyList<Glyph> glyphs, Glyph glyph)
