@@ -76,5 +76,18 @@
   "RUNEPRIEST-RUNE_END_LOOP.title": "End Loop",
   "RUNEPRIEST-RUNE_END_LOOP.description": "Closes the nearest open [blue]Loop[/blue].",
   "RUNEPRIEST-RUNE_SEAL.title": "Seal",
-  "RUNEPRIEST-RUNE_SEAL.description": "Stop Speaking. Runes after the Seal wait until next turn."
+  "RUNEPRIEST-RUNE_SEAL.description": "Stop Speaking. Runes after the Seal wait until next turn.",
+
+  "RUNEPRIEST-RUNE_STRIKE_ASCENDED.title": "Ascended Strike",
+  "RUNEPRIEST-RUNE_STRIKE_ASCENDED.description": "Attack the target for {Value} damage with [gold]divine radiance[/gold].",
+  "RUNEPRIEST-RUNE_DEFEND_ASCENDED.title": "Ascended Defend",
+  "RUNEPRIEST-RUNE_DEFEND_ASCENDED.description": "Gain {Value} [gold]Block[/gold] infused with sacred power. Only affects you, never other players.",
+  "RUNEPRIEST-RUNE_MEND_ASCENDED.title": "Ascended Mend",
+  "RUNEPRIEST-RUNE_MEND_ASCENDED.description": "Heal {Value} HP with restorative light. Only affects you, never other players.",
+  "RUNEPRIEST-RUNE_HEX_ASCENDED.title": "Ascended Hex",
+  "RUNEPRIEST-RUNE_HEX_ASCENDED.description": "Apply {Value} [gold]Weak[/gold] and {Value} [gold]Vulnerable[/gold] to the target with curse and divine wrath.",
+  "RUNEPRIEST-RUNE_DIMINISH_ASCENDED.title": "Ascended Diminish",
+  "RUNEPRIEST-RUNE_DIMINISH_ASCENDED.description": "Attack the target for {Value} damage with fading light. Its value halves every time it resolves, and it [gold]Persists[/gold]; below 5 it [gold]Fizzles[/gold] away instead.",
+  "RUNEPRIEST-RUNE_BLOOD_ASCENDED.title": "Ascended Blood",
+  "RUNEPRIEST-RUNE_BLOOD_ASCENDED.description": "Sacrifice {Value} HP for divine power."
 }

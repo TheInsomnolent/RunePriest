@@ -74,3 +74,55 @@ Game version at time of writing: min_game_version 0.107.0, BaseLib 3.4.7. Re-ver
 ## Localization
 - `new LocString(table, key)`, `.Add(name, value)`, `.GetFormattedText()`; `LocString.Exists(table, key)`.
 - Tables = file names in `RunePriest/localization/eng/`: `cards`, `powers`, `relics`, `potions`, `characters`, `ancients`, `card_keywords`, `static_hover_tips`.
+
+## RunePriest–Specific Card Types
+
+**Rune Priest introduces new card categories** that use existing `CardType` and `CardRarity` enums:
+
+| Type | Rarity | Folder | Base Class | Example | Notes |
+|------|--------|--------|-----------|---------|-------|
+| **Standard** | Basic/Common/Uncommon/Rare | `Basic/Common/Uncommon/Rare/` | `RuneCard` or `RunePriestCard` | Strike Rune | Regular rune-casting cards |
+| **Token** | Token | `Token/` | `RunePriestCard` | Black Mark | Generated only (Curse-like), never in rewards |
+| **Ancient** | Rare/Relic (TBD) | `Ancient/` | `RunePriestCard` | TBD | Full-card-art cards granting Ascended runes; planned for future |
+| **Quest** | Rare | `Quest/` | `RunePriestCard` | TBD | Multi-stage cards or milestone mechanics; planned for future |
+| **Event** | — | `Event/` | Event model (TBD) | TBD | Map event reward cards; planned for future |
+
+**Card pool organization:**
+- `[Pool(typeof(RunePriestCardPool))]` — standard cards (only rarity-gated rewards)
+- `[Pool(typeof(TokenCardPool))]` — generated cards (invisible to rewards, shows up via card-creating effects)
+
+**Ascended cards** (future Ancient type):
+- Use `CardRarity.Rare` or a special rarity if BaseLib supports it
+- Inscribe Ascended runes (see [docs/ascended-runes.md](ascended-runes.md))
+- May have full artwork on the card frame
+
+## Custom Ancients (RunePriest-specific)
+
+Ancients are endgame upgrades that modify the player's deck or relics. Custom ancients integrate with the rune system:
+
+- **Base pattern:** Extend `RunePriestAncientChoice` (see [docs/custom-ancients.md](custom-ancients.md))
+- **Example:** Orobas upgrades the starting rune to Ascended
+- **Integration:** Likely requires Harmony patch to `Neow` or game's ancient generation
+- **Localization:** Keys in `ancients.json` as `RUNEPRIEST-<KEY>.*`
+
+**To investigate:** Does BaseLib provide `CustomAncientModel`? If not, pattern matches Harmony-patching approach (see `NeowAetherQuillPatch`).
+
+## Custom Events (RunePriest-specific)
+
+Events are non-combat map encounters offering rewards or challenges. Custom events can be character-locked:
+
+- **Base pattern:** Extend event base and use `RunePriestEventMixin` (see [docs/custom-events.md](custom-events.md))
+- **Filtering:** Use `IsRunePriestOnly()` to hide generic events from RunePriest or lock RunePriest events to RunePriest
+- **Results:** Event options can grant cards, relics, runes, or powers
+- **Localization:** Keys in `events.json` as `RUNEPRIEST_<KEY>.*`
+
+**To investigate:** Does BaseLib provide `CustomEventModel`? If not, pattern matches event-generation Harmony patch (similar to ancient integration).
+
+---
+
+## Investigation Checklist for Future Versions
+
+- [ ] BaseLib 3.5+ : Check for `CustomAncientModel` and `CustomEventModel` support
+- [ ] Game version 0.112+: Verify ancient/event APIs haven't changed
+- [ ] CI build: Ensure `UseSts2RefAssemblies=true` compiles without decompiled dependencies
+

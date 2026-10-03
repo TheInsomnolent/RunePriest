@@ -33,7 +33,28 @@ public abstract class Rune(int value = 0)
 
     public virtual string ValueLabel => Value.ToString();
 
-    public string LocKey => $"{RuneTips.Prefix}RUNE_{Key}";
+    /// <summary>
+    /// Whether this rune is Ascended — mechanically or visually enhanced. Ascended runes may have improved
+    /// visuals, different particle effects, or stronger mechanics depending on the card that inscribed them.
+    /// For localization: looks up RUNEPRIEST-RUNE_{Key}_ASCENDED first; falls back to base if not found.
+    /// </summary>
+    public virtual bool IsAscended => false;
+
+    public string LocKey
+    {
+        get
+        {
+            var baseKey = $"{RuneTips.Prefix}RUNE_{Key}";
+            // If Ascended, try the ascended variant first; fallback to base if not localized.
+            if (IsAscended)
+            {
+                var ascendedKey = baseKey + "_ASCENDED";
+                if (LocString.Exists(RuneTips.Table, ascendedKey + ".title"))
+                    return ascendedKey;
+            }
+            return baseKey;
+        }
+    }
 
     public LocString TitleLoc => new(RuneTips.Table, LocKey + ".title");
 
