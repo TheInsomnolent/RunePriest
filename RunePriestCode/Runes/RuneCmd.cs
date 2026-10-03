@@ -152,6 +152,29 @@ public static class RuneCmd
     }
 
     /// <summary>
+    /// Puts a separate copy of a glyph right after it (Teardrop). Not an Inscribe: the copy never merges into the
+    /// original and raises no inscription listeners. Index -1 duplicates the most recently inscribed glyph.
+    /// </summary>
+    /// <returns>The copy, or null if there was nothing to duplicate.</returns>
+    public static async Task<Glyph?> Duplicate(PlayerChoiceContext choiceContext, Player player, int index = -1)
+    {
+        var buffer = GetBuffer(player.Creature);
+        if (buffer == null || buffer.IsSpeaking || buffer.Glyphs.Count == 0) return null;
+
+        var i = index < 0 ? buffer.Glyphs.Count - 1 : index;
+        if (i >= buffer.Glyphs.Count) return null;
+        var copy = buffer.Glyphs[i].Copy();
+        buffer.CountInscribed([copy]);
+        buffer.Insert(i + 1, [copy]);
+        MainFile.Logger.Info($"[Rune] Duplicated {copy}");
+
+        var capacity = RuneListeners.Capacity(player);
+        while (capacity != null && buffer.Glyphs.Count > capacity && !buffer.IsSpeaking)
+            await SpeakAt(choiceContext, player, 0);
+        return copy;
+    }
+
+    /// <summary>
     /// Fizzles a glyph mid-turn: it is removed without being Spoken and counts as a fizzle for listeners.
     /// Index -1 fizzles the most recently inscribed glyph.
     /// </summary>
@@ -174,7 +197,7 @@ public static class RuneCmd
         return glyph;
     }
 
-    /// <summary>Rewrites every glyph in place (no Imbue events). Used by Pacify, Thrumming Elixir.</summary>
+    /// <summary>Rewrites every glyph in place (no Imbue events). Used by Pacify, Thrumming Elixir, Snecko Decoction.</summary>
     public static void Transform(Player player, Func<Glyph, Glyph> transform)
     {
         var buffer = GetBuffer(player.Creature);
@@ -278,7 +301,11 @@ public static class RuneCmd
                 MainFile.Logger.Error($"[Rune] Incantation collapsed: {e}");
                 retained = [];
             }
-            buffer.Retain(keep ? glyphs : retained);
+            var kept = keep ? glyphs : retained;
+            // Cleanse removes Blood from the Incantation itself, even when the Speak keeps the original runes.
+            if (ctx.BloodCleansed)
+                kept = kept.Select(g => g.Only(r => r is not BloodRune)).OfType<Glyph>().ToList();
+            buffer.Retain(kept);
         }
         finally
         {

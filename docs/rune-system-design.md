@@ -51,7 +51,7 @@ Rune, Persist…) still merge as usual.
 | **Defend X** | Gain X Block. | ✔ | Powered (`ValueProp.Move`) so Dexterity/Frail apply. Block at end of turn still protects during enemy turn. |
 | **Mend X** | Heal X HP. | ✔ | Strong in StS — keep rare, low values, often Exhaust. |
 | **Hex X** | Apply X Weak **and** X Vulnerable to target(s). | ✔ | Order matters: Hex before Strike amplifies later hits. |
-| **Cleanse** | Remove all debuffs from you. | ✘ | Self-targeted (ignores target mode). Valueless (internally 1); never merges. |
+| **Cleanse** | Remove all debuffs from you and every [Blood] rune from the Incantation. | ✘ | Self-targeted (ignores target mode). Valueless (internally 1); never merges. Blood is stripped from every glyph (a Blood-only glyph is removed, not fizzled) for the rest of the Speak and from whatever is kept afterwards, even under `keep` (Ritual, Chant, Eternal Sigil, Lingering Aroma). The forecast shows it too. |
 | **Kindle X** | Gain X Energy. | ✘ | End-of-turn → `EnergyNextTurnPower`. Invoked → immediate. |
 | **Swift X** | Draw X cards. | ✘ | End-of-turn → `DrawCardsNextTurnPower`. Invoked → immediate. |
 | **Blood X** | Lose X HP (unblockable, self). | ✔ | The drawback half of compound glyphs (Ritual, Blood Sacrifice, Cursed Sword). |
@@ -371,19 +371,20 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Last Scroll | Rare | Skill | 0 | Remove every rune after the first; wrap the first in 2 nested [Loop]…[End Loop] (4 passes). You may no longer Inscribe this turn (`LastScrollPower`). | 3 Loops (8 passes) |
 | Two-way Mirror | Uncommon | Skill | 1 | Multiplayer only. Inscribe [Reflection]; Inscribe [Reflection] into a random slot of a random ally's Incantation (`RuneCmd.ShareAt`). | into the end of their Incantation instead of a random slot |
 | Martyr | Uncommon | Skill | 1 | Inscribe [Blood 10][Mend 10][Reflection]. Exhaust. | no Exhaust |
+| Exorcism | Uncommon | Power | 1 | The first Curse you draw each turn is Exhausted; then draw 1 and Inscribe [Void] (`ExorcismPower`, counted from the draw history like the base game's Iteration). | draw 2 |
 
 Special (Token rarity, `TokenCardPool`; only created by Unforgiveable Curse / Cursed Spirits / Black Hole Strike / Reroute Energy+):
 
 | Card | Type | Cost | Effect | Upgrade |
 |---|---|---|---|---|
-| Cursed Sword | Attack | 1 | Inscribe [Blood 10][Strike 20]. Deal 30. | Blood 5 |
-| Cursed Armour | Skill | 1 | Can't gain Block until next turn; then Inscribe [Mend] = HP lost meanwhile. | also reflect HP damage from enemies until next turn |
-| Cursed Spirits | Power | 1 | Summon 3 spirits (+1 each turn start); at end of turn each deals 5 (Unpowered, so Strength doesn't apply) to a random Black-Marked enemy; no marked enemy → no attack. Add a Black Mark to hand. | 5 spirits |
+| Cursed Sword | Attack | 1 | Inscribe [Blood 10][Strike 20]. Deal 30. Ethereal. Exhaust. | Blood 5 |
+| Cursed Armour | Skill | 1 | Can't gain Block until next turn; then Inscribe [Mend] = HP lost meanwhile. Ethereal. Exhaust. | also reflect HP damage from enemies until next turn |
+| Cursed Spirits | Power | 1 | Summon 3 spirits (+1 each turn start); at end of turn each deals 5 (Unpowered, so Strength doesn't apply) to a random Black-Marked enemy; no marked enemy → no attack. Add a Black Mark to hand. Ethereal. Exhaust. | 5 spirits |
 | Black Mark | Skill | 0 | Apply Black Mark (only marked enemies are attacked by spirits). | draw 1 |
 | White Hole Strike | Attack | 1 | Inscribe [Strike 20][End Loop]. Add a Black Hole Strike to the discard pile. | cost 0 |
 | Old Lantern | Skill | X | Inscribe [Kindle X]. Exhaust. | no Exhaust |
 
-Totals: 2 Basic, 30 Common, 42 Uncommon, 18 Rare = 92, plus 6 special.
+Totals: 2 Basic, 30 Common, 43 Uncommon, 18 Rare = 93, plus 6 special.
 
 Assumptions made where the CSV was silent (revisit on review): bare "Inscribe Twin/Kindle/Hex" = Twin ×2 /
 Kindle 1 / Hex 1; bare "Inscribe Swift" = Swift 2; "Draw 1" upgrades draw on play; Imbue takes the newest
@@ -403,6 +404,7 @@ without being Spoken, which includes fizzles; Holy Water Sigil uses the heal amo
 | Enchanted Anvil | Rare | Whenever you Inscribe, deal 2 damage to ALL enemies. |
 | De-illuminator | Rare | The first [Void] you Inscribe each combat immediately Fizzles (feeds fizzle triggers like Unforgiveable Curse). |
 | Midas Hand | Rare | Whenever you Inscribe, gain 2 Gold. |
+| Cursed Ring | Shop (200 Gold) | Cursed items (Cursed Sword, Cursed Armour, Cursed Spirits) cost 0 (`TryModifyEnergyCostInCombat`). |
 | Undead Quill | Shop (300 Gold) | [Blood] and [Mend] runes swap their effects when Spoken (`IRuneListener.ReplacePayload`; side-effect-free so the forecast shows it too). |
 | Lightweight Cloth Robe | Event | Cards with [Blood] runes (inscribed or Imbued; not X-cost) cost 0. Your [Blood] runes are doubled. From the Suspicious Tailor event. |
 | Hallowed Toolbox | Starter | Blessed Toolbox upgraded by Orobas' Touch of Orobas (`CustomRelicModel.GetUpgradeReplacement`): whenever you play a rune card, draw 1. |
@@ -414,8 +416,11 @@ without being Spoken, which includes fizzles; Holy Water Sigil uses the heal amo
 | Potion | Rarity | Effect |
 |---|---|---|
 | Echo Brew | Common | Inscribe [Echo]. |
+| Teardrop | Common | Duplicate the last rune: a separate copy right after it (`RuneCmd.Duplicate`; never merges, no inscription listeners). Only usable with a non-empty Incantation. |
+| Lucky Elixir | Uncommon | Inscribe [Swift 2, Mend 2] (one simultaneous glyph). |
+| Snecko Decoction | Uncommon | Shuffle the values of every valued payload rune (Strike, Defend, Mend, Blood, Hex, Kindle, Swift, Diminish) in the Incantation (`CombatTargets` RNG). Modifiers, targets, flow and valueless runes are untouched. Only usable with 2+ such runes. |
 | Lingering Aroma | Rare | This turn the Incantation is kept after Speaking (`LingeringAromaPower`, removed at your next turn start). |
-| Thrumming Elixir | Rare | Every amplifiable rune already inscribed gains +2 (`Glyph.Empower`; not a modifier, so loops don't multiply it). |
+| Thrumming Elixir | Rare | Amplify +2 every amplifiable rune already inscribed (`Glyph.Empower` rewrites the values in place). |
 | Aether Quill | Event | Choose an Imbued card in your hand; its Imbue becomes permanent (only usable while such a card is in hand). Never a random potion; from Neow via Aether Inkwell. |
 
 Balance watch-list: Blind Rage (15 for 1), Imbued Teacup + Runic Form (doubles the first rune inside the Loop),
@@ -453,6 +458,7 @@ Energy emptying a huge Incantation, Undead Quill turning Martyr/Blood Sacrifice 
 - Loops lost their number (10/1/2026): `LoopRune` is valueless like targets/Echo and always speaks its body twice; nest Loops for more (`IRuneListener.ModifyLoopCount` removed). Last Scroll now inscribes 2 nested Loops (3 upgraded) instead of Loop 5/8.
 - Ancients pass 10/3/2026: Ascended cards moved to **Ancient rarity** (out of card rewards; never upgrade) and are reached through Orobas' Archaic Tooth; the stubbed ancient boons were implemented as real relics (§15). **Growth/Overgrowth can't be stacked on**: casts no longer merge into the glyph a Growth is delaying (regular Persist glyphs still merge). Mirrororrim now inscribes in `BeforeSideTurnEndEarly` (it used to race the Speak in `BeforeSideTurnEnd`, so its runes often landed after it and sat there next turn). Preview: earlier runes' effects (Hex) and teammates who Speak first now feed the overhead values; hovering a glyph highlights its targets with arcs. Patient Rune is Uncommon (so it is no longer a possible starting rune). Assumptions: Corrupted Sigil is always offered (Eternal Sigil removal is incidental); Etch removes the chosen rune card and etches its `RuneCard.InscribedGlyphs` (`GlyphCodec` now keeps Persist with a `!` prefix, which also applies to Imbued runes); Healer only adds Mend to payload glyphs.
 - Card-pool pass 10/3/2026: Emanate renamed **Emenate**; Cocoon no longer inscribes a Void; Persist is written once, inline after its rune (keyword dropped from those cards); Unforgiveable Curse says "item"; Runic Sphere only affects cards with "Rune" in their name; Lightweight Cloth Robe is an **Event** relic (unobtainable until a Rune Priest event grants it) and its "Blood cards are free" half is now implemented.
+- Curse pass 10/3/2026: the cursed items (Cursed Sword/Armour/Spirits) are **Ethereal + Exhaust**; **Cleanse** also removes every [Blood] rune from the Incantation; new Uncommon **Exorcism**, Shop relic **Cursed Ring** (200 Gold), potions **Teardrop**, **Lucky Elixir**, **Snecko Decoction**; Thrumming Elixir's description no longer mentions loops (they aren't amplifiable since #18). Assumptions: Cleanse stays self-targeted; Teardrop's copy is a separate glyph (no merge, no Inscribe triggers); Snecko Decoction only shuffles valued payload runes.
 
 ## 12. Overhead visuals (Phase 3)
 From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;

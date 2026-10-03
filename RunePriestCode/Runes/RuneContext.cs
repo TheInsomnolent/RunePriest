@@ -40,6 +40,9 @@ public sealed class RuneContext(PlayerChoiceContext choiceContext, Player owner,
     public int GlyphsSpoken => _spoken.Count;
     public int Fizzles { get; set; }
 
+    /// <summary>A Cleanse resolved this Speak: no Blood rune survives into the kept Incantation.</summary>
+    public bool BloodCleansed { get; set; }
+
     public Creature Creature => Owner.Creature;
     public ICombatState CombatState => Creature.CombatState!;
 

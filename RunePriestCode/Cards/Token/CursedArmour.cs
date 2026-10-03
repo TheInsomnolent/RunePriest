@@ -15,6 +15,8 @@ namespace RunePriest.RunePriestCode.Cards.Special;
 [Pool(typeof(TokenCardPool))]
 public sealed class CursedArmour() : RunePriestCard(1, CardType.Skill, CardRarity.Token, TargetType.Self)
 {
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Ethereal, CardKeyword.Exhaust];
+
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [
         HoverTipFactory.FromPower<CursedArmourPower>(),

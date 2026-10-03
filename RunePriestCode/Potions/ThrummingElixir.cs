@@ -9,7 +9,7 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Potions;
-/// <summary>Adds a flat bonus to every rune already inscribed (not an Amplify rune, so Loops don't multiply it).</summary>
+/// <summary>Amplifies every amplifiable rune already inscribed by a flat bonus (rewrites the values in place).</summary>
 public sealed class ThrummingElixir : RunePriestPotion
 {
     public override PotionRarity Rarity => PotionRarity.Rare;

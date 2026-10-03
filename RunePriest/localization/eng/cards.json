@@ -228,5 +228,7 @@
   "RUNEPRIEST-MIRRORORRIM.title": "Mirrororrim",
   "RUNEPRIEST-MIRRORORRIM.description": "At the end of each turn, [gold]Inscribe[/gold] [blue]End Loop[/blue].\n[gold]Inscribe[/gold] [blue]Reflection[/blue].",
   "RUNEPRIEST-FORGED_RUNE.title": "Forged Rune",
-  "RUNEPRIEST-FORGED_RUNE.description": "{ForgedCount:choose(0):Inscribes the runes of the two cards forged into it.|{ForgedRunes}}"
+  "RUNEPRIEST-FORGED_RUNE.description": "{ForgedCount:choose(0):Inscribes the runes of the two cards forged into it.|{ForgedRunes}}",
+  "RUNEPRIEST-EXORCISM.title": "Exorcism",
+  "RUNEPRIEST-EXORCISM.description": "The first Curse you draw each turn is [gold]Exhausted[/gold]. When it is, draw {ExorcismPower:diff()} {ExorcismPower:plural:card|cards} and [gold]Inscribe[/gold] [blue]Void[/blue]."
 }

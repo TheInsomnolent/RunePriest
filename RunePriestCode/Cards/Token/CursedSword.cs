@@ -15,6 +15,8 @@ namespace RunePriest.RunePriestCode.Cards.Special;
 [Pool(typeof(TokenCardPool))]
 public sealed class CursedSword() : RuneCard(1, CardType.Attack, CardRarity.Token, TargetType.AnyEnemy)
 {
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Ethereal, CardKeyword.Exhaust];
+
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         [new DamageVar(30m, ValueProp.Move), new IntVar("Blood", 10m), new DamageVar("Strike", 20m, ValueProp.Move)];
 

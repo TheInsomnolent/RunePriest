@@ -7,5 +7,11 @@
   "RUNEPRIEST-THRUMMING_ELIXIR.description": "Every rune in your Incantation that can be amplified gains {Amplify}.",
   "RUNEPRIEST-AETHER_QUILL.title": "Aether Quill",
   "RUNEPRIEST-AETHER_QUILL.description": "Choose an [gold]Imbued[/gold] card in your hand. It stays [gold]Imbued[/gold] with its runes for the rest of the run.",
-  "RUNEPRIEST-AETHER_QUILL.selectionScreenPrompt": "Choose an [gold]Imbued[/gold] card to keep its runes permanently."
+  "RUNEPRIEST-AETHER_QUILL.selectionScreenPrompt": "Choose an [gold]Imbued[/gold] card to keep its runes permanently.",
+  "RUNEPRIEST-TEARDROP.title": "Teardrop",
+  "RUNEPRIEST-TEARDROP.description": "Duplicate the last rune in your Incantation.",
+  "RUNEPRIEST-LUCKY_ELIXIR.title": "Lucky Elixir",
+  "RUNEPRIEST-LUCKY_ELIXIR.description": "[gold]Inscribe[/gold] [blue]Swift[/blue] {Swift}, [blue]Mend[/blue] {Mend}.",
+  "RUNEPRIEST-SNECKO_DECOCTION.title": "Snecko Decoction",
+  "RUNEPRIEST-SNECKO_DECOCTION.description": "Randomly swap the values of the effect runes (like [blue]Strike[/blue] and [blue]Defend[/blue]) in your Incantation."
 }

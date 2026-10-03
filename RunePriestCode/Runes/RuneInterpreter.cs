@@ -267,7 +267,7 @@ public static class RuneInterpreter
                             return Kept(slots);
                         }
                         await Activate(ctx, slot);
-                        if (!await ExecutePayloadGlyph(ctx, slot, mods))
+                        if (!await ExecutePayloadGlyph(ctx, slot, mods, slots))
                             await Fizzle(ctx, pc, slot, "nothing resolved");
                         await Diminish(ctx, pc, slot);
                     }
@@ -362,13 +362,15 @@ public static class RuneInterpreter
     }
 
     /// <returns>Whether any rune in the glyph resolved (or would, in preview).</returns>
-    private static async Task<bool> ExecutePayloadGlyph(RuneContext ctx, Slot slot, List<ModifierRune> mods)
+    private static async Task<bool> ExecutePayloadGlyph(RuneContext ctx, Slot slot, List<ModifierRune> mods, List<Slot> slots)
     {
         var glyph = slot.Current;
         var resolved = false;
         for (var i = 0; i < glyph.Runes.Count; i++)
         {
             var inscribed = (PayloadRune)glyph.Runes[i];
+            // A Cleanse earlier in this glyph already removed it.
+            if (inscribed is BloodRune && !slot.Current.Runes.Contains(inscribed)) continue;
             var rune = ctx.Listeners.Aggregate(inscribed, (r, l) => l.ReplacePayload(ctx, r));
             var value = ctx.Listeners.Aggregate(rune.Value, (v, l) => l.ModifyRuneValue(ctx, rune, v));
             value = mods.Aggregate(value, (v, m) => m.ApplyTo(rune, v));
@@ -386,6 +388,7 @@ public static class RuneInterpreter
                     foreach (var target in previewTargets)
                     foreach (var power in rune.PreviewPowers)
                         ctx.Preview.Effects.Apply(target, power);
+                if (rune is CleanseRune) PurgeBlood(ctx, slots);
                 resolved = true;
                 continue;
             }
@@ -401,11 +404,41 @@ public static class RuneInterpreter
             Log(ctx, $"  {rune.Key} {value} -> {string.Join(", ", targets.Select(t => t.ToString()))}");
             await rune.Resolve(ctx, glyph, value, targets);
             resolved = true;
+            if (rune is CleanseRune) PurgeBlood(ctx, slots);
             foreach (var listener in ctx.Listeners)
                 await listener.AfterPayload(ctx, rune, value, targets);
             if (ctx.ShouldStop) break;
         }
         return resolved;
+    }
+
+    /// <summary>
+    /// Cleanse: strips every Blood rune from the Incantation for the rest of the Speak (and from what it keeps for next
+    /// turn). A glyph left with no runes is gone; it is removed, not fizzled.
+    /// </summary>
+    private static void PurgeBlood(RuneContext ctx, List<Slot> slots)
+    {
+        static bool IsBlood(Rune r) => r is BloodRune;
+
+        ctx.BloodCleansed = true;
+        foreach (var slot in slots)
+        {
+            if (!slot.Consumed && slot.Current.Runes.Any(IsBlood))
+            {
+                var before = slot.Current;
+                if (before.Only(r => !IsBlood(r)) is { } cleansed) slot.Current = cleansed;
+                else slot.Consumed = true;
+                Log(ctx, $"  Cleanse removes the Blood from {before}");
+            }
+
+            for (var i = slot.Clones.Count - 1; i >= 0; i--)
+            {
+                var (glyph, origin) = slot.Clones[i];
+                if (!glyph.Runes.Any(IsBlood)) continue;
+                if (glyph.Only(r => !IsBlood(r)) is { } cleansed) slot.Clones[i] = (cleansed, origin);
+                else slot.Clones.RemoveAt(i);
+            }
+        }
     }
 
     /// <summary>A rune's value after game effects: the value every target agrees on, else the target-independent one.</summary>

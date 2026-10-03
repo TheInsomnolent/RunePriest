@@ -93,5 +93,8 @@
   "RUNEPRIEST-CORRUPTED_SIGIL_POWER.smartDescription": "All cards with Rune in their name {Ethereal:choose(0):|are [gold]Ethereal[/gold], }[gold]Exhaust[/gold] and cost 0.\nYour runes remain between turns.",
   "RUNEPRIEST-MIRRORORRIM_POWER.title": "Mirrororrim",
   "RUNEPRIEST-MIRRORORRIM_POWER.description": "At the end of your turn, [gold]Inscribe[/gold] [blue]End Loop[/blue] and [blue]Reflection[/blue] before your Incantation is [gold]Spoken[/gold].",
-  "RUNEPRIEST-MIRRORORRIM_POWER.smartDescription": "At the end of your turn, [gold]Inscribe[/gold] [blue]End Loop[/blue] and [blue]Reflection[/blue] before your Incantation is [gold]Spoken[/gold]."
+  "RUNEPRIEST-MIRRORORRIM_POWER.smartDescription": "At the end of your turn, [gold]Inscribe[/gold] [blue]End Loop[/blue] and [blue]Reflection[/blue] before your Incantation is [gold]Spoken[/gold].",
+  "RUNEPRIEST-EXORCISM_POWER.title": "Exorcism",
+  "RUNEPRIEST-EXORCISM_POWER.description": "The first Curse you draw each turn is [gold]Exhausted[/gold]. When it is, draw cards and [gold]Inscribe[/gold] [blue]Void[/blue].",
+  "RUNEPRIEST-EXORCISM_POWER.smartDescription": "The first Curse you draw each turn is [gold]Exhausted[/gold]. When it is, draw {Amount} {Amount:plural:card|cards} and [gold]Inscribe[/gold] [blue]Void[/blue]."
 }

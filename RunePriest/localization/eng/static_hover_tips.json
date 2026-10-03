@@ -32,7 +32,7 @@
   "RUNEPRIEST-RUNE_DIMINISH.title": "Diminish",
   "RUNEPRIEST-RUNE_DIMINISH.description": "Attack the target for {Value} damage. Its value halves every time it resolves, and it [gold]Persists[/gold]; below 5 it [gold]Fizzles[/gold] away instead.",
   "RUNEPRIEST-RUNE_CLEANSE.title": "Cleanse",
-  "RUNEPRIEST-RUNE_CLEANSE.description": "Remove all debuffs from you. Has no value and cannot be amplified.",
+  "RUNEPRIEST-RUNE_CLEANSE.description": "Remove all debuffs from you and every [blue]Blood[/blue] rune from your Incantation. Has no value and cannot be amplified.",
   "RUNEPRIEST-RUNE_BLOOD.title": "Blood",
   "RUNEPRIEST-RUNE_BLOOD.description": "Lose {Value} HP.",
   "RUNEPRIEST-RUNE_KINDLE.title": "Kindle",

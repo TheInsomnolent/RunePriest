@@ -15,6 +15,8 @@ namespace RunePriest.RunePriestCode.Cards.Special;
 [Pool(typeof(TokenCardPool))]
 public sealed class CursedSpirits() : RunePriestCard(1, CardType.Power, CardRarity.Token, TargetType.Self)
 {
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Ethereal, CardKeyword.Exhaust];
+
     protected override IEnumerable<DynamicVar> CanonicalVars => [new PowerVar<CursedSpiritsPower>(3m)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
