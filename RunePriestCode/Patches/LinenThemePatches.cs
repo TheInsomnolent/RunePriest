@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using Godot;
 using HarmonyLib;
@@ -10,23 +11,43 @@ using RunePriest.RunePriestCode.Character;
 
 namespace RunePriest.RunePriestCode.Patches;
 
-/// <summary>Serves <see cref="RunePriestScenes"/>' virtual paths through the asset cache.</summary>
-[HarmonyPatch(typeof(AssetCache))]
+/// <summary>
+/// Serves <see cref="RunePriestScenes"/>' virtual paths through the asset cache. One-line wrappers like
+/// <c>AssetCache.GetScene</c>/<c>CreateSession</c> get inlined by the JIT (e.g. into BaseLib's patched
+/// <c>NCharacterSelectScreen.SelectCharacter</c>), which silently bypasses Harmony, so these hook the larger
+/// methods they forward to.
+/// </summary>
+[HarmonyPatch]
 public static class RunePriestScenePatches
 {
-    [HarmonyPatch(nameof(AssetCache.GetScene))]
-    [HarmonyPrefix]
-    public static bool ResolveVirtualScene(string path, ref PackedScene __result)
+    // Private and absent from the CI reference stubs, so looked up by name. LoadAsset covers callers that inlined GetAsset.
+    public static IEnumerable<MethodBase> TargetMethods()
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        MethodBase?[] targets =
+        [
+            typeof(AssetCache).GetMethod("GetAsset", 0, flags, null, [typeof(string)], null),
+            typeof(AssetCache).GetMethod("LoadAsset", 0, flags, null, [typeof(string)], null)
+        ];
+        if (targets.Contains(null))
+            MainFile.Logger.Error("AssetCache.GetAsset/LoadAsset not found; Rune Priest scenes may fail to load.");
+        return targets.OfType<MethodBase>();
+    }
+
+    public static bool Prefix(string path, ref Resource __result)
     {
         if (RunePriestScenes.Resolve(path) is not { } scene) return true;
         __result = scene;
         return false;
     }
+}
 
-    // Preloading goes straight to ResourceLoader, which can't see virtual paths.
-    [HarmonyPatch(nameof(AssetCache.CreateSession))]
-    [HarmonyPrefix]
-    public static void SkipVirtualPreloads(ref IEnumerable<string> paths) =>
+/// <summary>Preloading goes straight to <c>ResourceLoader</c>, which can't see virtual paths.</summary>
+[HarmonyPatch(typeof(AssetLoadingSession), MethodType.Constructor,
+    typeof(string), typeof(IEnumerable<string>), typeof(ConcurrentDictionary<string, Resource>), typeof(AssetCache))]
+public static class RunePriestPreloadPatch
+{
+    public static void Prefix(ref IEnumerable<string> paths) =>
         paths = paths.Select(RunePriestScenes.PreloadPath).OfType<string>().Distinct().ToList();
 }
 
