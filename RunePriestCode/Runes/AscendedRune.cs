@@ -28,7 +28,7 @@ public abstract class AscendedRune : Rune
     /// Ascended runes merge with their base counterparts: an Ascended Strike (5) + Strike (3) = Ascended Strike (8).
     /// Returns an Ascended variant of WithValue result, or null if the base rune doesn't merge.
     /// </summary>
-    public override Rune? WithValue(int value)
+    protected override Rune? Revalued(int value)
     {
         var merged = BaseRune.WithValue(value);
         return merged != null ? ToAscended(merged) : null;

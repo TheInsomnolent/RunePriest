@@ -13,7 +13,7 @@ public static class RuneCmd
 
     public static async Task Inscribe(PlayerChoiceContext choiceContext, Player player, IEnumerable<Glyph> glyphs, CardModel? source)
     {
-        IReadOnlyList<Glyph> list = glyphs.Select(g => g.Source == null ? g.WithSource(source) : g).ToList();
+        IReadOnlyList<Glyph> list = glyphs.Select(g => g.InscribedBy(source)).ToList();
         if (list.Count == 0) return;
 
         var creature = player.Creature;
@@ -140,7 +140,7 @@ public static class RuneCmd
         var buffer = GetBuffer(player.Creature);
         if (buffer == null || buffer.IsSpeaking) return;
 
-        var list = glyphs.Select(g => g.Source == null ? g.WithSource(source) : g).ToList();
+        var list = glyphs.Select(g => g.InscribedBy(source)).ToList();
         if (list.Count == 0) return;
         buffer.CountInscribed(list);
         buffer.Insert(0, list);

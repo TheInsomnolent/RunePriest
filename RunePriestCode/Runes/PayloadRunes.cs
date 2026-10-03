@@ -72,7 +72,7 @@ public abstract class PayloadRune(int value) : Rune(value)
 public sealed class StrikeRune(int value) : PayloadRune(value)
 {
     public override string Key => "STRIKE";
-    public override Rune WithValue(int value) => new StrikeRune(value);
+    protected override Rune Revalued(int value) => new StrikeRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
 
     public override int Modified(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects = null) =>
@@ -105,7 +105,7 @@ public sealed class StrikeRune(int value) : PayloadRune(value)
 public sealed class DefendRune(int value) : PayloadRune(value)
 {
     public override string Key => "DEFEND";
-    public override Rune WithValue(int value) => new DefendRune(value);
+    protected override Rune Revalued(int value) => new DefendRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Ally;
 
     public override int Modified(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects = null) =>
@@ -123,7 +123,7 @@ public sealed class DefendRune(int value) : PayloadRune(value)
 public sealed class MendRune(int value) : PayloadRune(value)
 {
     public override string Key => "MEND";
-    public override Rune WithValue(int value) => new MendRune(value);
+    protected override Rune Revalued(int value) => new MendRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Ally;
 
     public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)
@@ -152,7 +152,7 @@ public sealed class CleanseRune() : PayloadRune(1)
 public sealed class BloodRune(int value) : PayloadRune(value)
 {
     public override string Key => "BLOOD";
-    public override Rune WithValue(int value) => new BloodRune(value);
+    protected override Rune Revalued(int value) => new BloodRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Self;
 
     public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
@@ -162,7 +162,7 @@ public sealed class BloodRune(int value) : PayloadRune(value)
 public sealed class KindleRune(int value) : PayloadRune(value)
 {
     public override string Key => "KINDLE";
-    public override Rune WithValue(int value) => new KindleRune(value);
+    protected override Rune Revalued(int value) => new KindleRune(value);
     public override bool Amplifiable => false;
     public override RuneTargeting Targeting => RuneTargeting.Self;
 
@@ -178,7 +178,7 @@ public sealed class KindleRune(int value) : PayloadRune(value)
 public sealed class SwiftRune(int value) : PayloadRune(value)
 {
     public override string Key => "SWIFT";
-    public override Rune WithValue(int value) => new SwiftRune(value);
+    protected override Rune Revalued(int value) => new SwiftRune(value);
     public override bool Amplifiable => false;
     public override RuneTargeting Targeting => RuneTargeting.Self;
 
@@ -195,7 +195,7 @@ public sealed class SwiftRune(int value) : PayloadRune(value)
 public sealed class HexRune(int value = 1) : PayloadRune(value)
 {
     public override string Key => "HEX";
-    public override Rune WithValue(int value) => new HexRune(value);
+    protected override Rune Revalued(int value) => new HexRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
 
     public override IEnumerable<IHoverTip> HoverTips =>
@@ -220,7 +220,7 @@ public sealed class DiminishRune(int value) : PayloadRune(value)
     public const int FizzleThreshold = 5;
 
     public override string Key => "DIMINISH";
-    public override Rune WithValue(int value) => new DiminishRune(value);
+    protected override Rune Revalued(int value) => new DiminishRune(value);
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
 
     public override int Modified(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects = null) =>

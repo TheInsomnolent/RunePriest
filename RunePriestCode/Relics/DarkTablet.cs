@@ -29,7 +29,7 @@ public sealed class DarkTablet : RunePriestRelic, IRuneListener
     private sealed class EnemyBloodRune(int value) : PayloadRune(value)
     {
         public override string Key => "BLOOD";
-        public override Rune WithValue(int value) => new EnemyBloodRune(value);
+        protected override Rune Revalued(int value) => new EnemyBloodRune(value);
         public override RuneTargeting Targeting => RuneTargeting.Enemy;
 
         public override Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets) =>
@@ -40,7 +40,7 @@ public sealed class DarkTablet : RunePriestRelic, IRuneListener
     private sealed class EnemyMendRune(int value) : PayloadRune(value)
     {
         public override string Key => "MEND";
-        public override Rune WithValue(int value) => new EnemyMendRune(value);
+        protected override Rune Revalued(int value) => new EnemyMendRune(value);
         public override RuneTargeting Targeting => RuneTargeting.Enemy;
 
         public override async Task Resolve(RuneContext ctx, Glyph glyph, int value, IReadOnlyList<Creature> targets)

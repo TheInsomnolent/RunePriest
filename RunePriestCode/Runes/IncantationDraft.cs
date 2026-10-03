@@ -70,7 +70,7 @@ public sealed class IncantationDraft
 
     public void Inscribe(IEnumerable<Glyph> glyphs, CardModel? source)
     {
-        IReadOnlyList<Glyph> list = glyphs.Select(g => g.Source == null ? g.WithSource(source) : g).ToList();
+        IReadOnlyList<Glyph> list = glyphs.Select(g => g.InscribedBy(source)).ToList();
         if (list.Count == 0) return;
         _exists = true;
         foreach (var listener in RuneListeners.Of(Player))
@@ -95,7 +95,7 @@ public sealed class IncantationDraft
 
     public void Prepend(IEnumerable<Glyph> glyphs, CardModel? source)
     {
-        var list = glyphs.Select(g => g.Source == null ? g.WithSource(source) : g)
+        var list = glyphs.Select(g => g.InscribedBy(source))
             .Select(g => new DraftEntry(g, null, DraftChange.Added)).ToList();
         if (list.Count == 0 || !_exists) return;
         _entries.InsertRange(0, list);

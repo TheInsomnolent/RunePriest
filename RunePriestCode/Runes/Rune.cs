@@ -40,6 +40,24 @@ public abstract class Rune(int value = 0)
     /// </summary>
     public virtual bool IsAscended => false;
 
+    /// <summary>
+    /// Inscribed by an Ascended card: drawn with rainbow particles. Purely cosmetic; kept through value changes,
+    /// merges (either side radiant), copies and Imbue/Etch encoding.
+    /// </summary>
+    public bool Radiant { get; private set; }
+
+    /// <summary>This rune, radiant (<see cref="Radiant"/>).</summary>
+    public Rune AsRadiant() => RadiantIf(true);
+
+    /// <summary>A radiant copy if <paramref name="radiant"/> and this rune isn't radiant yet; otherwise this rune.</summary>
+    public Rune RadiantIf(bool radiant)
+    {
+        if (!radiant || Radiant) return this;
+        var copy = (Rune)MemberwiseClone();
+        copy.Radiant = true;
+        return copy;
+    }
+
     public string LocKey
     {
         get
@@ -74,7 +92,10 @@ public abstract class Rune(int value = 0)
     public virtual IEnumerable<IHoverTip> HoverTips => [new HoverTip(TitleLoc, DescriptionLoc)];
 
     /// <summary>Same rune with a new value, or null if this rune never merges (targets, Loop, End Loop, Seal, Sanctify).</summary>
-    public virtual Rune? WithValue(int value) => null;
+    public Rune? WithValue(int value) => Revalued(value)?.RadiantIf(Radiant);
+
+    /// <summary>A new rune of this type with <paramref name="value"/>; null if it never merges. Radiance is copied by <see cref="WithValue"/>.</summary>
+    protected virtual Rune? Revalued(int value) => null;
 
     public override string ToString() => ShowsValue ? $"{Key} {ValueLabel}" : Key;
 }

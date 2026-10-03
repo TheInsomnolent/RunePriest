@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Models;
+using RunePriest.RunePriestCode.Cards;
 
 namespace RunePriest.RunePriestCode.Runes;
 
@@ -48,6 +49,20 @@ public sealed class Glyph
 
     public Glyph WithSource(CardModel? source) => new(Runes, Anchor, source, Persistent);
 
+    /// <summary>Every rune made <see cref="Rune.Radiant"/> (inscribed by an Ascended card).</summary>
+    public Glyph Radiant() => Runes.All(r => r.Radiant) ? this : WithRunes(Runes.Select(r => r.AsRadiant()).ToArray());
+
+    /// <summary>
+    /// Attributes an unsourced glyph to the card inscribing it; runes an Ascended card creates turn
+    /// <see cref="Rune.Radiant"/>. Glyphs that already have a source (copies of existing runes) are unchanged.
+    /// </summary>
+    public Glyph InscribedBy(CardModel? source)
+    {
+        if (Source != null) return this;
+        var glyph = WithSource(source);
+        return source is RunePriestCard { IsAscended: true } ? glyph.Radiant() : glyph;
+    }
+
     /// <summary>The same glyph, marked to stay in the Incantation after it is Spoken (the Persist keyword).</summary>
     public Glyph Persist() => new(Runes, Anchor, Source, persistent: true);
 
@@ -77,7 +92,7 @@ public sealed class Glyph
     public Glyph DefendAsMend()
     {
         if (!Runes.Any(r => r is DefendRune)) return this;
-        return new Glyph(Runes.Select(r => r is DefendRune ? new MendRune(r.Value) : r).ToList(), Anchor, Source, Persistent);
+        return new Glyph(Runes.Select(r => r is DefendRune ? new MendRune(r.Value).RadiantIf(r.Radiant) : r).ToList(), Anchor, Source, Persistent);
     }
 
     /// <summary>
@@ -94,7 +109,7 @@ public sealed class Glyph
             if (Runes[i].Key != next.Runes[i].Key) return null;
             var rune = Runes[i].WithValue(Runes[i].Value + next.Runes[i].Value);
             if (rune == null) return null;
-            merged[i] = rune;
+            merged[i] = rune.RadiantIf(next.Runes[i].Radiant);
         }
         return new Glyph(merged, Anchor, Source, Persistent || next.Persistent);
     }

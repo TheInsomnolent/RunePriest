@@ -5,6 +5,15 @@
 > through Orobas' Archaic Tooth (see [rune-system-design.md §15](rune-system-design.md#15-ancients-and-ascended-cards)).
 > The only Ascended *rune* so far is Overgrowth (`OvergrowthRune`, a `GrowingRune` that triples). The examples below
 > (`AscendedStrike`, `AncientCard`, `BlessedToolboxAscended`) are design sketches, not existing code.
+>
+> **Radiant runes (implemented):** every rune an Ascended card creates is marked `Rune.Radiant` (a per-instance,
+> purely cosmetic flag, separate from the type-level `IsAscended`). `Glyph.InscribedBy(source)` sets it in
+> `RuneCmd.Inscribe/Prepend` and the drag-preview `IncantationDraft` whenever the source is a `RunePriestCard` with
+> `IsAscended` (Ancient + `MaxUpgradeLevel => 0`); Healer's added Mend is radiant on its own. Radiance survives
+> `WithValue` (subclasses override `Revalued`), merges (either side radiant → radiant), copies, Diminish halving,
+> Defend→Mend and `GlyphCodec` (`*KEY:VALUE`, so Imbue/Aether Quill/Etch keep it). `NRuneSymbol` draws radiant runes
+> with a hue-cycling symbol (a colour wave along the Incantation), rainbow sparks, an orbiting sparkle ring and a
+> spinning RGB halo; the Persist mandala turns rainbow too. Drag-preview ghosts use the same effects, desaturated.
 
 **Ascended Runes** are enhanced versions of standard runes inscribed by Ascended cards (Ancient-rarity cards that grant special powers). They are mechanically identical to their base counterparts but visually and textually distinct, signaling their elevated power.
 
@@ -106,7 +115,7 @@ public class BlessedToolboxAscended : RunePriestRelic
 ## UI Considerations
 
 ### Rune Buffer Display
-- The rune UI node should check `rune.IsAscended` and apply a glow/tint shader
+- The rune UI node (`NRuneSymbol`) checks `rune.Radiant` and draws the rainbow treatment (see the note at the top)
 - Particle effects: consider adding small sparkles or radiance around ascended runes
 - Animation: ascended runes could have a subtle pulsing or floating animation
 

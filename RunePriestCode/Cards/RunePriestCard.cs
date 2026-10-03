@@ -63,6 +63,9 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
     /// </summary>
     public static bool HasRuneInName(CardModel card) => card.Id.Entry.RemovePrefix().Split('_').Contains("RUNE");
 
+    /// <summary>Ascended cards are Ancient cards that never upgrade; the runes they create are <see cref="Rune.Radiant"/>.</summary>
+    public bool IsAscended => Rarity == CardRarity.Ancient && MaxUpgradeLevel == 0;
+
     /// <summary>Whether this combat card is Imbued and has a deck card its Imbue can be made permanent on.</summary>
     public bool CanMakeImbuePermanent =>
         IsImbued && DeckVersion is RunePriestCard deckCard && !ReferenceEquals(deckCard, this)

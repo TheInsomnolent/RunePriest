@@ -607,7 +607,10 @@ Ancient cards (`Cards/Ancient`, `CardRarity.Ancient`: never in card rewards or r
 | Corrupted Sigil | Power | 0 | Cards with "Rune" in their name are Ethereal, Exhaust and cost 0; the Incantation is kept after Speaking. | not Ethereal |
 | Mirrororrim | Power | 2 | Ethereal. End of turn (before the Speak, `BeforeSideTurnEndEarly`): Inscribe [End Loop][Reflection]. | not Ethereal |
 
-Ascended cards (the first eleven) are a subset of Ancient cards with `MaxUpgradeLevel => 0`.
+Ascended cards (the first eleven) are a subset of Ancient cards with `MaxUpgradeLevel => 0` (`RunePriestCard.IsAscended`).
+Every rune they create is **Radiant** (`Rune.Radiant`, cosmetic only): RGB rainbow particles, an orbiting sparkle ring
+and a spinning rainbow halo. Radiance sticks through merges, copies and Imbue/Etch; see
+[ascended-runes.md](ascended-runes.md).
 
 ## 16. Events
 See [custom-events.md](custom-events.md): Pulsing Pedestal (Act 1), Enchanted Forge (Act 2, forced; makes a Forged Rune), Suspicious Tailor (Act 3, Lightweight Cloth Robe). An event only enters the pool when every player has a valid target for it; rune-specific options are locked per player.

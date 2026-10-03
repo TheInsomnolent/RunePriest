@@ -22,7 +22,8 @@ public sealed class HealerPower : RunePriestPower, IRuneListener
         if (player != Owner.Player) return glyphs;
         
         // Only payload glyphs can hold another payload rune; anything else would become malformed and fizzle.
-        return glyphs.Select(g => g.Kind == RuneKind.Payload ? g.WithRunes([..g.Runes, new MendRune(3)]) : g).ToList();
+        // The Mend comes from Healer (an Ascended card), so it is radiant even when the rest of the glyph isn't.
+        return glyphs.Select(g => g.Kind == RuneKind.Payload ? g.WithRunes([..g.Runes, new MendRune(3).AsRadiant()]) : g).ToList();
     }
 
     public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)

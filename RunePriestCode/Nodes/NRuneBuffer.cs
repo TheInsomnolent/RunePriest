@@ -252,7 +252,8 @@ public partial class NRuneBuffer : Node2D
 
     private static bool LooksSame(Glyph a, Glyph b) =>
         a.Persistent == b.Persistent && a.Runes.Count == b.Runes.Count &&
-        a.Runes.Zip(b.Runes).All(p => p.First.Key == p.Second.Key && p.First.Value == p.Second.Value);
+        a.Runes.Zip(b.Runes).All(p => p.First.Key == p.Second.Key && p.First.Value == p.Second.Value &&
+                                      p.First.Radiant == p.Second.Radiant);
 
     /// <summary>Dry-runs the Incantation to frame glyphs that outlast the Speak and show rune values after game effects.</summary>
     private void UpdateForecast()

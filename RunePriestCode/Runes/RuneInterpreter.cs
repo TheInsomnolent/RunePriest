@@ -297,7 +297,7 @@ public static class RuneInterpreter
         if (slot.Consumed || !glyph.Runes.Any(r => r is DiminishRune)) return;
 
         var halved = glyph.WithRunes(glyph.Runes
-            .Select(r => r is DiminishRune ? new DiminishRune(r.Value / 2) : r).ToArray()).Persist();
+            .Select(r => r is DiminishRune ? r.WithValue(r.Value / 2)! : r).ToArray()).Persist();
         if (halved.Runes.OfType<DiminishRune>().All(r => r.Value < DiminishRune.FizzleThreshold))
         {
             slot.Consumed = true;

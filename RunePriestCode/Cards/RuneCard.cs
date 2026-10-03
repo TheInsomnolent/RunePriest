@@ -26,8 +26,8 @@ public abstract class RuneCard(int cost, CardType type, CardRarity rarity, Targe
 
     protected virtual IEnumerable<IHoverTip> AdditionalHoverTips => [];
 
-    /// <summary>The runes this card inscribes, unanchored (e.g. to etch them onto an Eternal Scroll).</summary>
-    public IReadOnlyList<Glyph> InscribedGlyphs => Glyphs(null).ToList();
+    /// <summary>The runes this card inscribes, unanchored (e.g. to etch them onto an Eternal Scroll). Radiant if Ascended.</summary>
+    public IReadOnlyList<Glyph> InscribedGlyphs => Glyphs(null).Select(g => IsAscended ? g.Radiant() : g).ToList();
 
     protected override Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
         RuneCmd.Inscribe(choiceContext, Owner, Glyphs(cardPlay.Target), this);

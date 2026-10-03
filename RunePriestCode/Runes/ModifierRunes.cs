@@ -23,7 +23,7 @@ public abstract class ModifierRune(int value) : Rune(value)
 public sealed class AmplifyRune(int value) : ModifierRune(value)
 {
     public override string Key => "AMPLIFY";
-    public override Rune WithValue(int value) => new AmplifyRune(value);
+    protected override Rune Revalued(int value) => new AmplifyRune(value);
     public override string ValueLabel => $"+{Value}";
     protected override int Apply(PayloadRune rune, int value) => value + Value;
 }
@@ -31,7 +31,7 @@ public sealed class AmplifyRune(int value) : ModifierRune(value)
 public sealed class TwinRune(int factor = 2) : ModifierRune(factor)
 {
     public override string Key => "TWIN";
-    public override Rune WithValue(int value) => new TwinRune(value);
+    protected override Rune Revalued(int value) => new TwinRune(value);
     public override string ValueLabel => $"×{Value}";
     protected override int Apply(PayloadRune rune, int value) => value * Value;
 }
@@ -50,7 +50,7 @@ public sealed class EchoRune(int count = 1) : ModifierRune(count)
     public override bool ShowsValue => Value > 1;
     public override string ValueLabel => $"+{Value}";
     public override int ExtraExecutions => Value;
-    public override Rune WithValue(int value) => new EchoRune(value);
+    protected override Rune Revalued(int value) => new EchoRune(value);
 }
 
 /// <summary>
@@ -83,7 +83,7 @@ public sealed class GrowthRune(int value) : GrowingRune(value)
 {
     public override string Key => "GROWTH";
     public override int Factor => 2;
-    public override Rune WithValue(int value) => new GrowthRune(value);
+    protected override Rune Revalued(int value) => new GrowthRune(value);
 }
 
 /// <summary>Ascended Growth (Overgrowth card): triples the delayed glyph on every trigger instead of doubling it.</summary>
@@ -92,7 +92,7 @@ public sealed class OvergrowthRune(int value) : GrowingRune(value)
     public override string Key => "OVERGROWTH";
     public override int Factor => 3;
     public override bool IsAscended => true;
-    public override Rune WithValue(int value) => new OvergrowthRune(value);
+    protected override Rune Revalued(int value) => new OvergrowthRune(value);
 }
 
 /// <summary>
