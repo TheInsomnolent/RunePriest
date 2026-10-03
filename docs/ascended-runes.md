@@ -3,7 +3,7 @@
 ## Overview
 > **Current state (10/3/2026):** Ascended *cards* are `CardRarity.Ancient` cards with `MaxUpgradeLevel => 0`, obtained
 > through Orobas' Archaic Tooth (see [rune-system-design.md §15](rune-system-design.md#15-ancients-and-ascended-cards)).
-> The only Ascended *rune* so far is Overgrowth (`OvergrowthRune`, a `GrowingRune` that triples). The examples below
+> The only Ascended *rune* so far is Overgrowth (`OvergrowthRune`, a `GrowingRune` that doubles without delaying). The examples below
 > (`AscendedStrike`, `AncientCard`, `BlessedToolboxAscended`) are design sketches, not existing code.
 >
 > **Radiant runes (implemented):** every rune an Ascended card creates is marked `Rune.Radiant` (a per-instance,

@@ -77,6 +77,9 @@ public abstract class GrowingRune(int value) : ModifierRune(value)
 
     /// <summary>What the delayed glyph's values are multiplied by on every trigger.</summary>
     public abstract int Factor { get; }
+
+    /// <summary>Whether the grown glyph waits instead of resolving while this lives (false: it grows and resolves).</summary>
+    public virtual bool Delays => true;
 }
 
 public sealed class GrowthRune(int value) : GrowingRune(value)
@@ -86,11 +89,15 @@ public sealed class GrowthRune(int value) : GrowingRune(value)
     protected override Rune Revalued(int value) => new GrowthRune(value);
 }
 
-/// <summary>Ascended Growth (Overgrowth card): triples the delayed glyph on every trigger instead of doubling it.</summary>
+/// <summary>
+/// Ascended Growth (Overgrowth card): doubles the next glyph on every trigger like Growth, but the glyph still resolves
+/// (doubled) each time instead of waiting. It is kept for next turn all the same.
+/// </summary>
 public sealed class OvergrowthRune(int value) : GrowingRune(value)
 {
     public override string Key => "OVERGROWTH";
-    public override int Factor => 3;
+    public override int Factor => 2;
+    public override bool Delays => false;
     public override bool IsAscended => true;
     protected override Rune Revalued(int value) => new OvergrowthRune(value);
 }

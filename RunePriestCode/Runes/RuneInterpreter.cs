@@ -133,8 +133,9 @@ public static class RuneInterpreter
                     break;
 
                 // Growth delays the following glyph: every trigger (so every loop pass) ticks it down and doubles that
-                // glyph in place (Overgrowth: triples), keeping it for next turn instead of resolving it. Ticked down
-                // to 0 the Growth vanishes, and the glyph resolves on its next trigger.
+                // glyph in place, keeping it for next turn instead of resolving it. Ticked down to 0 the Growth
+                // vanishes, and the glyph resolves on its next trigger. Overgrowth does the same but doesn't delay:
+                // the doubled glyph resolves right away and is still kept.
                 case RuneKind.Modifier when glyph.Runes[0] is GrowingRune growth:
                 {
                     if (growth.Value <= 0)
@@ -153,7 +154,7 @@ public static class RuneInterpreter
                     await Activate(ctx, slot);
                     var grown = tape[next];
                     grown.Current = grown.Current.Scaled(growth.Factor);
-                    grown.GrownBy = slot;
+                    if (growth.Delays) grown.GrownBy = slot;
                     grown.Carry = true;
                     if (growth.Value > 1)
                     {
@@ -165,7 +166,7 @@ public static class RuneInterpreter
                         slot.Consumed = true;
                     }
                     Log(ctx, $"  {glyph} ticks down to {growth.Value - 1}; {grown.Current} keeps growing");
-                    pc = next + 1;
+                    pc = growth.Delays ? next + 1 : next;
                     break;
                 }
 
