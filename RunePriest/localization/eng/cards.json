@@ -226,5 +226,7 @@
   "RUNEPRIEST-CORRUPTED_SIGIL.title": "Corrupted Sigil",
   "RUNEPRIEST-CORRUPTED_SIGIL.description": "{IfUpgraded:show:All cards with Rune in their name [gold]Exhaust[/gold] and cost 0.|All cards with Rune in their name are [gold]Ethereal[/gold], [gold]Exhaust[/gold] and cost 0.}\nYour runes remain between turns.",
   "RUNEPRIEST-MIRRORORRIM.title": "Mirrororrim",
-  "RUNEPRIEST-MIRRORORRIM.description": "At the end of each turn, [gold]Inscribe[/gold] [blue]End Loop[/blue].\n[gold]Inscribe[/gold] [blue]Reflection[/blue]."
+  "RUNEPRIEST-MIRRORORRIM.description": "At the end of each turn, [gold]Inscribe[/gold] [blue]End Loop[/blue].\n[gold]Inscribe[/gold] [blue]Reflection[/blue].",
+  "RUNEPRIEST-FORGED_RUNE.title": "Forged Rune",
+  "RUNEPRIEST-FORGED_RUNE.description": "{ForgedCount:choose(0):Inscribes the runes of the two cards forged into it.|{ForgedRunes}}"
 }

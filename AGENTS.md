@@ -36,6 +36,7 @@ must **fizzle gracefully**, never crash.
 - Card descriptions use SmartFormat vars: `"Deal {Damage:diff()} damage."` (not `[[Damage]]`).
 - Cards extend `RunePriestCard` (auto-registered to `RunePriestCardPool` via `[Pool]`). Rune-casting cards extend `RuneCard` and implement `Glyphs(Creature? anchor)`. Folders by rarity: `Cards/Basic|Common|Uncommon|Rare`; Ancient boon cards go in `Cards/Ancient` with `CardRarity.Ancient` (Ascended cards also set `MaxUpgradeLevel => 0`); generated-only cards go in `Cards/Token` with `CardRarity.Token` and `[Pool(typeof(TokenCardPool))]`.
 - Ancient boons are relics: Orobas/Dusty Tome via BaseLib (`GetUpgradeReplacement`, `ITranscendenceCard`, `ITomeCard`); other vanilla ancients via `Patches/AncientOptionPatches.cs`. See `docs/rune-system-design.md` §15.
+- Events extend `Events/RuneEvent.cs` (BaseLib `CustomEventModel`): implement `Qualifies(Player)`; the event only enters the pool when every player qualifies, and rune-specific options use `Locked(...)` for a player who doesn't. See `docs/custom-events.md`.
 - New runes need hand-written `RUNEPRIEST-RUNE_<KEY>.title/.description` in `static_hover_tips.json` (the analyzer doesn't check these).
 - Art: **use placeholder assets only**; an artist will supply art later. Missing images fall back to `card.png`/`power.png`/`relic.png` via `Extensions/StringExtensions.cs`.
 - Randomness in combat must use `Owner.RunState.Rng.CombatTargets` (or another `RunRngSet` stream) — never `System.Random` (breaks co-op determinism / replays).

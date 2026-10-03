@@ -105,23 +105,17 @@ Ancient options are **relics**. See [docs/custom-ancients.md](custom-ancients.md
   relic collection / dev console) — see `Patches/AncientOptionPatches.cs`. Option text falls back to the relic's
   title and `description`/`eventDescription`, so no `ancients.json` keys are needed.
 
-## Custom Events (RunePriest-specific)
+## Events
 
-Events are non-combat map encounters offering rewards or challenges. Custom events can be character-locked:
-
-- **Base pattern:** Extend event base and use `RunePriestEventMixin` (see [docs/custom-events.md](custom-events.md))
-- **Filtering:** Use `IsRunePriestOnly()` to hide generic events from RunePriest or lock RunePriest events to RunePriest
-- **Results:** Event options can grant cards, relics, runes, or powers
-- **Localization:** Keys in `events.json` as `RUNEPRIEST_<KEY>.*`
-
-**To investigate:** Does BaseLib provide `CustomEventModel`? If not, pattern matches event-generation Harmony patch (similar to ancient integration).
+BaseLib `CustomEventModel` (set `Acts`); Rune Priest events extend `Events/RuneEvent.cs` (per-player `Qualifies`,
+`IsAllowed` = all players qualify, locked options). See [docs/custom-events.md](custom-events.md).
 
 ---
 
 ## Investigation Checklist for Future Versions
 
 - [x] BaseLib 3.4.7 has `CustomAncientModel` (whole new ancients) but no hook for adding options to vanilla ancients
-- [ ] BaseLib: check for `CustomEventModel` support
+- [x] BaseLib 3.4.7 has `CustomEventModel` (events are added to acts via `Acts`)
 - [ ] Game version 0.112+: Verify ancient/event APIs haven't changed
 - [ ] CI build: Ensure `UseSts2RefAssemblies=true` compiles without decompiled dependencies
 

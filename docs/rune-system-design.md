@@ -404,7 +404,7 @@ without being Spoken, which includes fizzles; Holy Water Sigil uses the heal amo
 | De-illuminator | Rare | The first [Void] you Inscribe each combat immediately Fizzles (feeds fizzle triggers like Unforgiveable Curse). |
 | Midas Hand | Rare | Whenever you Inscribe, gain 2 Gold. |
 | Undead Quill | Shop (300 Gold) | [Blood] and [Mend] runes swap their effects when Spoken (`IRuneListener.ReplacePayload`; side-effect-free so the forecast shows it too). |
-| Lightweight Cloth Robe | Event | Cards with [Blood] runes (inscribed or Imbued; not X-cost) cost 0. Your [Blood] runes are doubled. No event grants it yet. |
+| Lightweight Cloth Robe | Event | Cards with [Blood] runes (inscribed or Imbued; not X-cost) cost 0. Your [Blood] runes are doubled. From the Suspicious Tailor event. |
 | Hallowed Toolbox | Starter | Blessed Toolbox upgraded by Orobas' Touch of Orobas (`CustomRelicModel.GetUpgradeReplacement`): whenever you play a rune card, draw 1. |
 | Dark Tablet | Ancient (Darv) | Your [Blood] runes damage enemies and your [Mend] runes heal enemies instead of you (`ReplacePayload`; follow the target mode). |
 | Corrupted Sigil | Ancient (Vakuu, pool 2) | Upon pickup, remove every Eternal Sigil from your deck and add a Corrupted Sigil card. Always offered to the Rune Priest. |
@@ -587,3 +587,5 @@ Ancient cards (`Cards/Ancient`, `CardRarity.Ancient`: never in card rewards or r
 
 Ascended cards (the first eleven) are a subset of Ancient cards with `MaxUpgradeLevel => 0`.
 
+## 16. Events
+See [custom-events.md](custom-events.md): Pulsing Pedestal (Act 1), Enchanted Forge (Act 2, forced; makes a Forged Rune), Suspicious Tailor (Act 3, Lightweight Cloth Robe). An event only enters the pool when every player has a valid target for it; rune-specific options are locked per player.
