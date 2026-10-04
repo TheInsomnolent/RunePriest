@@ -17,8 +17,8 @@ public abstract class ModifierRune(int value) : Rune(value)
     public virtual int ExtraExecutions => 0;
 
     /// <summary>
-    /// If true, consumes the next glyph (any kind but targets, loop closers and Reflections) for the rest of the Speak;
-    /// in a Reflection that is the glyph on its left. Handled by the interpreter.
+    /// If true, consumes the next glyph (any kind but targets and loop closers, a Reflection included) for the rest of
+    /// the Speak; while the Speak runs back from a Reflection that is the glyph on its left. Handled by the interpreter.
     /// </summary>
     public virtual bool Voids => false;
 }
@@ -108,8 +108,9 @@ public sealed class OvergrowthRune(int value) : GrowingRune(value)
 
 /// <summary>
 /// Sends the Speak back the way it came: earlier glyphs (as earlier runes left them) are Spoken again in reverse order,
-/// unfinished loops stop looping, and glyphs after this one are never Spoken. On the way back End Loops open loops and
-/// Loops close them, and a Void consumes the glyph on its left. Handled by the interpreter.
+/// and glyphs after this one are never Spoken. On the way back End Loops open loops and Loops close them (a loop still
+/// open repeats from its Loop, running forward again), and a Void consumes the glyph on its left. Handled by the
+/// interpreter.
 /// </summary>
 public sealed class ReflectionRune() : ModifierRune(0)
 {
