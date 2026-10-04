@@ -12,14 +12,14 @@ public sealed class LightBlade() : RuneCard(0, CardType.Attack, CardRarity.Ancie
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new DamageVar("Strike", 9m, ValueProp.Move),
-        new IntVar("BonusPerRune", 3m)
+        new IntVar("BonusPerRune", 3m),
+        new InscribedStrikeVar(static card => ((LightBlade)card).InscribedStrike)
     ];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-    [
-        Glyph.Of(new StrikeRune(Var("Strike") + IncantationRuneCount * DynamicVars["BonusPerRune"].IntValue))
-            .AnchoredTo(anchor)
-    ];
+        [Glyph.Of(new StrikeRune(InscribedStrike)).AnchoredTo(anchor)];
+
+    private int InscribedStrike => Var("Strike") + IncantationRuneCount * DynamicVars["BonusPerRune"].IntValue;
 
     /// <summary>Ascended cards never upgrade.</summary>
     public override int MaxUpgradeLevel => 0;

@@ -86,9 +86,9 @@ public static class RuneInterpreter
             }
             var glyph = slot.Current;
 
-            // A pending Void consumes the next glyph whatever it is (another Void included); targets and End Loops
-            // are transparent. The Void stays, so on a later loop pass or Reflection it consumes again.
-            if (!IsTransparentToVoid(glyph) && TakeVoid(pending) is { } voider)
+            // A pending Void consumes the next glyph whatever it is (another Void included); targets, loop closers and
+            // Reflections are transparent. The Void stays, so on a later loop pass or Reflection it consumes again.
+            if (!IsTransparentToVoid(glyph, program.Mirrored) && TakeVoid(pending) is { } voider)
             {
                 slot.Consumed = true;
                 Log(ctx, $"  {voider.Current} consumes {glyph}");
@@ -145,7 +145,7 @@ public static class RuneInterpreter
                         break;
                     }
                     var next = NextLive(tape, pc + 1);
-                    if (next < 0 || IsEndLoop(tape[next].Current))
+                    if (next < 0 || RuneProgram.ClosesLoop(tape[next].Current, program.Mirrored))
                     {
                         await Fizzle(ctx, pc, slot, "nothing to grow");
                         pc++;
@@ -171,13 +171,17 @@ public static class RuneInterpreter
                 }
 
                 // Reflection: the Speak turns around — earlier glyphs (as they stand now) are Spoken again in reverse
-                // order, unfinished loops stop looping, and everything after the Reflection is never Spoken.
+                // order, unfinished loops stop looping, and everything after the Reflection is never Spoken. Read the
+                // other way, End Loops open loops and Loops close them, and a Void consumes the glyph on its left.
+                // Pending modifiers that are Spoken again on the way back are re-applied from there instead (a Void
+                // right before the Reflection doesn't eat it: it turns around and consumes the glyph before it).
                 case RuneKind.Modifier when glyph.Runes[0] is ReflectionRune:
                 {
                     await Activate(ctx, slot);
                     tape = tape.Take(pc).Where(s => !s.Consumed).Reverse().ToList();
+                    pending.RemoveAll(tape.Contains);
                     Log(ctx, $"  {glyph} reflects; speaking {tape.Count} glyph(s) in reverse, dropping the rest");
-                    program = new RuneProgram(tape.Select(s => s.Current).ToList());
+                    program = new RuneProgram(tape.Select(s => s.Current).ToList(), !program.Mirrored);
                     loops.Clear();
                     pc = 0;
                     break;
@@ -215,7 +219,7 @@ public static class RuneInterpreter
                     pc++;
                     break;
 
-                case RuneKind.Flow when glyph.Runes[0] is LoopRune:
+                case RuneKind.Flow when RuneProgram.OpensLoop(glyph, program.Mirrored):
                 {
                     await Activate(ctx, slot);
                     var end = program.MatchOf(pc);
@@ -228,8 +232,9 @@ public static class RuneInterpreter
                 }
 
                 // Pending modifiers roll over to the next iteration's first glyph, or past the loop on the last one.
-                // The End Loop of a consumed (voided) Loop stays and fizzles.
-                case RuneKind.Flow when glyph.Runes[0] is EndLoopRune:
+                // The End Loop of a consumed (voided) Loop stays and fizzles (in a Reflection: a Loop closing a
+                // consumed End Loop).
+                case RuneKind.Flow when RuneProgram.ClosesLoop(glyph, program.Mirrored):
                 {
                     var opener = program.MatchOf(pc);
                     if (loops.Count == 0 || opener == RuneProgram.StrayEnd || tape[opener].Consumed)
@@ -330,9 +335,9 @@ public static class RuneInterpreter
         return -1;
     }
 
-    private static bool IsEndLoop(Glyph glyph) => glyph.Kind == RuneKind.Flow && glyph.Runes[0] is EndLoopRune;
-
-    private static bool IsTransparentToVoid(Glyph glyph) => glyph.Kind == RuneKind.Target || IsEndLoop(glyph);
+    private static bool IsTransparentToVoid(Glyph glyph, bool mirrored) =>
+        glyph.Kind == RuneKind.Target || RuneProgram.ClosesLoop(glyph, mirrored)
+        || (glyph.Kind == RuneKind.Modifier && glyph.Runes[0] is ReflectionRune);
 
     private static Slot? TakeVoid(List<Slot> pending)
     {

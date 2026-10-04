@@ -6,9 +6,11 @@ using MegaCrit.Sts2.Core.ValueProps;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
-/// <summary>Inscribe a Growth incubating a persistent Defend: it doubles while it waits, then blocks every turn.</summary>
+/// <summary>Inscribe a Growth incubating a persistent Defend: it doubles while it waits, then blocks every turn. Exhaust.</summary>
 public sealed class Cocoon() : RuneCard(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
 {
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
+
     protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromKeyword(RunePriestKeywords.Persist)];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>

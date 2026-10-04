@@ -17,7 +17,9 @@ public sealed class Alloy() : RunePriestCard(0, CardType.Skill, CardRarity.Uncom
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(2), new IntVar("Imbue", 1m)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe, ..ImbueHoverTips];
+    // Only the upgraded card Imbues.
+    protected override IEnumerable<IHoverTip> ExtraHoverTips =>
+        IsUpgraded ? [RuneTips.Inscribe, ..ImbueHoverTips] : [RuneTips.Inscribe];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

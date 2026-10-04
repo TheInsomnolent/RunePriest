@@ -30,6 +30,8 @@ description: "Card/power/relic text conventions for RunePriest localization file
 
 ## Values and formatting
 - Use SmartFormat vars, not `[[Var]]`: `{Strike:diff()}` for upgradeable values; `{Blood:inverseDiff()}` for drawbacks that go down on upgrade; plain `{Loop}` for fixed values.
+- Damage and block values (`DamageVar`/`BlockVar`, e.g. Strike, Diminish, Defend, Damage) always use `{Strike:diff()}`, even when fixed: `diff()` shows the value after Strength, Weak, Vulnerable, Dexterity, Frail and the card's enchantment (Sharp…); plain `{Strike}` shows the bare base value.
+- A Strike whose value depends on the combat (Heavy Rune's bonus per rune) adds an `InscribedStrikeVar` and ends its text with `{InCombat:\n(Inscribes [blue]Strike[/blue] {Inscribed:diff()})|}`.
 - Value prefixes follow the in-game rune label: `[blue]Amplify[/blue] +{Amplify}`, `[blue]Twin[/blue] ×{Twin}`.
 - End each line with a period.
 
