@@ -16,7 +16,10 @@ public abstract class ModifierRune(int value) : Rune(value)
 
     public virtual int ExtraExecutions => 0;
 
-    /// <summary>If true, consumes the next glyph (any kind but targets and End Loops) for the rest of the Speak. Handled by the interpreter.</summary>
+    /// <summary>
+    /// If true, consumes the next glyph (any kind but targets and loop closers, a Reflection included) for the rest of
+    /// the Speak; while the Speak runs back from a Reflection that is the glyph on its left. Handled by the interpreter.
+    /// </summary>
     public virtual bool Voids => false;
 }
 
@@ -55,7 +58,8 @@ public sealed class EchoRune(int count = 1) : ModifierRune(count)
 
 /// <summary>
 /// Curse-like modifier: consumes the next glyph (another Void, a Loop…) so it fizzles and is gone for the rest of the
-/// Speak. The Void itself stays, consuming again on every later loop pass or Reflection.
+/// Speak. The Void itself stays, consuming again on every later loop pass or Reflection (where it consumes the glyph on
+/// its left, as the Speak runs the other way).
 /// </summary>
 public sealed class VoidRune() : ModifierRune(0)
 {
@@ -104,7 +108,9 @@ public sealed class OvergrowthRune(int value) : GrowingRune(value)
 
 /// <summary>
 /// Sends the Speak back the way it came: earlier glyphs (as earlier runes left them) are Spoken again in reverse order,
-/// unfinished loops stop looping, and glyphs after this one are never Spoken. Handled by the interpreter.
+/// and glyphs after this one are never Spoken. On the way back End Loops open loops and Loops close them (a loop still
+/// open repeats from its Loop, running forward again), and a Void consumes the glyph on its left. Handled by the
+/// interpreter.
 /// </summary>
 public sealed class ReflectionRune() : ModifierRune(0)
 {

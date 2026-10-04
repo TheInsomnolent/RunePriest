@@ -5,14 +5,13 @@ using MegaCrit.Sts2.Core.ValueProps;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Rare;
-/// <summary>Inscribe three separate Strikes (a card's own glyph sequence never merges).</summary>
+/// <summary>Inscribe three simultaneous Strikes (one compound glyph: they resolve together).</summary>
 public sealed class StackedStrike() : RuneCard(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new DamageVar("Strike", 7m, ValueProp.Move), new IntVar("Hits", 3m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 7m, ValueProp.Move)];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        Enumerable.Range(0, Var("Hits")).Select(_ => Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor));
+        [Glyph.Of(new StrikeRune(Var("Strike")), new StrikeRune(Var("Strike")), new StrikeRune(Var("Strike"))).AnchoredTo(anchor)];
 
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

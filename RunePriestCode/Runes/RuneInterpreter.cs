@@ -14,10 +14,12 @@ public static class RuneInterpreter
 
     private static readonly StrikeRune TargetProbe = new(1);
 
-    private sealed class LoopFrame(int start, int end, int remaining, List<ModifierRune> mods)
+    /// <param name="start">First slot of the body, in the direction it was opened.</param>
+    /// <param name="reversed">Opened while the Speak ran right to left (an End Loop after a Reflection).</param>
+    private sealed class LoopFrame(int start, bool reversed, int remaining, List<ModifierRune> mods)
     {
         public int Start { get; } = start;
-        public int End { get; } = end;
+        public bool Reversed { get; } = reversed;
         public int Remaining { get; set; } = remaining;
         public List<ModifierRune> Mods { get; } = mods;
     }
@@ -52,9 +54,10 @@ public static class RuneInterpreter
 
     private static async Task<List<(Glyph Glyph, Glyph Origin)>> Run(RuneContext ctx, List<Slot> slots)
     {
-        // The order being Spoken; a Reflection swaps in the earlier slots reversed (same slot objects).
-        var tape = slots;
-        var program = new RuneProgram(tape.Select(s => s.Current).ToList());
+        // A Reflection turns the Speak around: it runs right to left until something turns it again (a Reflection, or
+        // the closer of a loop opened the other way, whose next pass runs the way the loop was opened).
+        var reversed = false;
+        var program = new RuneProgram(slots.Select(s => s.Current).ToList());
         var pending = new List<Slot>();
         var loops = new List<LoopFrame>();
         // The last target glyph, until a payload uses it: a target immediately replaced (or never used) fizzles.
@@ -65,35 +68,37 @@ public static class RuneInterpreter
 
         while (!ctx.ShouldStop)
         {
-            if (pc >= tape.Count)
+            var step = reversed ? -1 : 1;
+            if (pc < 0 || pc >= slots.Count)
             {
                 if (loops.Count == 0) break;
-                pc = CloseInnermostLoop(loops, pc);
+                CloseInnermostLoop(loops, pending, slots, ref pc, ref reversed);
                 continue;
             }
 
             if (++steps > MaxSteps)
             {
-                await Overload(ctx, tape, pc, "too many steps");
+                await Overload(ctx, slots, pc, reversed, "too many steps");
                 return Kept(slots);
             }
 
-            var slot = tape[pc];
+            var slot = slots[pc];
             if (slot.Consumed)
             {
-                pc++;
+                pc += step;
                 continue;
             }
             var glyph = slot.Current;
 
-            // A pending Void consumes the next glyph whatever it is (another Void included); targets and End Loops
-            // are transparent. The Void stays, so on a later loop pass or Reflection it consumes again.
-            if (!IsTransparentToVoid(glyph) && TakeVoid(pending) is { } voider)
+            // A pending Void consumes the next glyph in the Speak's direction whatever it is (another Void or a
+            // Reflection included; after a Reflection that is the glyph on its left); targets and loop closers are
+            // transparent. The Void stays, so on a later loop pass or Reflection it consumes again.
+            if (!IsTransparentToVoid(glyph, reversed) && TakeVoid(pending) is { } voider)
             {
                 slot.Consumed = true;
                 Log(ctx, $"  {voider.Current} consumes {glyph}");
                 await Fizzle(ctx, pc, slot, "voided");
-                pc++;
+                pc += step;
                 continue;
             }
 
@@ -102,7 +107,7 @@ public static class RuneInterpreter
                 // Still growing (e.g. reached first after a Reflection): it waits.
                 if (!slot.GrownBy.Consumed)
                 {
-                    pc++;
+                    pc += step;
                     continue;
                 }
                 // Its Growth vanished earlier this Speak: it resolves now instead of next turn.
@@ -114,7 +119,7 @@ public static class RuneInterpreter
             {
                 case null:
                     await Fizzle(ctx, pc, slot, "malformed glyph");
-                    pc++;
+                    pc += step;
                     break;
 
                 case RuneKind.Target:
@@ -129,7 +134,7 @@ public static class RuneInterpreter
                         var (picked, random) = ctx.PreviewTargets(TargetProbe, glyph);
                         ctx.Preview.Target(slot.Origin, picked, random);
                     }
-                    pc++;
+                    pc += step;
                     break;
 
                 // Growth delays the following glyph: every trigger (so every loop pass) ticks it down and doubles that
@@ -141,18 +146,18 @@ public static class RuneInterpreter
                     if (growth.Value <= 0)
                     {
                         slot.Consumed = true;
-                        pc++;
+                        pc += step;
                         break;
                     }
-                    var next = NextLive(tape, pc + 1);
-                    if (next < 0 || IsEndLoop(tape[next].Current))
+                    var next = NextLive(slots, pc + step, step);
+                    if (next < 0 || RuneProgram.ClosesLoop(slots[next].Current, reversed))
                     {
                         await Fizzle(ctx, pc, slot, "nothing to grow");
-                        pc++;
+                        pc += step;
                         break;
                     }
                     await Activate(ctx, slot);
-                    var grown = tape[next];
+                    var grown = slots[next];
                     grown.Current = grown.Current.Scaled(growth.Factor);
                     if (growth.Delays) grown.GrownBy = slot;
                     grown.Carry = true;
@@ -166,20 +171,23 @@ public static class RuneInterpreter
                         slot.Consumed = true;
                     }
                     Log(ctx, $"  {glyph} ticks down to {growth.Value - 1}; {grown.Current} keeps growing");
-                    pc = growth.Delays ? next + 1 : next;
+                    pc = growth.Delays ? next + step : next;
                     break;
                 }
 
                 // Reflection: the Speak turns around — earlier glyphs (as they stand now) are Spoken again in reverse
-                // order, unfinished loops stop looping, and everything after the Reflection is never Spoken.
+                // order, so glyphs after the Reflection aren't Spoken. Read the other way, End Loops open loops and
+                // Loops close them: a loop still open repeats when the Speak gets back to its Loop, its next pass
+                // running forward again (into the Reflection again). Pending modifiers are Spoken again on the way
+                // back, so they apply from there instead (not twice).
                 case RuneKind.Modifier when glyph.Runes[0] is ReflectionRune:
                 {
                     await Activate(ctx, slot);
-                    tape = tape.Take(pc).Where(s => !s.Consumed).Reverse().ToList();
-                    Log(ctx, $"  {glyph} reflects; speaking {tape.Count} glyph(s) in reverse, dropping the rest");
-                    program = new RuneProgram(tape.Select(s => s.Current).ToList());
-                    loops.Clear();
-                    pc = 0;
+                    var at = pc;
+                    reversed = !reversed;
+                    pending.RemoveAll(s => slots.IndexOf(s) is var i && (reversed ? i < at : i > at));
+                    Log(ctx, $"  {glyph} reflects; speaking {(reversed ? "right to left" : "left to right")}");
+                    pc = at - step;
                     break;
                 }
 
@@ -187,60 +195,61 @@ public static class RuneInterpreter
                 case RuneKind.Modifier when glyph.Runes[0] is FriendshipRune friendship:
                     await Activate(ctx, slot);
                     ctx.ApplyFriendship(friendship.Value > 0 ? FriendshipScope.Rest : FriendshipScope.NextGlyph);
-                    pc++;
+                    pc += step;
                     break;
 
                 // Clone: every trigger keeps a persistent copy of the following glyph for next turn.
                 case RuneKind.Modifier when glyph.Runes[0] is CloneRune:
                 {
-                    var next = NextLive(tape, pc + 1);
+                    var next = NextLive(slots, pc + step, step);
                     if (next < 0)
                     {
                         if (!glyph.Persistent) await Fizzle(ctx, pc, slot, "nothing to clone");
                         else await Activate(ctx, slot);
-                        pc++;
+                        pc += step;
                         break;
                     }
                     await Activate(ctx, slot);
-                    var source = tape[next];
+                    var source = slots[next];
                     slot.Clones.Add((source.Current.Copy().Persist(), source.Origin));
                     Log(ctx, $"  {glyph} clones {source.Current}; the copy persists into next turn");
-                    pc++;
+                    pc += step;
                     break;
                 }
 
                 case RuneKind.Modifier:
                     await Activate(ctx, slot);
                     pending.Add(slot);
-                    pc++;
+                    pc += step;
                     break;
 
-                case RuneKind.Flow when glyph.Runes[0] is LoopRune:
+                case RuneKind.Flow when RuneProgram.OpensLoop(glyph, reversed):
                 {
                     await Activate(ctx, slot);
-                    var end = program.MatchOf(pc);
                     var mods = AsModifiers(TakeAll(pending));
                     // A Loop runs its body twice; each Echo before it adds another two passes.
                     var iterations = 2 * (1 + mods.Sum(m => m.ExtraExecutions));
-                    loops.Add(new LoopFrame(pc + 1, end, iterations, mods.Where(m => m.ExtraExecutions == 0).ToList()));
-                    pc++;
+                    loops.Add(new LoopFrame(pc + step, reversed, iterations, mods.Where(m => m.ExtraExecutions == 0).ToList()));
+                    pc += step;
                     break;
                 }
 
                 // Pending modifiers roll over to the next iteration's first glyph, or past the loop on the last one.
-                // The End Loop of a consumed (voided) Loop stays and fizzles.
-                case RuneKind.Flow when glyph.Runes[0] is EndLoopRune:
+                // The End Loop of a consumed (voided) Loop stays and fizzles (Spoken right to left: a Loop closing a
+                // consumed End Loop). A closer with no opener in its direction closes a loop opened the other way
+                // (Waning Moon's Loop, reached on the way back from its Reflection).
+                case RuneKind.Flow when RuneProgram.ClosesLoop(glyph, reversed):
                 {
-                    var opener = program.MatchOf(pc);
-                    if (loops.Count == 0 || opener == RuneProgram.StrayEnd || tape[opener].Consumed)
+                    var opener = program.MatchOf(pc, reversed);
+                    if (loops.Count == 0 || (opener != RuneProgram.StrayEnd && slots[opener].Consumed))
                     {
                         await Fizzle(ctx, pc, slot, "no open loop");
-                        pc++;
+                        pc += step;
                     }
                     else
                     {
                         await Activate(ctx, slot);
-                        pc = CloseInnermostLoop(loops, pc);
+                        CloseInnermostLoop(loops, pending, slots, ref pc, ref reversed);
                     }
                     break;
                 }
@@ -251,7 +260,7 @@ public static class RuneInterpreter
                     await FizzlePending(ctx, pending, "sealed before it could apply");
                     if (unusedTarget is { Current.Persistent: false })
                         await Fizzle(ctx, -1, unusedTarget, "target never used");
-                    var retained = tape.Skip(pc + 1).Where(s => !s.Consumed).ToList();
+                    var retained = Ahead(slots, pc + step, step).ToList();
                     Log(ctx, $"Sealed; retaining {retained.Count} glyph(s)");
                     return [..Kept(slots, retained), ..retained.Select(s => (s.Current, s.Origin))];
                 }
@@ -264,7 +273,7 @@ public static class RuneInterpreter
                     {
                         if (++payloads > MaxPayloadExecutions)
                         {
-                            await Overload(ctx, tape, pc, "too many payloads");
+                            await Overload(ctx, slots, pc, reversed, "too many payloads");
                             return Kept(slots);
                         }
                         await Activate(ctx, slot);
@@ -274,13 +283,13 @@ public static class RuneInterpreter
                     }
                     unusedTarget = null;
                     ctx.ConsumeFriendship();
-                    pc++;
+                    pc += step;
                     break;
                 }
 
                 default:
                     await Fizzle(ctx, pc, slot, "unknown rune");
-                    pc++;
+                    pc += step;
                     break;
             }
         }
@@ -323,16 +332,23 @@ public static class RuneInterpreter
         return kept;
     }
 
-    private static int NextLive(List<Slot> tape, int from)
+    /// <summary>The first live slot from <paramref name="from"/> on in the Speak's direction, or -1.</summary>
+    private static int NextLive(List<Slot> slots, int from, int step)
     {
-        for (var i = from; i < tape.Count; i++)
-            if (!tape[i].Consumed) return i;
+        for (var i = from; i >= 0 && i < slots.Count; i += step)
+            if (!slots[i].Consumed) return i;
         return -1;
     }
 
-    private static bool IsEndLoop(Glyph glyph) => glyph.Kind == RuneKind.Flow && glyph.Runes[0] is EndLoopRune;
+    /// <summary>Live slots from <paramref name="from"/> on in the Speak's direction.</summary>
+    private static IEnumerable<Slot> Ahead(List<Slot> slots, int from, int step)
+    {
+        for (var i = from; i >= 0 && i < slots.Count; i += step)
+            if (!slots[i].Consumed) yield return slots[i];
+    }
 
-    private static bool IsTransparentToVoid(Glyph glyph) => glyph.Kind == RuneKind.Target || IsEndLoop(glyph);
+    private static bool IsTransparentToVoid(Glyph glyph, bool reversed) =>
+        glyph.Kind == RuneKind.Target || RuneProgram.ClosesLoop(glyph, reversed);
 
     private static Slot? TakeVoid(List<Slot> pending)
     {
@@ -343,12 +359,25 @@ public static class RuneInterpreter
         return voider;
     }
 
-    private static int CloseInnermostLoop(List<LoopFrame> loops, int pc)
+    /// <summary>
+    /// At a loop closer (or past either end of the Incantation): another pass starts at the body, running the way the
+    /// loop was opened; after the last one the Speak carries on past the closer in its current direction. A pass that
+    /// turns the Speak around drops pending modifiers it Speaks again, as a Reflection does (so they apply once).
+    /// </summary>
+    private static void CloseInnermostLoop(List<LoopFrame> loops, List<Slot> pending, List<Slot> slots, ref int pc,
+        ref bool reversed)
     {
         var frame = loops[^1];
-        if (--frame.Remaining > 0) return frame.Start;
+        if (--frame.Remaining > 0)
+        {
+            if (frame.Reversed != reversed)
+                pending.RemoveAll(s => slots.IndexOf(s) is var i && (frame.Reversed ? i <= frame.Start : i >= frame.Start));
+            pc = frame.Start;
+            reversed = frame.Reversed;
+            return;
+        }
         loops.RemoveAt(loops.Count - 1);
-        return Math.Max(pc, frame.End) + 1;
+        if (pc >= 0 && pc < slots.Count) pc += reversed ? -1 : 1;
     }
 
     private static async Task Activate(RuneContext ctx, Slot slot)
@@ -482,11 +511,11 @@ public static class RuneInterpreter
             await listener.AfterFizzle(ctx, slot.Current);
     }
 
-    private static async Task Overload(RuneContext ctx, List<Slot> tape, int pc, string reason)
+    private static async Task Overload(RuneContext ctx, List<Slot> slots, int pc, bool reversed, string reason)
     {
         Log(ctx, $"Overload: {reason}, the rest fizzles");
         if (ctx.Preview != null) ctx.Preview.Overloaded = true;
-        foreach (var slot in tape.Skip(pc).Where(s => !s.Consumed))
+        foreach (var slot in Ahead(slots, pc, reversed ? -1 : 1).ToList())
             await Fizzle(ctx, -1, slot, "overload");
     }
 

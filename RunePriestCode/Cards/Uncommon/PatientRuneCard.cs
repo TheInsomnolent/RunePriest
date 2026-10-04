@@ -17,7 +17,8 @@ public sealed class PatientRuneCard() : RuneCard(1, CardType.Attack, CardRarity.
 
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar("Strike", 1m, ValueProp.Move)];
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+        [new DamageVar("Strike", 1m, ValueProp.Move), new InscribedStrikeVar(static card => ((PatientRuneCard)card).InscribedStrike)];
 
     // Glyphs(null) is only used for hover tips; the real value is read when played.
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
@@ -29,7 +30,9 @@ public sealed class PatientRuneCard() : RuneCard(1, CardType.Attack, CardRarity.
     public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.Inscribe(Inscription(anchor), this);
 
     private Glyph[] Inscription(Creature? anchor) =>
-        [Glyph.Of(new StrikeRune(Var("Strike") + (Incantation?.RunesInscribed ?? 0))).AnchoredTo(anchor).Persist()];
+        [Glyph.Of(new StrikeRune(InscribedStrike)).AnchoredTo(anchor).Persist()];
+
+    private int InscribedStrike => Var("Strike") + (Incantation?.RunesInscribed ?? 0);
 
     protected override void OnUpgrade() => DynamicVars["Strike"].UpgradeValueBy(4m);
 }

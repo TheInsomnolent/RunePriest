@@ -17,7 +17,10 @@ public sealed class HeavyRune() : RuneCard(2, CardType.Attack, CardRarity.Common
     public CardModel GetTranscendenceTransformedCard() => ModelDb.Card<Ascended.LightBlade>();
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
-        [new DamageVar("Strike", 9m, ValueProp.Move), new IntVar("Bonus", 3m)];
+        [
+            new DamageVar("Strike", 9m, ValueProp.Move), new IntVar("Bonus", 3m),
+            new InscribedStrikeVar(static card => ((HeavyRune)card).InscribedStrike)
+        ];
 
     // Glyphs(null) is only used for hover tips; the real value is read when played.
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
@@ -28,8 +31,9 @@ public sealed class HeavyRune() : RuneCard(2, CardType.Attack, CardRarity.Common
 
     public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.Inscribe(Inscription(anchor), this);
 
-    private Glyph[] Inscription(Creature? anchor) =>
-        [Glyph.Of(new StrikeRune(Var("Strike") + IncantationRuneCount * Var("Bonus"))).AnchoredTo(anchor)];
+    private Glyph[] Inscription(Creature? anchor) => [Glyph.Of(new StrikeRune(InscribedStrike)).AnchoredTo(anchor)];
+
+    private int InscribedStrike => Var("Strike") + IncantationRuneCount * Var("Bonus");
 
     protected override void OnUpgrade() => DynamicVars["Bonus"].UpgradeValueBy(1m);
 }
