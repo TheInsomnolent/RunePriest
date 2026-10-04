@@ -72,7 +72,7 @@ public static class RuneInterpreter
             if (pc < 0 || pc >= slots.Count)
             {
                 if (loops.Count == 0) break;
-                CloseInnermostLoop(loops, ref pc, ref reversed, slots.Count);
+                CloseInnermostLoop(loops, pending, slots, ref pc, ref reversed);
                 continue;
             }
 
@@ -249,7 +249,7 @@ public static class RuneInterpreter
                     else
                     {
                         await Activate(ctx, slot);
-                        CloseInnermostLoop(loops, ref pc, ref reversed, slots.Count);
+                        CloseInnermostLoop(loops, pending, slots, ref pc, ref reversed);
                     }
                     break;
                 }
@@ -361,19 +361,23 @@ public static class RuneInterpreter
 
     /// <summary>
     /// At a loop closer (or past either end of the Incantation): another pass starts at the body, running the way the
-    /// loop was opened; after the last one the Speak carries on past the closer in its current direction.
+    /// loop was opened; after the last one the Speak carries on past the closer in its current direction. A pass that
+    /// turns the Speak around drops pending modifiers it Speaks again, as a Reflection does (so they apply once).
     /// </summary>
-    private static void CloseInnermostLoop(List<LoopFrame> loops, ref int pc, ref bool reversed, int count)
+    private static void CloseInnermostLoop(List<LoopFrame> loops, List<Slot> pending, List<Slot> slots, ref int pc,
+        ref bool reversed)
     {
         var frame = loops[^1];
         if (--frame.Remaining > 0)
         {
+            if (frame.Reversed != reversed)
+                pending.RemoveAll(s => slots.IndexOf(s) is var i && (frame.Reversed ? i <= frame.Start : i >= frame.Start));
             pc = frame.Start;
             reversed = frame.Reversed;
             return;
         }
         loops.RemoveAt(loops.Count - 1);
-        if (pc >= 0 && pc < count) pc += reversed ? -1 : 1;
+        if (pc >= 0 && pc < slots.Count) pc += reversed ? -1 : 1;
     }
 
     private static async Task Activate(RuneContext ctx, Slot slot)
