@@ -40,7 +40,9 @@ public abstract class RunePriestCard(int cost, CardType type, CardRarity rarity,
     public override string PortraitPath => $"{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".CardImagePath();
     public override string BetaPortraitPath => $"beta/{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".CardImagePath();
 
-    protected RuneBuffer? Incantation => RuneCmd.GetBuffer(Owner.Creature);
+    // Unowned/canonical cards (ancient offer previews, card library) have no Incantation.
+    protected RuneBuffer? Incantation =>
+        IsMutable && Owner?.Creature is { } creature ? RuneCmd.GetBuffer(creature) : null;
 
     protected int IncantationSize => Incantation?.Glyphs.Count ?? 0;
 
