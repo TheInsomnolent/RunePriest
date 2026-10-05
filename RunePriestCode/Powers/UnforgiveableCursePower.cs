@@ -14,12 +14,13 @@ using RunePriest.RunePriestCode.Cards.Special;
 namespace RunePriest.RunePriestCode.Powers;
 
 /// <summary>
-/// Whenever a rune fizzles, add Amount random cursed weapons (Cursed Sword/Armour/Spirits) to your hand.
-/// Fizzles while Speaking at end of turn deliver their weapons at the start of your next turn.
+/// The first time a rune fizzles each turn, add Amount random cursed items (Cursed Sword/Armour/Spirits) to your hand.
+/// A first fizzle while Speaking at end of turn delivers its items at the start of your next turn.
 /// </summary>
 public sealed class UnforgiveableCursePower : RunePriestPower, IRuneListener
 {
     private int _pending;
+    private bool _triggeredThisTurn;
 
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
@@ -35,6 +36,8 @@ public sealed class UnforgiveableCursePower : RunePriestPower, IRuneListener
 
     public async Task AfterFizzle(RuneContext ctx, Glyph glyph)
     {
+        if (_triggeredThisTurn) return;
+        _triggeredThisTurn = true;
         Flash();
         if (ctx.Timing == SpeakTiming.EndOfTurn)
             _pending += Amount;
@@ -44,7 +47,9 @@ public sealed class UnforgiveableCursePower : RunePriestPower, IRuneListener
 
     public override async Task AfterPlayerTurnStart(PlayerChoiceContext choiceContext, Player player)
     {
-        if (player != Owner.Player || _pending <= 0) return;
+        if (player != Owner.Player) return;
+        _triggeredThisTurn = false;
+        if (_pending <= 0) return;
         var count = _pending;
         _pending = 0;
         await Summon(count);
