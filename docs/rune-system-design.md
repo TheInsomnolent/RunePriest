@@ -1,6 +1,6 @@
 # Rune System Design — "The Incantation"
 
-Status: **v0.10 — Ancients & Ascended cards (10/3/2026)** (rune core, 98 cards incl. 6 special, 13 relics, 4 potions, card-slot Imbue, overhead UI, capacity, forecast, co-op rune sharing, Growth/Reflection/Friendship/Diminish/Clone runes, Persist, Fizzle visuals).
+Status: **v0.11 — Design sync (10/5/2026)** (rune core, 99 cards incl. 6 special and 1 Event card, 13 relics, 4 potions, card-slot Imbue, overhead UI, capacity, forecast, co-op rune sharing, Growth/Reflection/Friendship/Diminish/Clone runes, Persist, Fizzle visuals).
 Untested in-game; all numbers are first-pass. Update this doc when decisions change.
 
 ## 1. Pitch
@@ -246,8 +246,10 @@ RunePriestCode/
     NRuneSymbol.cs        script character + value label, random bobbing, additive CpuParticles2D scaled by value
     NVoidVortex.cs        Void rune: dark hollow ring + screen-edge motes spiralling in (black hole)
     RuneVisuals.cs        style table: family → colour, effect → script, value → character
+    NCursedSpirits.cs     Cursed Spirits as orbs: an arc of NSpirit wisps over the head (one per spirit); sends one at its target on SpiritStruck
+    NSpirit.cs            one purple spirit: tail, damage label, hover tip, flight + impact burst
     RuneFont.cs           composite FontVariation from the game's bundled jpn/kor/tha/rus fonts; HasChar fallback
-  Patches/NCreatureRuneBufferPatch.cs  Harmony postfix on NCreature._Ready → attach NRuneBuffer for players
+  Patches/NCreatureRuneBufferPatch.cs  Harmony postfix on NCreature._Ready → attach NRuneBuffer and NCursedSpirits for players
   Patches/RuneDragPreviewPatches.cs    postfixes on NMouseCardPlay/NControllerCardPlay.Start and NCard.SetPreviewTarget → RuneDragPreview
   Patches/NeowAetherQuillPatch.cs      Harmony postfix on Neow.GenerateInitialOptions → sometimes offers the Aether Inkwell
   Patches/AncientOptionPatches.cs      postfixes on Darv/Vakuu/Tezcatara → Dark Tablet / Corrupted Sigil / Eternal Candle (§15)
@@ -288,7 +290,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Defend Rune (`DefendRuneCard`) | Basic | Skill | 1 | Inscribe [Defend 4]. (×5) | cost 0 |
 | Echo Rune (`EchoRuneCard`) | Common | Skill | 1 | Inscribe [Echo]. | cost 0 |
 | Nova Rune | Common | Skill | 1 | Inscribe [Nova]. | cost 0 |
-| Chain Lightning | Common | Attack | 2 | Inscribe [Scatter][Strike 3]×3. | cost 1 |
+| Chain Lightning | Common | Attack | 2 | Inscribe [Scatter][Strike 3]×4. | cost 1 |
 | Execution Rune | Common | Attack | 1 | Inscribe [Execution][Strike 10]. | Strike 15 |
 | Hex Rune | Common | Skill | 1 | Inscribe [Hex 1]. | cost 0 |
 | Blind Rage | Common | Attack | 1 | Inscribe [Scatter][Strike 15]. | Strike 20 |
@@ -316,7 +318,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Loop Rune | Uncommon | Skill | 1 | Inscribe [Loop]. | draw 1 |
 | Twin Rune | Uncommon | Skill | 1 | Inscribe [Twin ×2]. | draw 1 |
 | Kindle Rune | Uncommon | Skill | 1 | Inscribe [Kindle 1]. | cost 0 |
-| Warding Sigil | Uncommon | Power | 1 | After Speak: 2 Block per rune Spoken. | 3 |
+| Warding Sigil | Uncommon | Power | 1 | After Speak: 1 Block per rune Spoken. | 2 |
 | Swift Rune | Uncommon | Skill | 1 | Inscribe [Swift 2]. | cost 0 |
 | Amplify Sigil | Uncommon | Power | 2 | Every rune is Spoken as if preceded by [Amplify +1]. | cost 1 |
 | Swift Sigil | Uncommon | Power | 1 | Rune removed without being Spoken (Alchemize, fizzle) → draw 1. | cost 0 |
@@ -331,7 +333,7 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Holy Water Sigil | Uncommon | Power | 1 | Healing deals that much damage to a random enemy. | ALL enemies |
 | Barrier of Light | Uncommon | Skill | 2 | Until your next turn, damage taken is halved. | cost 1 |
 | Flow State | Uncommon | Skill | 1 | This turn, whenever you Inscribe, draw 1. Exhaust. | no Exhaust |
-| Paladin Sigil | Uncommon | Power | 2 | Whenever you Imbue a rune, gain 1 Energy. | cost 1 |
+| Paladin Sigil | Uncommon | Power | 1 | Whenever you Imbue a rune, gain 1 Energy. | Innate |
 | Conjure Portal | Uncommon | Power | 1 | Multiplayer only. Whenever you Imbue a rune, Inscribe it for a random other player (`RuneCmd.Share`). | cost 0 |
 | Chaos Falls | Uncommon | Power | 2 | Multiplayer only. Start of turn: Inscribe [Scatter][Twin ×2][Loop]. Scatter picks from everyone, players included (`IRuneListener.ScatterTargetsAnyone`). | cost 1 |
 | Star Shield | Uncommon | Skill | 1 | Gain 4 Block per [Nova] in the Incantation. | 5 |
@@ -354,17 +356,17 @@ Execution Rune): there the target rune is inscribed **first** so it governs the 
 | Stacked Strike | Rare | Attack | 2 | Inscribe [Strike 7 + Strike 7 + Strike 7] (simultaneous: one compound glyph). | cost 1 |
 | Imbued Shield | Rare | Skill | 1 | Gain 9 Block, doubled while Imbued. Imbue 1; playing it Imbued releases its runes and empties the slot. | 11 |
 | Dark Star | Rare | Power | 0 | Inscribe [Void]. Persist. While a [Void] is inscribed, draw 1 at the start of each turn. | draw 2 |
-| Ritual | Common | Skill | 0 | Inscribe [Blood 5]. Speak; the runes remain (`keep: true`). | Blood 3 |
+| Ritual | Common | Skill | 0 | Inscribe [Blood 4]. Speak; the runes remain (`keep: true`). | Blood 2 |
 | Spark Strike | Common | Attack | 1 | Fizzle the last rune; if one fizzled, deal 8. | 11 |
 | Chant | Uncommon | Skill | 2 | Speak; the runes remain (`keep: true`). | cost 1 |
-| Blood Sacrifice | Uncommon | Attack | X | Inscribe [Blood 1] X times, [Strike X] X times. | also [Echo] after the Blood runes; [Strike X+1] X+1 times |
+| Blood Sacrifice | Uncommon | Attack | X | Inscribe [Blood 1] X times, [Strike X] 2X times. | [Strike 2X] 2X times |
 | Darkness Falls | Uncommon | Attack | 0 | Inscribe [Void][Strike 30]. | Strike 40 |
 | Flagellation | Uncommon | Power | 2 | Whenever you lose HP during your turn, Inscribe [Defend 4]. | cost 1 |
 | Frenzied Incant | Uncommon | Skill | 0 | Inscribe [Loop]. Put [Scatter] at the start of the Incantation. | Imbue 1 first |
-| Folly's Mirror | Uncommon | Skill | 0 | Inscribe [Echo][Nova][Echo][Nova]. | Imbue 1 first |
+| Folly's Mirror | Uncommon | Skill | 0 | Inscribe [Echo][Nova][Echo][Nova]. Never targets an enemy, even while Imbued with enemy runes (they hit a random enemy). | Imbue 1 first |
 | Energy Overflow | Uncommon | Power | 1 | Whenever a rune fizzles, deal 5 damage to ALL enemies. | cost 0 |
 | Dark Magick | Rare | Skill | 1 | Inscribe [Void]. Add 2 upgraded Loop Runes to your hand. | Inscribe [Kindle 1] first |
-| Unforgiveable Curse | Rare | Power | 1 | Whenever a rune fizzles, add a random cursed item to your hand (end-of-turn fizzles deliver next turn). | also Inscribe [Nova] ×3 (two of them fizzle unused → two cursed items) |
+| Unforgiveable Curse | Rare | Power | 1 | The first time a rune fizzles each turn, add a random cursed item to your hand (an end-of-turn first fizzle delivers next turn). | also Inscribe [Nova] ×2 (the first is overridden and fizzles, so it always triggers) |
 | Choral Evocation | Rare | Skill | 1 | Multiplayer only. This turn, [Defend] runes you Inscribe are also Inscribed for all other players. Exhaust. | every rune is shared |
 | Waning Moon | Uncommon | Attack | 2 | Inscribe [Loop][Strike 4][Defend 4][Void (Persist)][Defend 4][Strike 4][Reflection]. (On the way back its Loop closes the open loop, so the second pass runs forward again: Strike, Defend, Strike, then Strike, Strike back, Strike forward, nothing on the last way back — 5 Strikes and 1 Defend.) | Inscribe [Amplify +2] first |
 | Diminishing Rune (`DiminishingRuneCard`) | Common | Attack | 2 | Inscribe [Diminish 20]. Exhaust. | cost 1 |
@@ -384,12 +386,18 @@ Special (Token rarity, `TokenCardPool`; only created by Unforgiveable Curse / Cu
 |---|---|---|---|---|
 | Cursed Sword | Attack | 1 | Inscribe [Blood 10][Strike 20]. Deal 30. Ethereal. Exhaust. | Blood 5 |
 | Cursed Armour | Skill | 1 | Can't gain Block until next turn; then Inscribe [Mend] = HP lost meanwhile. Ethereal. Exhaust. | also reflect HP damage from enemies until next turn |
-| Cursed Spirits | Power | 1 | Summon 3 spirits (+1 each turn start); at end of turn each deals 5 (Unpowered, so Strength doesn't apply) to a random Black-Marked enemy; no marked enemy → no attack. Add a Black Mark to hand. Ethereal. Exhaust. | 5 spirits |
+| Cursed Spirits | Power | 1 | Summon 3 spirits (+1 each turn start); at end of turn each deals 5 (Unpowered, so Strength doesn't apply) to a random Black-Marked enemy; no marked enemy → no attack. Add a Black Mark to hand. Ethereal. Exhaust. The power is hidden from the power bar: the spirits float over the player like orbs (`NCursedSpirits`/`NSpirit`: purple wisps showing their damage; hover one for the power's tip) and fly at the enemy they hit (`CursedSpiritsPower.SpiritStruck`). | 5 spirits |
 | Black Mark | Skill | 0 | Apply Black Mark (only marked enemies are attacked by spirits). | draw 1 |
 | White Hole Strike | Attack | 1 | Inscribe [Strike 20][End Loop]. Add a Black Hole Strike to the discard pile. | cost 0 |
 | Old Lantern | Skill | X | Inscribe [Kindle X]. Exhaust. | no Exhaust |
 
-Totals: 2 Basic, 30 Common, 43 Uncommon, 18 Rare = 93, plus 6 special.
+Event cards (`Cards/Event`, `CardRarity.Event`: never in card rewards; in the Rune Priest pool, so they show in the library):
+
+| Card | Type | Cost | Effect | Upgrade |
+|---|---|---|---|---|
+| Blood Rune (`BloodRuneCard`) | Skill | 1 | Inscribe [Blood 2]. | Exhaust |
+
+Totals: 2 Basic, 30 Common, 43 Uncommon, 18 Rare = 93, plus 6 special and 1 Event card.
 
 Assumptions made where the CSV was silent (revisit on review): bare "Inscribe Twin/Kindle/Hex" = Twin ×2 /
 Kindle 1 / Hex 1; bare "Inscribe Swift" = Swift 2; "Draw 1" upgrades draw on play; Imbue takes the newest
@@ -412,11 +420,11 @@ without being Spoken, which includes fizzles; Holy Water Sigil uses the heal amo
 | Cursed Ring | Shop (200 Gold) | Cursed items (Cursed Sword, Cursed Armour, Cursed Spirits) cost 0 (`TryModifyEnergyCostInCombat`). |
 | Undead Quill | Shop (300 Gold) | [Blood] and [Mend] runes swap their effects when Spoken (`IRuneListener.ReplacePayload`; side-effect-free so the forecast shows it too). |
 | Lightweight Cloth Robe | Event | Cards with [Blood] runes (inscribed or Imbued; not X-cost) cost 0. Your [Blood] runes are doubled. From the Suspicious Tailor event. |
-| Hallowed Toolbox | Starter | Blessed Toolbox upgraded by Orobas' Touch of Orobas (`CustomRelicModel.GetUpgradeReplacement`): whenever you play a rune card, draw 1. |
+| Ascended Toolbox | Starter | Blessed Toolbox upgraded by Orobas' Touch of Orobas (`CustomRelicModel.GetUpgradeReplacement`): whenever you play a rune card, draw 1. Replaces the Blessed Toolbox (any Blessed Toolbox still held is removed on pickup). Was Hallowed Toolbox. |
 | Dark Tablet | Ancient (Darv) | Your [Blood] runes damage enemies and your [Mend] runes heal enemies instead of you (`ReplacePayload`; follow the target mode). |
 | Corrupted Sigil | Ancient (Vakuu, pool 2) | Upon pickup, remove every Eternal Sigil from your deck and add a Corrupted Sigil card. Always offered to the Rune Priest. |
 | Eternal Candle | Ancient (Tezcatara, pool 3) | Upon pickup, add an Eternal Scroll. Rest sites offer **Etch**: remove a rune card from your deck and etch its runes onto the Scroll. |
-| Aether Inkwell | Ancient | Upon pickup, obtain an Aether Quill. Neow-only wrapper for the potion (see §14); Ancient rarity keeps it out of regular relic rewards. |
+| Aether Inkwell | Ancient | Upon pickup, obtain an Aether Quill potion. Neow-only wrapper for the potion (see §14); Ancient rarity keeps it out of regular relic rewards. |
 
 | Potion | Rarity | Effect |
 |---|---|---|
@@ -465,6 +473,7 @@ Energy emptying a huge Incantation, Undead Quill turning Martyr/Blood Sacrifice 
 - Card-pool pass 10/3/2026: Emanate renamed **Emenate**; Cocoon no longer inscribes a Void; Persist is written once, inline after its rune (keyword dropped from those cards); Unforgiveable Curse says "item"; Runic Sphere only affects cards with "Rune" in their name; Lightweight Cloth Robe is an **Event** relic (unobtainable until a Rune Priest event grants it) and its "Blood cards are free" half is now implemented.
 - Curse pass 10/3/2026: the cursed items (Cursed Sword/Armour/Spirits) are **Ethereal + Exhaust**; **Cleanse** also removes every [Blood] rune from the Incantation; new Uncommon **Exorcism**, Shop relic **Cursed Ring** (200 Gold), potions **Teardrop**, **Lucky Elixir**, **Snecko Decoction**; Thrumming Elixir's description no longer mentions loops (they aren't amplifiable since #18). Assumptions: Cleanse stays self-targeted; Teardrop's copy is a separate glyph (no merge, no Inscribe triggers); Snecko Decoction only shuffles valued payload runes.
 - Design sync 10/4/2026 (issue #25): **Reflections mirror the program**: on the way back an End Loop opens a loop and a Loop closes it (`RuneProgram.Mirrored`; a second Reflection flips it back), and a Void consumes the glyph on its left — a Void consumes a Reflection like any other glyph (pending modifiers that are Spoken again after the Reflection are dropped, so they apply once). Open loops no longer stop at a Reflection: the interpreter keeps a direction, a Loop reached on the way back closes the loop, and its next pass runs forward again (Waning Moon = 5 Strikes and 1 Defend). Stacked Strike inscribes its three Strikes as **one simultaneous glyph**; Cocoon **Exhausts**; Alloy only shows the Imbue tip when upgraded. **Card text previews damage and block**: every `DamageVar`/`BlockVar` value is written `{X:diff()}`, so cards show Strength/Weak/Vulnerable (on the targeted enemy)/Dexterity/Frail and enchantments (Sharp…) like the overhead runes; Strikes that depend on the combat (Heavy Rune, Light Blade, Patient Rune) add an in-combat `(Inscribes Strike N)` line (`InscribedStrikeVar`).
+- Design sync 10/5/2026 (issue #27): Chain Lightning strikes 4 times; Ritual Blood 4 (2 upgraded); **Unforgiveable Curse only triggers on the first fizzle each turn** (upgrade: 2 Novas); Blood Sacrifice inscribes [Strike X] 2X times (upgraded [Strike 2X], no Echo); Warding Sigil 1/2 Block; Paladin Sigil costs 1 and upgrades to Innate; Folly's Mirror never asks for a target (even when Imbued). New **Event card Blood Rune** (`Cards/Event`). Hallowed Toolbox renamed **Ascended Toolbox** (the design name) and removes any leftover Blessed Toolbox on pickup. Neow's Aether Quill offer is titled and described as a potion. Mend runes are a pale mint and Growth runes deep green. **Cursed Spirits are drawn like orbs**: the power is hidden from the power bar (`IsVisibleInternal`), purple spirits with their damage float over the player and fly at the enemy they hit. Assumptions: Ascended Toolbox keeps Starter rarity like the game's upgraded starters (the design sheet lists Event); Blood Rune is in the Rune Priest pool and no event grants it yet; Unforgiveable Curse's "turn" resets at your turn start, so an end-of-turn fizzle counts for the turn that is ending.
 
 ## 12. Overhead visuals (Phase 3)
 From the user's sketch: runes float in a row over the head, **read left to right** (first glyph spoken is leftmost;
@@ -473,8 +482,8 @@ Past 9 glyphs (`GlyphsPerRow`) the Incantation **wraps like text**: the first gl
 and the newest row sits just above the head (earlier rows climb as rows are added). Each row clears the tallest compound
 glyph of the row below it; a partial last row is left-aligned to the grid.
 
-- **Colour = family**: Offense red (Strike/Diminish), Debuff dark purple (Hex), Support green (Defend/Mend/Cleanse), Resource gold (Kindle/Swift),
-  Cost crimson (Blood), Modifier violet, Target pink, Flow pale blue.
+- **Colour = family**: Offense red (Strike/Diminish), Debuff dark purple (Hex), Support green (Defend/Cleanse; Mend is a paler mint), Resource gold (Kindle/Swift),
+  Cost crimson (Blood), Modifier violet (Growth is a deep green, Overgrowth gold), Target pink, Flow pale blue.
 - **Shape = effect, character = value** (higher value → later/denser character):
 
 | Rune | Script | Characters |
@@ -569,7 +578,9 @@ keep/SpeakAt) are still available for future content.
 - **Neow**: `NeowAetherQuillPatch` postfixes `Neow.GenerateInitialOptions`; for a Rune Priest in a regular (no
   modifier) run it replaces one of the two positive offers with the Aether Inkwell relic
   (`NeowAetherQuillPatch.Chance` = 25%, rolled with the event's own RNG so co-op and reloads agree). The relic grants
-  the potion on pickup — Neow's offers are relic options, so the relic is the carrier.
+  the potion on pickup — Neow's offers are relic options, so the relic is the carrier. The offer is titled "Aether Quill
+  Potion" and says it grants a potion (`NEOW.pages.INITIAL.options.RUNEPRIEST-AETHER_INKWELL.title/.description` in
+  `ancients.json`, which the game prefers over the relic's own text); its hover tips lead with the potion.
 
 ## 15. Ancients and Ascended cards
 Ancient boons are relics offered by the game's ancients. BaseLib covers Orobas and Darv's Dusty Tome; the rest are
@@ -578,7 +589,7 @@ relic in that slot's pool, rolled on the event's own RNG (deterministic for co-o
 
 | Ancient | Boon | How |
 |---|---|---|
-| Orobas | **Touch of Orobas** → Blessed Toolbox becomes **Hallowed Toolbox** | `BlessedToolbox.GetUpgradeReplacement` |
+| Orobas | **Touch of Orobas** → Blessed Toolbox becomes **Ascended Toolbox** | `BlessedToolbox.GetUpgradeReplacement` |
 | Orobas | **Archaic Tooth** → your starting rune (the Common "… Rune" card Blessed Toolbox added) transforms into its Ascended form | `ITranscendenceCard` on each Common rune card |
 | Darv | **Dusty Tome** → Mirrororrim (upgraded) | `ITomeCard` on `Mirrororrim` |
 | Darv | **Dark Tablet** (25%, replaces an old relic, never Dusty Tome) | `AncientOptionPatches.DarvOptions` |

@@ -9,7 +9,7 @@ adds boons to the vanilla ones. The full list and card details live in
 
 | Vanilla relic | What it does by default | Rune Priest hook |
 |---|---|---|
-| **Touch of Orobas** | Replaces the starter relic with its upgraded form (`RefinementUpgrades`) | `BlessedToolbox.GetUpgradeReplacement()` → `HallowedToolbox` (BaseLib `CustomRelicModel`) |
+| **Touch of Orobas** | Replaces the starter relic with its upgraded form (`RefinementUpgrades`) | `BlessedToolbox.GetUpgradeReplacement()` → `AscendedToolbox` (BaseLib `CustomRelicModel`) |
 | **Archaic Tooth** | Transforms the first deck card that has a "transcendence" form | Each Common "… Rune" card implements BaseLib `ITranscendenceCard` → its Ascended card |
 | **Dusty Tome** | Adds a random non-transcendence Ancient card of your character | `Mirrororrim` implements BaseLib `ITomeCard` |
 

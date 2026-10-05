@@ -10,7 +10,8 @@ public static class NCreatureRuneBufferPatch
     [HarmonyPostfix]
     public static void Postfix(NCreature __instance)
     {
-        if (__instance.Entity.IsPlayer)
-            __instance.AddChild(NRuneBuffer.Create(__instance));
+        if (!__instance.Entity.IsPlayer) return;
+        __instance.AddChild(NRuneBuffer.Create(__instance));
+        __instance.AddChild(NCursedSpirits.Create(__instance));
     }
 }
