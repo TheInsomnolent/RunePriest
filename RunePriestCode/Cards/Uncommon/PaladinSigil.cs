@@ -7,7 +7,7 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Uncommon;
-public sealed class PaladinSigil() : RunePriestCard(2, CardType.Power, CardRarity.Uncommon, TargetType.Self)
+public sealed class PaladinSigil() : RunePriestCard(1, CardType.Power, CardRarity.Uncommon, TargetType.Self)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new PowerVar<PaladinSigilPower>(1m)];
 
@@ -19,5 +19,5 @@ public sealed class PaladinSigil() : RunePriestCard(2, CardType.Power, CardRarit
             DynamicVars["PaladinSigilPower"].BaseValue, Owner.Creature, this);
     }
 
-    protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
+    protected override void OnUpgrade() => AddKeyword(CardKeyword.Innate);
 }

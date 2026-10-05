@@ -16,6 +16,9 @@ public sealed class FollysMirror() : RuneCard(0, CardType.Skill, CardRarity.Unco
 
     protected override IEnumerable<IHoverTip> AdditionalHoverTips => IsUpgraded ? ImbueHoverTips : [];
 
+    /// <summary>Always played without a target, even while Imbued with enemy runes (they then hit a random enemy).</summary>
+    public override TargetType TargetType => TargetType.Self;
+
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
     [
         Glyph.Of(new EchoRune(Var("Echo"))), Glyph.Of(new TargetRune(TargetMode.Nova)),

@@ -7,7 +7,9 @@ namespace RunePriest.RunePriestCode.Patches;
 
 /// <summary>
 /// Makes the Aether Quill a possible Neow starting reward for the Rune Priest: sometimes one of Neow's two positive
-/// offers is replaced by <see cref="AetherInkwell"/> (a Neow relic that grants the potion).
+/// offers is replaced by <see cref="AetherInkwell"/> (a Neow relic that grants the potion). The offer is titled and
+/// described as the potion by <c>NEOW.pages.INITIAL.options.RUNEPRIEST-AETHER_INKWELL.*</c> in <c>ancients.json</c>
+/// (the game uses those keys over the relic's own title and description), and shows the potion's hover tip.
 /// </summary>
 [HarmonyPatch(typeof(Neow), "GenerateInitialOptions")]
 public static class NeowAetherQuillPatch

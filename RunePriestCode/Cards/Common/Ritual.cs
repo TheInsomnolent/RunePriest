@@ -12,7 +12,7 @@ namespace RunePriest.RunePriestCode.Cards.Common;
 /// <summary>Pay Blood, then Speak the Incantation right now; its runes (the Blood too) remain afterwards.</summary>
 public sealed class Ritual() : RuneCard(0, CardType.Skill, CardRarity.Common, TargetType.Self)
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Blood", 5m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Blood", 4m)];
 
     protected override IEnumerable<IHoverTip> AdditionalHoverTips => [RuneTips.Speak];
 

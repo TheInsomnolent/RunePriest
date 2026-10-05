@@ -2,5 +2,7 @@
   "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-0r.char": "I am angry at the architect",
   "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-0r.next": "Continue",
   "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-1r.ancient": "You die",
-  "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-attack": "Both"
+  "THE_ARCHITECT.talk.RUNEPRIEST-RUNE_PRIEST.0-attack": "Both",
+  "NEOW.pages.INITIAL.options.RUNEPRIEST-AETHER_INKWELL.title": "Aether Quill Potion",
+  "NEOW.pages.INITIAL.options.RUNEPRIEST-AETHER_INKWELL.description": "Obtain an [gold]Aether Quill[/gold] potion. Drink it in combat to keep an [gold]Imbued[/gold] card's runes for the rest of the run."
 }

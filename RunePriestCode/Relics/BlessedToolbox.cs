@@ -34,7 +34,7 @@ public sealed class BlessedToolbox : RunePriestRelic
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [RuneTips.Inscribe];
 
     /// <summary>Orobas' Touch of Orobas replaces this starter relic with its upgraded form.</summary>
-    public override RelicModel GetUpgradeReplacement() => ModelDb.Relic<HallowedToolbox>();
+    public override RelicModel GetUpgradeReplacement() => ModelDb.Relic<AscendedToolbox>();
 
     public override async Task AfterObtained()
     {

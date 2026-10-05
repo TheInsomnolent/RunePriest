@@ -102,7 +102,7 @@
   "RUNEPRIEST-RITUAL.title": "Ritual",
   "RUNEPRIEST-RITUAL.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood:inverseDiff()}.\n[gold]Speak[/gold] your Incantation. Its runes remain.",
   "RUNEPRIEST-BLOOD_SACRIFICE.title": "Blood Sacrifice",
-  "RUNEPRIEST-BLOOD_SACRIFICE.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] 1 X times.{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]Echo[/blue].|}\n[gold]Inscribe[/gold] [blue]Strike[/blue] X{IfUpgraded:show:+1|} X{IfUpgraded:show:+1|} times.",
+  "RUNEPRIEST-BLOOD_SACRIFICE.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] 1 X times.\n[gold]Inscribe[/gold] [blue]Strike[/blue] {IfUpgraded:show:2X|X} 2X times.",
   "RUNEPRIEST-FRENZIED_INCANT.title": "Frenzied Incant",
   "RUNEPRIEST-FRENZIED_INCANT.description": "{IfUpgraded:show:{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue}.|{ImbuedRunes}}\n|}[gold]Inscribe[/gold] [blue]Loop[/blue].\nPut [blue]Scatter[/blue] at the start of your Incantation.",
   "RUNEPRIEST-DARK_MAGICK.title": "Dark Magick",
@@ -110,7 +110,7 @@
   "RUNEPRIEST-FOLLYS_MIRROR.title": "Folly's Mirror",
   "RUNEPRIEST-FOLLYS_MIRROR.description": "{IfUpgraded:show:{ImbuedCount:choose(0):[gold]Imbue[/gold] {Imbue}.|{ImbuedRunes}}\n|}[gold]Inscribe[/gold] [blue]Echo[/blue] +{Echo}.\n[gold]Inscribe[/gold] [blue]Nova[/blue].\n[gold]Inscribe[/gold] [blue]Echo[/blue] +{Echo}.\n[gold]Inscribe[/gold] [blue]Nova[/blue].",
   "RUNEPRIEST-UNFORGIVEABLE_CURSE.title": "Unforgiveable Curse",
-  "RUNEPRIEST-UNFORGIVEABLE_CURSE.description": "Whenever a rune [gold]Fizzles[/gold], add a random cursed item to your hand.{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]Nova[/blue] {Novas} times.|}",
+  "RUNEPRIEST-UNFORGIVEABLE_CURSE.description": "The first time a rune [gold]Fizzles[/gold] each turn, add a random cursed item to your hand.{IfUpgraded:show:\n[gold]Inscribe[/gold] [blue]Nova[/blue] {Novas} times.|}",
   "RUNEPRIEST-ENERGY_OVERFLOW.title": "Energy Overflow",
   "RUNEPRIEST-ENERGY_OVERFLOW.description": "Whenever a rune [gold]Fizzles[/gold], deal {EnergyOverflowPower} damage to ALL enemies.",
   "RUNEPRIEST-SPARK_STRIKE.title": "Spark Strike",
@@ -230,5 +230,7 @@
   "RUNEPRIEST-FORGED_RUNE.title": "Forged Rune",
   "RUNEPRIEST-FORGED_RUNE.description": "{ForgedCount:choose(0):Inscribes the runes of the two cards forged into it.|{ForgedRunes}}",
   "RUNEPRIEST-EXORCISM.title": "Exorcism",
-  "RUNEPRIEST-EXORCISM.description": "The first Curse you draw each turn is [gold]Exhausted[/gold]. When it is, draw {ExorcismPower:diff()} {ExorcismPower:plural:card|cards} and [gold]Inscribe[/gold] [blue]Void[/blue]."
+  "RUNEPRIEST-EXORCISM.description": "The first Curse you draw each turn is [gold]Exhausted[/gold]. When it is, draw {ExorcismPower:diff()} {ExorcismPower:plural:card|cards} and [gold]Inscribe[/gold] [blue]Void[/blue].",
+  "RUNEPRIEST-BLOOD_RUNE_CARD.title": "Blood Rune",
+  "RUNEPRIEST-BLOOD_RUNE_CARD.description": "[gold]Inscribe[/gold] [blue]Blood[/blue] {Blood}."
 }

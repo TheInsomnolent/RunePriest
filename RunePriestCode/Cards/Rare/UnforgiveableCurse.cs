@@ -9,10 +9,10 @@ using RunePriest.RunePriestCode.Powers;
 using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Rare;
-/// <summary>Whenever a rune fizzles, add a random cursed weapon to your hand. Upgraded: also Inscribe Nova 3 times.</summary>
+/// <summary>The first time a rune fizzles each turn, add a random cursed item to your hand. Upgraded: also Inscribe Nova twice.</summary>
 public sealed class UnforgiveableCurse() : RunePriestCard(1, CardType.Power, CardRarity.Rare, TargetType.Self)
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Novas", 3m)];
+    protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Novas", 2m)];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [
