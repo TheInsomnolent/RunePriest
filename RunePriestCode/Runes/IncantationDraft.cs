@@ -75,6 +75,9 @@ public sealed class IncantationDraft
         _exists = true;
         foreach (var listener in RuneListeners.Of(Player))
             list = listener.ModifyInscription(Player, list, preview: true);
+        if (list.Count == 0) return;
+        list = Glyph.HeavierInCast(list);
+        GrowHeavy(list);
 
         for (var i = 0; i < list.Count; i++)
         {
@@ -98,6 +101,7 @@ public sealed class IncantationDraft
         var list = glyphs.Select(g => g.InscribedBy(source))
             .Select(g => new DraftEntry(g, null, DraftChange.Added)).ToList();
         if (list.Count == 0 || !_exists) return;
+        GrowHeavy(list.Select(e => e.Glyph));
         _entries.InsertRange(0, list);
         Overflow();
     }
@@ -127,6 +131,17 @@ public sealed class IncantationDraft
     {
         if (entry.Change == DraftChange.Added) _entries.Remove(entry);
         else entry.Change = DraftChange.Removed;
+    }
+
+    /// <summary>Mirrors <see cref="RuneBuffer.CountInscribed"/>: heavy Strikes already inscribed grow for every new rune.</summary>
+    private void GrowHeavy(IEnumerable<Glyph> glyphs)
+    {
+        var runes = glyphs.Sum(g => g.Runes.Count);
+        foreach (var entry in Live.Where(e => e.Glyph.IsHeavy))
+        {
+            entry.Glyph = entry.Glyph.Heavier(runes);
+            if (entry.Change == DraftChange.Unchanged) entry.Change = DraftChange.Merged;
+        }
     }
 
     private void Overflow()

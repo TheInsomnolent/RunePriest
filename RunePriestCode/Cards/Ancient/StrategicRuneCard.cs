@@ -9,10 +9,10 @@ using RunePriest.RunePriestCode.Runes;
 namespace RunePriest.RunePriestCode.Cards.Ancient;
 
 /// <summary>
-/// Ascended Skill - Cost 0
+/// Ascended Skill "Strategic Rune" - Cost 0
 /// Apply Imbue effect (grant +1 imbuement). Draw 3 cards.
 /// </summary>
-public sealed class Strategi() : RunePriestCard(0, CardType.Skill, CardRarity.Ancient, TargetType.Self)
+public sealed class StrategicRuneCard() : RunePriestCard(0, CardType.Skill, CardRarity.Ancient, TargetType.Self)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(3)];
 

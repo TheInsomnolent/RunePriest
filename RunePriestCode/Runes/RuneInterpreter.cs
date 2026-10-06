@@ -98,6 +98,9 @@ public static class RuneInterpreter
                 slot.Consumed = true;
                 Log(ctx, $"  {voider.Current} consumes {glyph}");
                 await Fizzle(ctx, pc, slot, "voided");
+                if (!ctx.IsPreview)
+                    foreach (var listener in ctx.Listeners)
+                        await listener.AfterVoided(ctx, voider.Current, glyph);
                 pc += step;
                 continue;
             }

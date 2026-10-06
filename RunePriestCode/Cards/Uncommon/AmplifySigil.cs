@@ -19,5 +19,5 @@ public sealed class AmplifySigil() : RunePriestCard(2, CardType.Power, CardRarit
             DynamicVars["AmplifySigilPower"].BaseValue, Owner.Creature, this);
     }
 
-    protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
+    protected override void OnUpgrade() => DynamicVars["AmplifySigilPower"].UpgradeValueBy(1m);
 }

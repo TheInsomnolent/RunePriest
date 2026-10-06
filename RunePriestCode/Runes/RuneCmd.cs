@@ -24,6 +24,7 @@ public static class RuneCmd
         foreach (var listener in RuneListeners.Of(player))
             list = listener.ModifyInscription(player, list, preview: false);
         if (list.Count == 0) return;
+        list = Glyph.HeavierInCast(list);
 
         await Place(choiceContext, player, power.Buffer, list);
 

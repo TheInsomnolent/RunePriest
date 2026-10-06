@@ -11,7 +11,7 @@ public sealed class SwiftSigil() : RunePriestCard(1, CardType.Power, CardRarity.
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [new PowerVar<SwiftSigilPower>(1m)];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [HoverTipFactory.FromPower<SwiftSigilPower>()];
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => [HoverTipFactory.FromPower<SwiftSigilPower>(), RuneTips.Imbue];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

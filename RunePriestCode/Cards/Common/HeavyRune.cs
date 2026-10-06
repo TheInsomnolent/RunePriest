@@ -10,7 +10,10 @@ using RunePriest.RunePriestCode.Runes;
 using Ascended = RunePriest.RunePriestCode.Cards.Ancient;
 
 namespace RunePriest.RunePriestCode.Cards.Common;
-/// <summary>Inscribe a Strike that grows with every rune already in the Incantation.</summary>
+/// <summary>
+/// Inscribe a heavy Strike: worth more for every rune already in the Incantation, and it keeps growing for every rune
+/// inscribed after it (<see cref="StrikeRune.BonusPerRune"/>).
+/// </summary>
 public sealed class HeavyRune() : RuneCard(2, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy), ITranscendenceCard
 {
     /// <summary>Archaic Tooth (Orobas) transforms this starting rune into its Ascended form.</summary>
@@ -22,16 +25,16 @@ public sealed class HeavyRune() : RuneCard(2, CardType.Attack, CardRarity.Common
             new InscribedStrikeVar(static card => ((HeavyRune)card).InscribedStrike)
         ];
 
-    // Glyphs(null) is only used for hover tips; the real value is read when played.
+    // Glyphs(null) is used for hover tips and etching; the real value is read when played.
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new StrikeRune(Var("Strike"))).AnchoredTo(anchor)];
+        [Glyph.Of(new StrikeRune(Var("Strike"), Var("Bonus"))).AnchoredTo(anchor)];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay) =>
         await RuneCmd.Inscribe(choiceContext, Owner, Inscription(cardPlay.Target), this);
 
     public override void PreviewIncantation(IncantationDraft draft, Creature? anchor) => draft.Inscribe(Inscription(anchor), this);
 
-    private Glyph[] Inscription(Creature? anchor) => [Glyph.Of(new StrikeRune(InscribedStrike)).AnchoredTo(anchor)];
+    private Glyph[] Inscription(Creature? anchor) => [Glyph.Of(new StrikeRune(InscribedStrike, Var("Bonus"))).AnchoredTo(anchor)];
 
     private int InscribedStrike => Var("Strike") + IncantationRuneCount * Var("Bonus");
 

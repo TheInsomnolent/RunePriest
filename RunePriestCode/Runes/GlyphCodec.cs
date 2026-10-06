@@ -3,7 +3,8 @@ namespace RunePriest.RunePriestCode.Runes;
 /// <summary>
 /// Text form of glyphs, used to store runes Imbued into cards: glyphs separated by <c>;</c>, runes by <c>,</c>,
 /// each rune as <c>KEY:VALUE</c> (e.g. <c>STRIKE:10,BLOOD:3;AMPLIFY:2</c>); a Persistent glyph starts with <c>!</c>
-/// and a <see cref="Rune.Radiant"/> rune with <c>*</c> (e.g. <c>!*HEX:1</c>). Anchors and sources are not stored.
+/// and a <see cref="Rune.Radiant"/> rune with <c>*</c> (e.g. <c>!*HEX:1</c>). A heavy Strike adds its bonus per rune
+/// (<c>STRIKE:12:3</c>). Anchors and sources are not stored.
 /// Unknown runes are dropped, so a corrupt glyph decodes as malformed and simply fizzles when spoken.
 /// </summary>
 public static class GlyphCodec
@@ -13,7 +14,7 @@ public static class GlyphCodec
 
     public static string Encode(IEnumerable<Glyph> glyphs) =>
         string.Join(";", glyphs.Select(g =>
-            (g.Persistent ? PersistMark.ToString() : "") + string.Join(",", g.Runes.Select(r => $"{(r.Radiant ? RadiantMark.ToString() : "")}{r.Key}:{r.Value}"))));
+            (g.Persistent ? PersistMark.ToString() : "") + string.Join(",", g.Runes.Select(r => $"{(r.Radiant ? RadiantMark.ToString() : "")}{r.Key}:{r.Value}{(r is StrikeRune { IsHeavy: true } s ? $":{s.BonusPerRune}" : "")}"))));
 
     public static IReadOnlyList<Glyph> Decode(string? code)
     {
@@ -34,7 +35,9 @@ public static class GlyphCodec
         var radiant = text.StartsWith(RadiantMark);
         var parts = text.TrimStart(RadiantMark).Split(':');
         var value = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : 0;
-        return Create(parts[0], value)?.RadiantIf(radiant);
+        var rune = Create(parts[0], value);
+        if (rune is StrikeRune && parts.Length > 2 && int.TryParse(parts[2], out var bonus)) rune = new StrikeRune(value, bonus);
+        return rune?.RadiantIf(radiant);
     }
 
     /// <summary>Builds a rune from its <see cref="Rune.Key"/> and value, or null if the key is unknown.</summary>

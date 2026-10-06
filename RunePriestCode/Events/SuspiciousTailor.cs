@@ -1,15 +1,17 @@
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Events;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models;
+using RunePriest.RunePriestCode.Cards.Event;
 using RunePriest.RunePriestCode.Relics;
 
 namespace RunePriest.RunePriestCode.Events;
 
 /// <summary>
-/// Act 3: a horned tailor offers the Lightweight Cloth Robe. Only offered when every player uses runes and doesn't own
-/// the robe yet.
+/// Act 3: a horned tailor offers the Lightweight Cloth Robe; declining leaves you with a Blood Rune card instead. Only
+/// offered when every player uses runes and doesn't own the robe yet.
 /// </summary>
 public sealed class SuspiciousTailor : RuneEvent
 {
@@ -25,7 +27,7 @@ public sealed class SuspiciousTailor : RuneEvent
         Qualifies(Owner!)
             ? Choice(Trade, "TRADE", HoverTipFactory.FromRelic<LightweightClothRobe>().ToArray())
             : Locked("TRADE"),
-        Choice(Decline, "DECLINE")
+        Choice(Decline, "DECLINE", HoverTipFactory.FromCard<BloodRuneCard>())
     ];
 
     private async Task Trade()
@@ -34,9 +36,10 @@ public sealed class SuspiciousTailor : RuneEvent
         Finish("TRADE");
     }
 
-    private Task Decline()
+    private async Task Decline()
     {
+        var card = Owner!.RunState.CreateCard<BloodRuneCard>(Owner);
+        CardCmd.PreviewCardPileAdd(await CardPileCmd.Add(card, PileType.Deck));
         Finish("DECLINE");
-        return Task.CompletedTask;
     }
 }

@@ -14,6 +14,7 @@ namespace RunePriest.RunePriestCode.Patches;
 /// <list type="bullet">
 /// <item>Darv: <see cref="DarkTablet"/> may replace one of the old relics (never Dusty Tome).</item>
 /// <item>Vakuu pool 2: <see cref="CorruptedSigil"/>.</item>
+/// <item>Vakuu pool 3: <see cref="Supernova"/>.</item>
 /// <item>Tezcatara pool 3: <see cref="EternalCandle"/>.</item>
 /// </list>
 /// Orobas' Touch of Orobas / Archaic Tooth and Darv's Dusty Tome use BaseLib hooks instead (see <c>BlessedToolbox</c>,
@@ -23,9 +24,11 @@ public static class AncientOptionPatches
 {
     public const float DarkTabletChance = 0.25f;
     public const float CorruptedSigilChance = 0.25f;
+    public const float SupernovaChance = 0.25f;
     public const float EternalCandleChance = 0.2f;
 
     private const int VakuuPool2Slot = 1;
+    private const int VakuuPool3Slot = 2;
     private const int TezcataraPool3Slot = 2;
 
     private static bool OffersTo<T>(AncientEventModel ancient) where T : RelicModel =>
@@ -67,9 +70,13 @@ public static class AncientOptionPatches
         [HarmonyPostfix]
         public static void Postfix(Vakuu __instance, ref IReadOnlyList<EventOption> __result)
         {
-            if (__result.Count <= VakuuPool2Slot || !OffersTo<CorruptedSigil>(__instance) ||
-                __instance.Rng.NextFloat() >= CorruptedSigilChance) return;
-            Replace(ref __result, VakuuPool2Slot, __instance.RelicOption<CorruptedSigil>(), "Vakuu");
+            if (__result.Count > VakuuPool2Slot && OffersTo<CorruptedSigil>(__instance) &&
+                __instance.Rng.NextFloat() < CorruptedSigilChance)
+                Replace(ref __result, VakuuPool2Slot, __instance.RelicOption<CorruptedSigil>(), "Vakuu");
+
+            if (__result.Count > VakuuPool3Slot && OffersTo<Supernova>(__instance) &&
+                __instance.Rng.NextFloat() < SupernovaChance)
+                Replace(ref __result, VakuuPool3Slot, __instance.RelicOption<Supernova>(), "Vakuu");
         }
     }
 
@@ -78,7 +85,7 @@ public static class AncientOptionPatches
     {
         [HarmonyPostfix]
         public static void Postfix(Vakuu __instance, ref IEnumerable<EventOption> __result) =>
-            __result = __result.Append(__instance.RelicOption<CorruptedSigil>());
+            __result = __result.Append(__instance.RelicOption<CorruptedSigil>()).Append(__instance.RelicOption<Supernova>());
     }
 
     [HarmonyPatch(typeof(Tezcatara), "GenerateInitialOptions")]
