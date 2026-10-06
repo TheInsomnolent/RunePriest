@@ -36,8 +36,6 @@ public class RunePriest : PlaceholderCharacterModel
         ModelDb.Card<StrikeRuneCard>(),
         ModelDb.Card<StrikeRuneCard>(),
         ModelDb.Card<StrikeRuneCard>(),
-        ModelDb.Card<StrikeRuneCard>(),
-        ModelDb.Card<DefendRuneCard>(),
         ModelDb.Card<DefendRuneCard>(),
         ModelDb.Card<DefendRuneCard>(),
         ModelDb.Card<DefendRuneCard>(),
