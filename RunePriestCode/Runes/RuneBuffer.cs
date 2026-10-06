@@ -12,7 +12,17 @@ public sealed class RuneBuffer
     /// <summary>Total runes inscribed this combat (merged and prepended runes count; retained runes don't recount).</summary>
     public int RunesInscribed { get; private set; }
 
-    internal void CountInscribed(IEnumerable<Glyph> glyphs) => RunesInscribed += glyphs.Sum(g => g.Runes.Count);
+    /// <summary>
+    /// Counts runes entering the Incantation (call before adding them). Heavy Strikes already in it grow for each one
+    /// (<see cref="Glyph.Heavier"/>).
+    /// </summary>
+    internal void CountInscribed(IEnumerable<Glyph> glyphs)
+    {
+        var runes = glyphs.Sum(g => g.Runes.Count);
+        RunesInscribed += runes;
+        for (var i = 0; i < _glyphs.Count; i++)
+            if (_glyphs[i].IsHeavy) Replace(i, _glyphs[i].Heavier(runes));
+    }
 
     public event Action? Changed;
 

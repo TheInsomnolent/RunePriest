@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
@@ -69,11 +70,31 @@ public abstract class PayloadRune(int value) : Rune(value)
     }
 }
 
-public sealed class StrikeRune(int value) : PayloadRune(value)
+/// <param name="bonusPerRune">
+/// A heavy Strike (Heavy Rune, Light Blade) gains this much for every rune inscribed after it
+/// (<see cref="Glyph.Heavier"/>). Heavy Strikes never merge, so each keeps its own growth.
+/// </param>
+public sealed class StrikeRune(int value, int bonusPerRune = 0) : PayloadRune(value)
 {
     public override string Key => "STRIKE";
-    protected override Rune Revalued(int value) => new StrikeRune(value);
+    public int BonusPerRune { get; } = Math.Max(0, bonusPerRune);
+    public bool IsHeavy => BonusPerRune > 0;
+    protected override Rune Revalued(int value) => new StrikeRune(value, BonusPerRune);
+    public override bool CanMergeWith(Rune next) => next is StrikeRune { IsHeavy: false } && !IsHeavy;
     public override RuneTargeting Targeting => RuneTargeting.Enemy;
+
+    public override IEnumerable<IHoverTip> HoverTips
+    {
+        get
+        {
+            if (!IsHeavy) return base.HoverTips;
+            var description = new LocString(RuneTips.Table, $"{RuneTips.Prefix}RUNE_STRIKE_HEAVY.description");
+            description.Add("Bonus", BonusPerRune.ToString());
+            return [..base.HoverTips, new HoverTip(new LocString(RuneTips.Table, $"{RuneTips.Prefix}RUNE_STRIKE_HEAVY.title"), description)];
+        }
+    }
+
+    public override string ToString() => IsHeavy ? $"{base.ToString()} (+{BonusPerRune}/rune)" : base.ToString();
 
     public override int Modified(Player owner, Glyph glyph, Creature? target, int value, PreviewEffects? effects = null) =>
         ModifiedAttack(owner, glyph, target, value, effects);

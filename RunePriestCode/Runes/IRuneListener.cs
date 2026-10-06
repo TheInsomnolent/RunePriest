@@ -41,6 +41,12 @@ public interface IRuneListener
 
     Task AfterPayload(RuneContext ctx, PayloadRune rune, int value, IReadOnlyList<Creature> targets) => Task.CompletedTask;
 
+    /// <summary>
+    /// A Void consumed <paramref name="consumed"/> (as it stood when consumed) while Speaking; raised after its fizzle.
+    /// Never raised by the forecast.
+    /// </summary>
+    Task AfterVoided(RuneContext ctx, Glyph voider, Glyph consumed) => Task.CompletedTask;
+
     /// <summary>A glyph fizzled while Speaking, or was fizzled mid-turn (see <see cref="RuneCmd.Fizzle"/>).</summary>
     Task AfterFizzle(RuneContext ctx, Glyph glyph) => Task.CompletedTask;
 

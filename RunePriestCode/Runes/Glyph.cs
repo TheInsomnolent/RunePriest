@@ -84,6 +84,27 @@ public sealed class Glyph
     public Glyph Empower(int bonus) =>
         new(Runes.Select(r => r is PayloadRune { Amplifiable: true } ? r.WithValue(r.Value + bonus) ?? r : r).ToList(), Anchor, Source, Persistent);
 
+    /// <summary>Whether this glyph holds a heavy Strike (<see cref="StrikeRune.BonusPerRune"/>).</summary>
+    public bool IsHeavy => Runes.Any(r => r is StrikeRune { IsHeavy: true });
+
+    /// <summary>Every heavy Strike grown by its bonus for each of <paramref name="runes"/> runes inscribed after it.</summary>
+    public Glyph Heavier(int runes)
+    {
+        if (runes <= 0 || !IsHeavy) return this;
+        return new Glyph(Runes.Select(r => r is StrikeRune { IsHeavy: true } strike
+            ? strike.WithValue(strike.Value + strike.BonusPerRune * runes)! : r).ToList(), Anchor, Source, Persistent);
+    }
+
+    /// <summary>
+    /// A cast's heavy Strikes also grow for the other runes inscribed with them (a Runic Form Loop, other Imbued runes…).
+    /// </summary>
+    public static IReadOnlyList<Glyph> HeavierInCast(IReadOnlyList<Glyph> cast)
+    {
+        if (!cast.Any(g => g.IsHeavy)) return cast;
+        var total = cast.Sum(g => g.Runes.Count);
+        return cast.Select(g => g.Heavier(total - g.Runes.Count)).ToList();
+    }
+
     /// <summary>Multiplies every mergeable rune's value (Strike, Echo, Amplify…). Valueless runes are unchanged.</summary>
     public Glyph Scaled(int factor) =>
         new(Runes.Select(r => r.WithValue(r.Value * factor) ?? r).ToList(), Anchor, Source, Persistent);
@@ -106,7 +127,7 @@ public sealed class Glyph
         var merged = new Rune[Runes.Count];
         for (var i = 0; i < Runes.Count; i++)
         {
-            if (Runes[i].Key != next.Runes[i].Key) return null;
+            if (!Runes[i].CanMergeWith(next.Runes[i])) return null;
             var rune = Runes[i].WithValue(Runes[i].Value + next.Runes[i].Value);
             if (rune == null) return null;
             merged[i] = rune.RadiantIf(next.Runes[i].Radiant);

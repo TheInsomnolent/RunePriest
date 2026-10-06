@@ -16,7 +16,7 @@ namespace RunePriest.RunePriestCode.Cards.Common;
 public sealed class BlankRuneCard() : RunePriestCard(0, CardType.Skill, CardRarity.Common, TargetType.Self), ITranscendenceCard
 {
     /// <summary>Archaic Tooth (Orobas) transforms this starting rune into its Ascended form.</summary>
-    public CardModel GetTranscendenceTransformedCard() => ModelDb.Card<Ascended.Strategi>();
+    public CardModel GetTranscendenceTransformedCard() => ModelDb.Card<Ascended.StrategicRuneCard>();
 
     protected override IEnumerable<DynamicVar> CanonicalVars => [new IntVar("Imbue", 1m), new CardsVar(1)];
 

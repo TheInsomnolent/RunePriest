@@ -10,7 +10,7 @@ namespace RunePriest.RunePriestCode.Cards.Ancient;
 
 /// <summary>
 /// Ancient Power (Darv's Dusty Tome card for the Rune Priest, via <see cref="ITomeCard"/>): at the end of each turn,
-/// before the Incantation is Spoken, Inscribe [End Loop][Reflection]. Ethereal; upgrading removes Ethereal.
+/// before the Incantation is Spoken, Inscribe [Reflection]. Ethereal; upgrading removes Ethereal.
 /// </summary>
 public sealed class Mirrororrim() : RunePriestCard(2, CardType.Power, CardRarity.Ancient, TargetType.Self), ITomeCard
 {
@@ -18,8 +18,7 @@ public sealed class Mirrororrim() : RunePriestCard(2, CardType.Power, CardRarity
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     [
-        HoverTipFactory.FromPower<MirrororrimPower>(), RuneTips.Inscribe,
-        ..new EndLoopRune().HoverTips, ..new ReflectionRune().HoverTips
+        HoverTipFactory.FromPower<MirrororrimPower>(), RuneTips.Inscribe, ..new ReflectionRune().HoverTips
     ];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)

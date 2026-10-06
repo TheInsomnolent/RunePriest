@@ -23,6 +23,8 @@
 
   "RUNEPRIEST-RUNE_STRIKE.title": "Strike",
   "RUNEPRIEST-RUNE_STRIKE.description": "Attack the target for {Value} damage.",
+  "RUNEPRIEST-RUNE_STRIKE_HEAVY.title": "Heavy Strike",
+  "RUNEPRIEST-RUNE_STRIKE_HEAVY.description": "This [blue]Strike[/blue] gains {Bonus} damage for every rune [gold]Inscribed[/gold] after it. Runes never merge into it, and it never merges into another rune.",
   "RUNEPRIEST-RUNE_DEFEND.title": "Defend",
   "RUNEPRIEST-RUNE_DEFEND.description": "Gain {Value} [gold]Block[/gold]. Only affects you, never other players.",
   "RUNEPRIEST-RUNE_MEND.title": "Mend",

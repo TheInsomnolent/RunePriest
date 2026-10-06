@@ -24,7 +24,7 @@ Events in StS2 are per-player (`IsShared` false): in co-op every player runs the
 |---|---|---|---|
 | Pulsing Pedestal (`PulsingPedestal`) | 1 (Overgrowth, Underdocks) | Has an upgradable, removable rune card | **Insert a Rune**: choose one; 80% Upgrade it, 20% remove it (event `Rng`). **Leave**. |
 | Enchanted Forge (`EnchantedForge`) | 2 (Hive) | Has 2+ removable, non-X-cost Common rune cards | Forced. **Forge**: merge 2 into a `ForgedRune` + add Clumsy. **Dissolve**: lose 50 Gold, remove a card (locked under 50 Gold). |
-| Suspicious Tailor (`SuspiciousTailor`) | 3 (Glory) | Uses runes and doesn't own the robe | **Trade**: obtain Lightweight Cloth Robe. **Decline**. |
+| Suspicious Tailor (`SuspiciousTailor`) | 3 (Glory) | Uses runes and doesn't own the robe | **Trade**: obtain Lightweight Cloth Robe. **Decline**: add a Blood Rune card to your deck. |
 
 **Forged Rune** (`Cards/Token/ForgedRune.cs`, Event rarity, token pool): Inscribes both cards' runes in order (Imbued
 runes first, upgrades baked in), costs the higher of the two, is an Attack if either was, and can't be upgraded. Saved

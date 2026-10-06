@@ -91,6 +91,9 @@ public abstract class Rune(int value = 0)
 
     public virtual IEnumerable<IHoverTip> HoverTips => [new HoverTip(TitleLoc, DescriptionLoc)];
 
+    /// <summary>Whether <paramref name="next"/>, inscribed right after this rune, may merge into it (values adding up).</summary>
+    public virtual bool CanMergeWith(Rune next) => Key == next.Key;
+
     /// <summary>Same rune with a new value, or null if this rune never merges (targets, Loop, End Loop, Seal, Sanctify).</summary>
     public Rune? WithValue(int value) => Revalued(value)?.RadiantIf(Radiant);
 

@@ -6,7 +6,10 @@ using RunePriest.RunePriestCode.Runes;
 
 namespace RunePriest.RunePriestCode.Cards.Ancient;
 
-/// <summary>Ascended Attack: Inscribe a Strike, plus 3 additional damage for every rune currently inscribed.</summary>
+/// <summary>
+/// Ascended Attack: Inscribe a heavy Strike, plus 3 additional damage for every rune in the Incantation; it keeps
+/// growing for every rune inscribed after it (<see cref="StrikeRune.BonusPerRune"/>).
+/// </summary>
 public sealed class LightBlade() : RuneCard(0, CardType.Attack, CardRarity.Ancient, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
@@ -17,7 +20,7 @@ public sealed class LightBlade() : RuneCard(0, CardType.Attack, CardRarity.Ancie
     ];
 
     protected override IEnumerable<Glyph> Glyphs(Creature? anchor) =>
-        [Glyph.Of(new StrikeRune(InscribedStrike)).AnchoredTo(anchor)];
+        [Glyph.Of(new StrikeRune(InscribedStrike, DynamicVars["BonusPerRune"].IntValue)).AnchoredTo(anchor)];
 
     private int InscribedStrike => Var("Strike") + IncantationRuneCount * DynamicVars["BonusPerRune"].IntValue;
 
