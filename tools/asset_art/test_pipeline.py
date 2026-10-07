@@ -201,6 +201,23 @@ class PublishTests(unittest.TestCase):
 
 
 class ExportTests(unittest.TestCase):
+    def test_potion_review_without_local_build(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            asset_root = root / "tools/asset_art"
+            source = Image.new("RGBA", (1024, 1024))
+            ImageDraw.Draw(source).ellipse((280, 200, 744, 824), fill=(70, 140, 220, 255))
+            source.save(root / "master.png")
+            installed = root / "RunePriest/images/potions"
+            export_images(root / "master.png", load_profile("potion", "test"), "test", installed)
+            with patch("review_relics.ROOT", asset_root):
+                images = load_icons("test", installed=True, profile="potion")
+            self.assertEqual([image.size for image in images], [(256, 256), (64, 64), (256, 256)])
+            self.assertFalse(ImageChops.subtract(images[0].getchannel("A"), images[2].getchannel("A")).getbbox())
+            self.assertFalse((installed / "small/test.png").exists())
+            for image in images:
+                image.close()
+
     def test_installed_review_without_local_build(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

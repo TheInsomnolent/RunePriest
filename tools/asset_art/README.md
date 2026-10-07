@@ -54,6 +54,22 @@ Event Horizon uses the recipe/asset slug `event_horizon` and relic model `EventH
 The `Supernova` card is separate and unchanged. Relic saves using the former `SUPERNOVA`
 ID are not migrated by this rename.
 
+## Potion review pages
+
+Potions use the same render/publish workflow with `--profile potion` and destination
+`RunePriest/images/potions`. Each recipe has its own container silhouette; the shared
+relic painterly settings are unchanged. Game exports are a 256px icon and a 256px
+white outline in `outline/`.
+
+```powershell
+./tools/asset_art/.venv/Scripts/python.exe tools/asset_art/render.py echo_brew --profile potion
+./tools/asset_art/.venv/Scripts/python.exe tools/asset_art/review_relics.py --profile potion --installed
+```
+
+The review command saves `reviews/potion/large.png`, `reviews/potion/small.png`, and
+individual light/dark/checkerboard sheets. The small sheet uses 64px readability samples,
+not additional game exports or a claim about the game's exact display size.
+
 ## Profiles and custom sizes
 
 | Profile | Base size | Outputs | Camera |
