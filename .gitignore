@@ -11,3 +11,7 @@ packages/
 *.user
 Directory.Build.props
 .decompiled/
+tools/**/.venv/
+tools/**/venv/
+tools/**/__pycache__/
+tools/asset_art/build/

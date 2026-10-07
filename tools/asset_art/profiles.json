@@ -1,0 +1,92 @@
+{
+  "relic": {
+    "size": [256, 256],
+    "supersample": 4,
+    "transparent": true,
+    "camera": "ORTHO",
+    "framing": "auto",
+    "padding": 0.12,
+    "border": 2,
+    "postprocess": {
+      "enabled": true, "radius": 3.0, "strength": 0.75,
+      "pigment_strength": 0.35, "pigment_scale": 45.0,
+      "brush_strength": 0.3, "brush_width": 2.5, "brush_length": 8.0, "brush_angle": 25.0,
+      "tone_steps": 8, "tone_strength": 0.8
+    },
+    "outputs": [
+      {"name": "large", "size": [256, 256], "path": "big/{slug}.png"},
+      {"name": "small", "size": [94, 94], "path": "{slug}.png"},
+      {"name": "outline", "size": [94, 94], "path": "{slug}_outline.png", "kind": "outline", "radius": 2}
+    ]
+  },
+  "potion": {
+    "postprocess": "relic",
+    "size": [256, 256],
+    "supersample": 4,
+    "transparent": true,
+    "camera": "ORTHO",
+    "framing": "auto",
+    "padding": 0.12,
+    "border": 2,
+    "outputs": [
+      {"name": "icon", "size": [256, 256], "path": "{slug}.png"},
+      {"name": "outline", "size": [256, 256], "path": "outline/{slug}.png", "kind": "outline", "radius": 3}
+    ]
+  },
+  "event_scene": {
+    "size": [1280, 720],
+    "supersample": 1,
+    "transparent": false,
+    "camera": "PERSP",
+    "framing": "manual",
+    "camera_position": [3, -17, 8],
+    "camera_target": [2.2, 1, 2.35],
+    "lens": 43,
+    "world_color": "070F13",
+    "world_strength": 0.12,
+    "border": 0,
+    "lights": [
+      {"name": "Cool workshop window", "position": [-3, -3, 6], "target": [-0.5, -1, 1.5], "energy": 480, "size": 3, "color": "9AC7CB"},
+      {"name": "Furnace spill", "position": [0.8, 1.4, 2.4], "target": [-0.6, -1, 1.5], "energy": 380, "size": 2, "color": "FF5731"}
+    ],
+    "postprocess": {
+      "enabled": true, "radius": 5, "strength": 1.0,
+      "pigment_strength": 0.3, "pigment_scale": 35,
+      "brush_strength": 0.35, "brush_width": 7, "brush_length": 5, "brush_angle": 30,
+      "tone_steps": 8, "tone_strength": 0.85, "glow_strength": 0.45,
+      "vignette_strength": 1.0, "vignette_x": 0.3, "vignette_y": 0.48,
+      "vignette_width": 0.44, "vignette_height": 0.7
+    },
+    "outputs": [
+      {"name": "background", "size": [1280, 720], "path": "{slug}.png"}
+    ]
+  },
+  "scene": {
+    "size": [1200, 500],
+    "supersample": 1,
+    "transparent": false,
+    "camera": "PERSP",
+    "framing": "manual",
+    "camera_position": [4.5, -9, 6],
+    "camera_target": [0, 0, 0],
+    "lens": 50,
+    "world_color": "343943",
+    "border": 0,
+    "outputs": [
+      {"name": "background", "size": [1200, 500], "path": "{slug}.png"}
+    ]
+  },
+  "map_pin": {
+    "postprocess": "relic",
+    "size": [49, 64],
+    "supersample": 4,
+    "transparent": true,
+    "camera": "ORTHO",
+    "framing": "auto",
+    "padding": 0.12,
+    "border": 1,
+    "outputs": [
+      {"name": "icon", "size": [49, 64], "path": "{slug}.png"}
+    ]
+  }
+}
