@@ -422,7 +422,7 @@ without being Spoken (fizzles no longer count since the 10/6 sync), and Imbuing 
 | Ascended Toolbox | Starter | Blessed Toolbox upgraded by Orobas' Touch of Orobas (`CustomRelicModel.GetUpgradeReplacement`): whenever you play a card with "Rune" in its name (`RunePriestCard.HasRuneInName`), draw 1. Replaces the Blessed Toolbox (any Blessed Toolbox still held is removed on pickup). Was Hallowed Toolbox. |
 | Dark Tablet | Ancient (Darv) | Your [Blood] runes damage enemies and your [Mend] runes heal enemies instead of you (`ReplacePayload`; follow the target mode). |
 | Corrupted Sigil | Ancient (Vakuu, pool 2) | Upon pickup, remove every Eternal Sigil from your deck and add a Corrupted Sigil card. Always offered to the Rune Priest. |
-| Supernova | Ancient (Vakuu, pool 3) | Your [Void] runes Persist (`ModifyInscription`). Whenever one of your Voids consumes a rune, deal damage equal to that rune's value (the sum of its shown values) to ALL enemies (`IRuneListener.AfterVoided`, unpowered). Not to be confused with the Ascended Supernova card. |
+| Event Horizon | Ancient (Vakuu, pool 3) | Your [Void] runes Persist (`ModifyInscription`). Whenever one of your Voids consumes a rune, deal damage equal to that rune's value (the sum of its shown values) to ALL enemies (`IRuneListener.AfterVoided`, unpowered). Model `EventHorizon`, asset slug `event_horizon`; the Ascended Supernova card is unchanged. Old `SUPERNOVA` relic save IDs are not migrated. |
 | Eternal Candle | Ancient (Tezcatara, pool 3) | Upon pickup, add an Eternal Scroll. Rest sites offer **Etch**: remove a rune card from your deck and etch its runes onto the Scroll. |
 | Aether Inkwell | Ancient | Upon pickup, obtain an Aether Quill potion. Neow-only wrapper for the potion (see §14); Ancient rarity keeps it out of regular relic rewards. |
 
@@ -555,7 +555,7 @@ Decisions made autonomously (user unavailable; revisit on review):
 - New rune: **Sanctify** (modifier, ⊘). (Venom was added here and removed again in Phase 5.)
 - New speak variants: `Speak(..., keep: true)`, `SpeakAt(index)` (Overflow).
 - Phase 5 hooks: `ModifyInscription` (reshape a cast before it lands — Runic Form, Odd Sigil, Imbued Teacup), `AfterImbued`
-  (Paladin Sigil), `AfterRemoved` (Swift Sigil), `AfterVoided` (Supernova relic; never raised by the forecast); commands `RuneCmd.Imbue/ImbueAll/Remove/Transform`.
+  (Paladin Sigil), `AfterRemoved` (Swift Sigil), `AfterVoided` (Event Horizon relic; never raised by the forecast); commands `RuneCmd.Imbue/ImbueAll/Remove/Transform`.
 
 The Phase 4 prototype content (Chalk Line, Tight Script, Slate Tablet, Smudged/Stray Rune, …) was **removed** in Phase 5 in
 favour of the designed set in §9. The engine features above (capacity/Overflow, curse runes, Forecast, listener hooks,
@@ -595,7 +595,7 @@ relic in that slot's pool, rolled on the event's own RNG (deterministic for co-o
 | Darv | **Dusty Tome** → Mirrororrim (upgraded) | `ITomeCard` on `Mirrororrim` |
 | Darv | **Dark Tablet** (25%, replaces an old relic, never Dusty Tome) | `AncientOptionPatches.DarvOptions` |
 | Vakuu | **Corrupted Sigil** (25%, pool 2 slot) | `AncientOptionPatches.VakuuOptions` |
-| Vakuu | **Supernova** relic (25%, pool 3 slot) | `AncientOptionPatches.VakuuOptions` |
+| Vakuu | **Event Horizon** relic (25%, pool 3 slot) | `AncientOptionPatches.VakuuOptions` |
 | Tezcatara | **Eternal Candle** (20%, pool 3 slot) | `AncientOptionPatches.TezcataraOptions` |
 
 Archaic Tooth mapping (starting rune → Ascended card): Execution → Annihilation, Nova → Supernova, Hex → Curse,

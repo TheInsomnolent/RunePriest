@@ -34,6 +34,13 @@ def publish(exports: Path, destination: Path, report: dict, force: bool) -> None
         shutil.copy2(source, target)
 
 
+def save_review(exports: Path, profile: str, slug: str, destination: Path = ROOT / "reviews") -> Path:
+    target = contained_path(destination, f"{profile}/{slug}.png")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(exports / "preview.png", target)
+    return target
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build a procedural Blender asset and export its configured PNGs.")
     parser.add_argument("slug")
@@ -70,8 +77,9 @@ def main() -> None:
         if args.publish:
             publish(exports, args.publish.resolve(), report, args.force)
             print(f"Published {len(report['outputs'])} PNGs to {args.publish.resolve()}")
+        review = save_review(exports, args.profile, args.slug)
         print(f"Scene: {output / 'scene.blend'}")
-        print(f"Review: {exports / 'preview.png'}")
+        print(f"Review: {review}")
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"Asset build failed: {error}\n")
 

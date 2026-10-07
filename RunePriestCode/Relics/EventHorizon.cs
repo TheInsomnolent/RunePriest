@@ -13,7 +13,7 @@ namespace RunePriest.RunePriestCode.Relics;
 /// your Voids consumes a rune, deal damage equal to the consumed rune's value (the sum of its shown values, e.g.
 /// Strike 14 + Blood 3 = 17; valueless runes such as Loop deal nothing) to ALL enemies.
 /// </summary>
-public sealed class Supernova : RunePriestRelic, IRuneListener
+public sealed class EventHorizon : RunePriestRelic, IRuneListener
 {
     public override RelicRarity Rarity => RelicRarity.Ancient;
 

@@ -35,7 +35,24 @@ Look in `build/calibration_sigil/relic/` for:
 - `exports/`: final PNGs, `manifest.json` with sizes/alpha bounds, and `preview.png`.
 
 The review sheet displays outputs at actual pixel size over light, dark, and checkerboard
-backgrounds. `build/`, virtual environments, and Python caches are ignored by Git.
+backgrounds. Every successful render or `--export-only` run also saves it to
+`reviews/<profile>/<slug>.png`, a version-controlled location for review without Blender.
+`build/`, virtual environments, and Python caches remain ignored by Git.
+
+## Relic review pages
+
+```powershell
+./tools/asset_art/.venv/Scripts/python.exe tools/asset_art/review_relics.py --installed
+```
+
+This validates the installed relic PNGs and saves `reviews/relic/large.png`,
+`reviews/relic/small.png`, and a light/dark/checkerboard preview for each relic in the
+same folder. It works without local Blender build output; when exports are available,
+installed assets are also checked against them. Omit `--installed` to review local exports.
+
+Event Horizon uses the recipe/asset slug `event_horizon` and relic model `EventHorizon`.
+The `Supernova` card is separate and unchanged. Relic saves using the former `SUPERNOVA`
+ID are not migrated by this rename.
 
 ## Profiles and custom sizes
 

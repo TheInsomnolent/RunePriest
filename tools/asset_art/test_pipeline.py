@@ -2,12 +2,14 @@ import unittest
 import tempfile
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image, ImageChops, ImageDraw, ImageStat
 
 from pipeline import load_profile, validate_profile
 from export import color_icon, export_images
-from render import publish
+from render import publish, save_review
+from review_relics import load_icons
 
 
 class ProfileTests(unittest.TestCase):
@@ -154,6 +156,25 @@ class EventRenderTests(unittest.TestCase):
 
 
 class PublishTests(unittest.TestCase):
+    def test_review_saved_outside_build_and_refreshed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            exports = root / "build/exports"
+            exports.mkdir(parents=True)
+            source = exports / "preview.png"
+            Image.new("RGB", (12, 12), "red").save(source)
+            target = save_review(exports, "relic", "event_horizon", root / "reviews")
+            self.assertEqual(target, root / "reviews/relic/event_horizon.png")
+            self.assertEqual(target.read_bytes(), source.read_bytes())
+            Image.new("RGB", (12, 12), "blue").save(source)
+            save_review(exports, "relic", "event_horizon", root / "reviews")
+            self.assertEqual(target.read_bytes(), source.read_bytes())
+
+    def test_review_path_cannot_escape(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(ValueError):
+                save_review(Path(directory), "../../outside", "test", Path(directory) / "reviews")
+
     def test_overwrite_is_explicit_and_preflighted(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -180,6 +201,21 @@ class PublishTests(unittest.TestCase):
 
 
 class ExportTests(unittest.TestCase):
+    def test_installed_review_without_local_build(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            asset_root = root / "tools/asset_art"
+            source = Image.new("RGBA", (1024, 1024))
+            ImageDraw.Draw(source).ellipse((280, 200, 744, 824), fill=(220, 140, 40, 255))
+            source.save(root / "master.png")
+            installed = root / "RunePriest/images/relics"
+            export_images(root / "master.png", load_profile("relic", "test"), "test", installed)
+            with patch("review_relics.ROOT", asset_root):
+                images = load_icons("test", installed=True)
+            self.assertEqual([image.size for image in images], [(256, 256), (94, 94), (94, 94)])
+            for image in images:
+                image.close()
+
     def test_relic_outputs_and_outline_alignment(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
